@@ -1,0 +1,110 @@
+name: handyman_provider_flutter
+description: A new Flutter project.
+publish_to: "none"
+version: 11.14.2+99
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_mobx: ^2.3.0
+  mobx: ^2.5.0
+  easy_localization: ^3.0.8
+  # flutter_paystack temporarily removed to avoid Gradle/native plugin build failure.
+  # The app uses a local stub at 'lib/vendor/flutter_paystack_stub.dart' while
+  # we resolve the native plugin issue. Re-add the plugin after resolving.
+  cupertino_icons: ^1.0.2
+  provider: ^6.0.5
+  fluttertoast: ^8.2.1
+  nb_utils: 7.1.7+2
+  cached_network_image: ^3.4.1
+  google_fonts: ^6.2.1
+  html: ^0.15.5+1
+  http: ^1.4.0
+  intl: ^0.20.2
+  url_launcher: ^6.3.2
+  flutter_vector_icons: ^2.0.0
+  path_provider: ^2.1.5
+  dotted_border: ^3.1.0
+  #  custom_date_range_picker: ^1.1.0
+
+  #Firebase
+  firebase_core: ^3.14.0
+  firebase_crashlytics: ^4.3.7
+  firebase_auth: ^5.6.0
+  firebase_storage: ^12.4.7
+  cloud_firestore: ^5.6.9
+  firebase_pagination: ^4.1.0
+  firebase_messaging: ^15.2.10
+
+  flutter_local_notifications: ^19.4.0
+  flutter_html: ^3.0.0-beta.2
+  flutter_custom_tabs: ^2.4.0
+  syncfusion_flutter_charts: ^30.1.42
+  geocoding: ^4.0.0
+  webview_flutter: ^4.13.0
+  country_picker: ^2.0.27
+
+  #image:
+  image_picker: ^1.1.2
+  photo_view: ^0.15.0
+  file_picker: ^10.2.0
+  lottie: ^3.3.1
+  crop_image: ^1.0.16
+
+  # PAYMENTS
+  midpay:
+    git:
+      url: https://github.com/iqonic-design/midpay.git
+      ref: main
+  phonepe_payment_sdk: ^3.0.0
+  flutter_stripe: ^11.5.0
+  razorpay_flutter: ^1.4.0
+  cinetpay:
+    git:
+      url: https://github.com/iqonic-design/cinetpay.git
+      ref: main
+  flutterwave_standard:
+    git:
+      url: https://github.com/iqonic-design/flutterwave_standard.git
+      ref: main
+  flutter_paypal_checkout:
+    git:
+      url: https://github.com/iqonic-design/flutter_paypal_checkout.git
+      ref: main
+
+  #IN APP PURCHASE
+  purchases_flutter: ^9.1.0
+
+  flutter_localizations:
+    sdk: flutter
+  geolocator: ^14.0.2
+  google_maps_flutter: ^2.12.3
+  custom_map_markers: ^0.0.2+1
+  permission_handler: ^12.0.1
+  share_plus: ^11.0.0
+  syncfusion_flutter_pdfviewer: ^30.1.42
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.5.4
+  mobx_codegen: ^2.7.1
+  flutter_launcher_icons: ^0.13.1
+  # flutter packages pub run build_runner build --delete-conflicting-outputs
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/flag/
+    - assets/images/
+    - assets/icons/
+    - assets/icons/upi_payment/
+    - assets/lottie/

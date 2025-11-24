@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "686507061891",
+    "project_id": "fiksopp-bb927",
+    "storage_bucket": "fiksopp-bb927.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:686507061891:android:83aae3e96bd2ad2aace1b6",
+        "android_client_info": {
+          "package_name": "buzz.inoor.fiksopp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "686507061891-s8hi1stm2967b4nlbl2fpldfiqt145ra.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmqYLhVraIKfe8jBdT0DDTGrIydnbmQVY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "686507061891-s8hi1stm2967b4nlbl2fpldfiqt145ra.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:686507061891:android:5a46df2a296e27e5ace1b6",
+        "android_client_info": {
+          "package_name": "fiksopp.inoor.buzz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "686507061891-s8hi1stm2967b4nlbl2fpldfiqt145ra.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmqYLhVraIKfe8jBdT0DDTGrIydnbmQVY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "686507061891-s8hi1stm2967b4nlbl2fpldfiqt145ra.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
