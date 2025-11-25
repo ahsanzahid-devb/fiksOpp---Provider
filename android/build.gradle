@@ -20,12 +20,26 @@ allprojects {
     }
 }
 
+ext {
+    compileSdkVersion = 35
+    targetSdkVersion = 35
+}
+
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
-    project.evaluationDependsOn(':app')
+    afterEvaluate {
+        // Skip the app module - it has its own compileSdk setting
+        if (project.name != 'app' && it.hasProperty('android')) {
+            it.android {
+                if (namespace == null) {
+                    namespace it.group
+                }
+                // Set compileSdk to 35 for all plugins (minimum required by some dependencies)
+                compileSdk 35
+            }
+        }
+    }
 }
 
 tasks.register("clean", Delete) {

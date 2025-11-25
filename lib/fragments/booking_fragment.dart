@@ -8,7 +8,6 @@ import 'package:handyman_provider_flutter/models/booking_list_response.dart';
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:nb_utils/nb_utils.dart';
-
 import '../components/empty_error_state_widget.dart';
 import '../components/price_widget.dart';
 import '../store/filter_store.dart';
