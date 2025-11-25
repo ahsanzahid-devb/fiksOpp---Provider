@@ -10,7 +10,6 @@ import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:nb_utils/nb_utils.dart';
 import '../components/empty_error_state_widget.dart';
 import '../components/price_widget.dart';
-import '../store/filter_store.dart';
 import '../utils/colors.dart';
 import '../utils/configs.dart';
 import 'components/total_earnings_components.dart';
@@ -48,7 +47,6 @@ class BookingFragmentState extends State<BookingFragment>
     super.initState();
     selectedBookingStatus = BOOKING_PAYMENT_STATUS_ALL;
     init();
-    filterStore = FilterStore();
 
     LiveStream().on(LIVESTREAM_UPDATE_BOOKING_STATUS_WISE, (data) {
       if (data is String && data.isNotEmpty) {
@@ -197,7 +195,9 @@ class BookingFragmentState extends State<BookingFragment>
                                 ],
                               ),
                               PriceWidget(
-                                  price: totalEarnings.toDouble(),
+                                  price: totalEarnings.validate().isNotEmpty 
+                                      ? totalEarnings.toDouble() 
+                                      : 0.0,
                                   color: primaryColor),
                             ],
                           ),

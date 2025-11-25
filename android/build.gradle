@@ -21,8 +21,8 @@ allprojects {
 }
 
 ext {
-    compileSdkVersion = 35
-    targetSdkVersion = 35
+    compileSdkVersion = 36
+    targetSdkVersion = 36
 }
 
 rootProject.buildDir = '../build'
@@ -35,8 +35,8 @@ subprojects {
                 if (namespace == null) {
                     namespace it.group
                 }
-                // Set compileSdk to 35 for all plugins (minimum required by some dependencies)
-                compileSdk 35
+                // Set compileSdk to 36 for all plugins (required for API 35 features like BAKLAVA)
+                compileSdk 36
             }
         }
     }

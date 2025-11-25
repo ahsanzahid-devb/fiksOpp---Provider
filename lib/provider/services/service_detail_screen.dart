@@ -304,7 +304,12 @@ class ServiceDetailScreenState extends State<ServiceDetailScreen> {
         snap,
         loadingWidget: ServiceDetailShimmer(),
         errorWidget: NoDataWidget(
-          title: snap.error.toString(),
+          title: snap.error.toString().contains('Record not found') || snap.error.toString().contains('not found')
+              ? languages.noServiceFound
+              : snap.error.toString(),
+          subTitle: snap.error.toString().contains('Record not found') || snap.error.toString().contains('not found')
+              ? 'The service you are looking for does not exist or has been removed.'
+              : null,
           imageWidget: ErrorStateWidget(),
           retryText: languages.reload,
           onRetry: () {

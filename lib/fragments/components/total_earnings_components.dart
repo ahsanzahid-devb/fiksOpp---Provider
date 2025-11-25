@@ -32,7 +32,12 @@ class TotalAmountsComponent extends StatelessWidget {
                   children: [
                     Text(languages.totalAmount, style: boldTextStyle()),
                     16.width,
-                    PriceWidget(price: totalEarning.toDouble(), color: primaryColor),
+                    PriceWidget(
+                      price: totalEarning.validate().isNotEmpty 
+                          ? totalEarning.toDouble() 
+                          : 0.0, 
+                      color: primaryColor
+                    ),
                   ],
                 ),
               ],
@@ -51,7 +56,13 @@ class TotalAmountsComponent extends StatelessWidget {
                 children: [
                   Text(languages.provider, style: boldTextStyle(size: 12)).expand(),
                   4.width,
-                  PriceWidget(price: paymentBreakdown.providerEarned.toDouble(), color: darkOrange, size: 14),
+                  PriceWidget(
+                    price: paymentBreakdown.providerEarned.validate().isNotEmpty 
+                        ? paymentBreakdown.providerEarned.toDouble() 
+                        : 0.0, 
+                    color: darkOrange, 
+                    size: 14
+                  ),
                 ],
               ),
             ).paddingOnly(bottom: 16),
@@ -64,7 +75,13 @@ class TotalAmountsComponent extends StatelessWidget {
               children: [
                 Text(languages.handyman, style: boldTextStyle(size: 12)).expand(),
                 4.width,
-                PriceWidget(price: paymentBreakdown.handymanEarned.toDouble(), color: royalBlue, size: 14),
+                PriceWidget(
+                  price: paymentBreakdown.handymanEarned.validate().isNotEmpty 
+                      ? paymentBreakdown.handymanEarned.toDouble() 
+                      : 0.0, 
+                  color: royalBlue, 
+                  size: 14
+                ),
               ],
             ),
           ),
@@ -78,7 +95,13 @@ class TotalAmountsComponent extends StatelessWidget {
               children: [
                 Text(languages.taxAmount, style: boldTextStyle(size: 12)).expand(),
                 16.width,
-                PriceWidget(price: paymentBreakdown.tax.toDouble(), color: redColor, size: 14),
+                PriceWidget(
+                  price: paymentBreakdown.tax.validate().isNotEmpty 
+                      ? paymentBreakdown.tax.toDouble() 
+                      : 0.0, 
+                  color: redColor, 
+                  size: 14
+                ),
               ],
             ),
           ),
@@ -92,7 +115,13 @@ class TotalAmountsComponent extends StatelessWidget {
               children: [
                 Text(languages.hintDiscount, style: boldTextStyle(size: 12)).expand(),
                 16.width,
-                PriceWidget(price: paymentBreakdown.discount.toDouble(), color: greenColor, size: 14),
+                PriceWidget(
+                  price: paymentBreakdown.discount.validate().isNotEmpty 
+                      ? paymentBreakdown.discount.toDouble() 
+                      : 0.0, 
+                  color: greenColor, 
+                  size: 14
+                ),
               ],
             ),
           ),

@@ -15,7 +15,9 @@ import 'package:handyman_provider_flutter/utils/extensions/string_extension.dart
 import 'package:handyman_provider_flutter/utils/images.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/job_list_screen.dart';
+import 'package:handyman_provider_flutter/provider/services/add_services.dart';
 import '../booking_filter/booking_filter_screen.dart';
+import '../booking_filter/components/filter_service_list_component.dart';
 import '../components/image_border_component.dart';
 
 class ProviderDashboardScreen extends StatefulWidget {
@@ -34,6 +36,84 @@ class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
 
   bool get isCurrentFragmentIsBooking =>
       getFragments()[currentIndex].runtimeType == BookingFragment().runtimeType;
+
+  bool get isCurrentFragmentIsJobRequest =>
+      getFragments()[currentIndex].runtimeType == JobListScreen().runtimeType;
+
+  void _showJobRequestServiceFilter() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+       barrierColor:  Colors.transparent,
+
+      builder: (context) => Container(
+        height: context.height() * 0.8,
+        decoration: boxDecorationWithRoundedCorners(
+          backgroundColor: context.scaffoldBackgroundColor,
+          borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: boxDecorationWithRoundedCorners(
+                backgroundColor: context.cardColor,
+                borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
+              ),
+              child: Row(
+                children: [
+                  Text(languages.selectService, style: boldTextStyle(size: 18)).expand(),
+                  IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () => finish(context),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: FilterServiceListComponent(),
+            ),
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: boxDecorationWithRoundedCorners(
+                backgroundColor: context.cardColor,
+              ),
+              child: Row(
+                children: [
+                  AppButton(
+                    text: languages.hintAddService,
+                    textColor: Colors.white,
+                    color: context.primaryColor,
+                    onTap: () {
+                      finish(context);
+                      AddServices().launch(context).then((value) {
+                        if (value == true) {
+                          // Refresh job list if needed
+                          LiveStream().emit(LIVESTREAM_UPDATE_BOOKINGS);
+                        }
+                      });
+                    },
+                  ).expand(),
+                  16.width,
+                  AppButton(
+                    text: languages.apply,
+                    textColor: Colors.white,
+                    color: context.primaryColor,
+                    onTap: () {
+                      finish(context);
+                      // Apply filter and refresh job request list
+                      LiveStream().emit(LIVESTREAM_UPDATE_BOOKINGS);
+                      setState(() {});
+                    },
+                  ).expand(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -193,6 +273,13 @@ class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                             ),
                         ],
                       );
+                    },
+                  ),
+                if (isCurrentFragmentIsJobRequest)
+                  IconButton(
+                    icon: ic_filter.iconImage(color: white, size: 20),
+                    onPressed: () {
+                      _showJobRequestServiceFilter();
                     },
                   ),
               ],

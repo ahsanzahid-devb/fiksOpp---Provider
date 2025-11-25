@@ -147,20 +147,21 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
                   ),
               ],
             ).expand(),
-            if (showContactWidgets) ...[
-              GestureDetector(
-                onTap: () {
-                  String phoneNumber = "";
-                  if (widget.handymanData != null && widget.handymanData!.contactNumber.validate().contains('+')) {
-                    phoneNumber = "${contactNumber.validate().replaceAll('-', '')}";
-                  } else {
-                    phoneNumber = "+${contactNumber.validate().replaceAll('-', '')}";
-                  }
-                  launchUrl(Uri.parse('${getSocialMediaLink(LinkProvider.WHATSAPP)}$phoneNumber'), mode: LaunchMode.externalApplication);
-                },
-                child: Image.asset(ic_whatsapp, height: 22),
-              ).paddingRight(8).visible(contactNumber.validate().isNotEmpty),
-            ]
+            // WhatsApp button commented out
+            // if (showContactWidgets) ...[
+            //   GestureDetector(
+            //     onTap: () {
+            //       String phoneNumber = "";
+            //       if (widget.handymanData != null && widget.handymanData!.contactNumber.validate().contains('+')) {
+            //         phoneNumber = "${contactNumber.validate().replaceAll('-', '')}";
+            //       } else {
+            //         phoneNumber = "+${contactNumber.validate().replaceAll('-', '')}";
+            //       }
+            //       launchUrl(Uri.parse('${getSocialMediaLink(LinkProvider.WHATSAPP)}$phoneNumber'), mode: LaunchMode.externalApplication);
+            //     },
+            //     child: Image.asset(ic_whatsapp, height: 22),
+            //   ).paddingRight(8).visible(contactNumber.validate().isNotEmpty),
+            // ]
           ],
         ),
         if (widget.bookingDetail!.canCustomerContact && widget.flag == 0)
@@ -214,25 +215,26 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
           16.height,
           Row(
             children: [
-              if (showContactWidgets) ...[
-                AppButton(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(calling, height: 18, width: 18),
-                      16.width,
-                      Text(languages.lblCall, style: boldTextStyle()),
-                    ],
-                  ),
-                  width: context.width(),
-                  color: context.scaffoldBackgroundColor,
-                  elevation: 0,
-                  onTap: () {
-                    launchCall(contactNumber.validate());
-                  },
-                ).expand(),
-                24.width
-              ],
+              // Call button commented out
+              // if (showContactWidgets) ...[
+              //   AppButton(
+              //     child: Row(
+              //       mainAxisAlignment: MainAxisAlignment.center,
+              //       children: [
+              //         Image.asset(calling, height: 18, width: 18),
+              //         16.width,
+              //         Text(languages.lblCall, style: boldTextStyle()),
+              //       ],
+              //     ),
+              //     width: context.width(),
+              //     color: context.scaffoldBackgroundColor,
+              //     elevation: 0,
+              //     onTap: () {
+              //       launchCall(contactNumber.validate());
+              //     },
+              //   ).expand(),
+              //   24.width
+              // ],
               AppButton(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -242,7 +244,7 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
                     Text(languages.lblChat, style: boldTextStyle(color: Colors.white)),
                   ],
                 ),
-                width: showContactWidgets ? context.width() : context.width() / 2,
+                width: context.width(), // Always full width since Call button is commented out
                 elevation: 0,
                 color: primaryColor,
                 onTap: () async {

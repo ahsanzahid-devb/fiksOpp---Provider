@@ -4,10 +4,13 @@ import 'package:handyman_provider_flutter/components/app_widgets.dart';
 import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/shimmer/job_request_shimmer.dart';
+import 'package:handyman_provider_flutter/provider/services/add_services.dart';
+import 'package:handyman_provider_flutter/utils/images.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../../components/base_scaffold_widget.dart';
 import '../../components/empty_error_state_widget.dart';
+import '../../booking_filter/components/filter_service_list_component.dart';
 import 'components/job_item_widget.dart';
 import 'models/post_job_data.dart';
 
@@ -34,6 +37,7 @@ class _JobListScreenState extends State<JobListScreen> {
       page,
       postJobList: myPostJobList,
       lastPageCallback: (val) => isLastPage = val,
+      serviceIds: filterStore.serviceId.isNotEmpty ? filterStore.serviceId : null,
     );
     setState(() {});
   }
@@ -43,10 +47,93 @@ class _JobListScreenState extends State<JobListScreen> {
     if (mounted) super.setState(fn);
   }
 
+  void _showServiceFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: context.height() * 0.8,
+        decoration: boxDecorationWithRoundedCorners(
+          backgroundColor: context.scaffoldBackgroundColor,
+          borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: boxDecorationWithRoundedCorners(
+                backgroundColor: context.cardColor,
+                borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
+              ),
+              child: Row(
+                children: [
+                  Text(languages.selectService, style: boldTextStyle(size: 18)).expand(),
+                  IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () => finish(context),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: FilterServiceListComponent(),
+            ),
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: boxDecorationWithRoundedCorners(
+                backgroundColor: context.cardColor,
+              ),
+              child: Row(
+                children: [
+                  AppButton(
+                    text: languages.hintAddService,
+                    textColor: Colors.white,
+                    color: context.primaryColor,
+                    onTap: () {
+                      finish(context);
+                      AddServices().launch(context).then((value) {
+                        if (value == true) {
+                          init();
+                          setState(() {});
+                        }
+                      });
+                    },
+                  ).expand(),
+                  16.width,
+                  AppButton(
+                    text: languages.apply,
+                    textColor: Colors.white,
+                    color: context.primaryColor,
+                    onTap: () {
+                      finish(context);
+                      // Apply filter and refresh list
+                      page = 1;
+                      init();
+                      setState(() {});
+                    },
+                  ).expand(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
       // appBarTitle: languages.jobRequestList,
+      // actions: [
+      //   IconButton(
+      //     icon: Image.asset(ic_filter, color: white, width: 22, height: 22),
+      //     onPressed: () {
+      //       _showServiceFilterBottomSheet();
+      //     },
+      //   ),
+      // ],
       body: Stack(
         children: [
           SnapHelperWidget<List<PostJobData>>(

@@ -9,6 +9,7 @@ import 'package:handyman_provider_flutter/models/user_data.dart';
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/components/bid_price_dialog.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/models/post_job_detail_response.dart';
+import 'package:handyman_provider_flutter/provider/services/service_detail_screen.dart';
 import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:handyman_provider_flutter/utils/model_keys.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -136,7 +137,11 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
                       .expand(),
                 ],
               ),
-            );
+            ).onTap(() {
+              if (data.id != null) {
+                ServiceDetailScreen(serviceId: data.id.validate()).launch(context);
+              }
+            });
           },
         ),
       ],

@@ -1547,7 +1547,9 @@ class BookingDetailScreenState extends State<BookingDetailScreen> with WidgetsBi
             return await 2.seconds.delay;
           },
           child: AppScaffold(
-            appBarTitle: snap.hasData ? snap.data!.bookingDetail!.status.validate().toBookingStatus() : "",
+            appBarTitle: snap.hasData && snap.data?.bookingDetail != null 
+                ? snap.data!.bookingDetail!.status.validate().toBookingStatus() 
+                : "",
             body: buildBodyWidget(snap),
           ),
         );

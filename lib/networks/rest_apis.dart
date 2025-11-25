@@ -1486,10 +1486,15 @@ Future<BaseResponseModel> deleteAccountCompletely() async {
 Future<List<PostJobData>> getPostJobList(int page,
     {var perPage = PER_PAGE_ITEM,
     required List<PostJobData> postJobList,
-    Function(bool)? lastPageCallback}) async {
+    Function(bool)? lastPageCallback,
+    List<int>? serviceIds}) async {
   try {
+    String url = 'get-post-job?per_page=$perPage&page=$page';
+    if (serviceIds != null && serviceIds.isNotEmpty) {
+      url += '&service_id=${serviceIds.join(',')}';
+    }
     var res = PostJobResponse.fromJson(await handleResponse(
-        await buildHttpResponse('get-post-job?per_page=$perPage&page=$page',
+        await buildHttpResponse(url,
             method: HttpMethodType.GET)));
 
     if (page == 1) {

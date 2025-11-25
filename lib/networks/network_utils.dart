@@ -93,6 +93,13 @@ Future handleResponse(Response response, {HttpResponseType httpResponseType = Ht
     throw '${languages.forbidden}';
   } else if (response.statusCode == 404) {
     throw '${languages.pageNotFound}';
+  } else if (response.statusCode == 406) {
+    // Handle "Not Acceptable" - often used for "Record not found"
+    if (httpResponseType == HttpResponseType.JSON && response.body.isJson()) {
+      var body = jsonDecode(response.body);
+      throw parseHtmlString(body['message'] ?? languages.pageNotFound);
+    }
+    throw languages.pageNotFound;
   } else if (response.statusCode == 429) {
     throw '${languages.tooManyRequests}';
   } else if (response.statusCode == 500) {
