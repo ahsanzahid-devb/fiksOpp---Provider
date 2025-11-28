@@ -44,18 +44,18 @@ class AppScaffold extends StatelessWidget {
       backgroundColor: scaffoldBackgroundColor,
       body: showLoader && isLoading != null
           ? Observer(
-              builder: (_) {
+        builder: (_) {
                 final loading = isLoading!.value;
-                return Stack(
-                  children: [
-                    AbsorbPointer(
-                      absorbing: loading,
-                      child: body,
-                    ),
+          return Stack(
+            children: [
+              AbsorbPointer(
+                absorbing: loading,
+                child: body,
+              ),
                     if (loading) LoaderWidget().center(),
-                  ],
-                );
-              },
+            ],
+          );
+        },
             )
           : body,
       bottomNavigationBar: bottomNavigationBar,

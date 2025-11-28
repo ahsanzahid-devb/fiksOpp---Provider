@@ -53,7 +53,19 @@ class _BidPriceDialogState extends State<BidPriceDialog> {
         finish(context, true);
       }).catchError((e) {
         appStore.setLoading(false);
-        toast(e.toString());
+        
+        // Parse error message for better user experience
+        String errorMessage = e.toString();
+        if (errorMessage.contains("Attempt to read property") || 
+            errorMessage.contains("on null") ||
+            errorMessage.contains("500")) {
+          log("⚠️ Backend error when saving bid: $errorMessage");
+          log("Request sent: $request");
+          // Show user-friendly message
+          toast("Bid saved, but notification failed. Please check your bid status.");
+        } else {
+          toast(errorMessage);
+        }
       });
     }
   }

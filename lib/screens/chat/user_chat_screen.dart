@@ -69,6 +69,29 @@ class _UserChatScreenState extends State<UserChatScreen> with WidgetsBindingObse
 
     senderUser = await userService.getUser(email: appStore.userEmail.validate());
 
+    // Check if trying to chat with yourself (self-chat detection)
+    final currentUserId = appStore.uid.validate();
+    final receiverUserId = widget.receiverUser.uid.validate();
+    
+    log("====================== Chat Initialization Debug ======================");
+    log("Current User ID: $currentUserId");
+    log("Current User Email: ${appStore.userEmail.validate()}");
+    log("Receiver User ID: $receiverUserId");
+    log("Receiver User Email: ${widget.receiverUser.email.validate()}");
+    log("Is Self-Chat: ${currentUserId == receiverUserId}");
+    
+    if (currentUserId == receiverUserId && currentUserId.isNotEmpty) {
+      log("⚠️ WARNING: Self-chat detected! User is trying to chat with themselves.");
+      log("This might be caused by:");
+      log("1. User clicking on their own profile/contact");
+      log("2. Data inconsistency (receiver email matches current user email)");
+      log("3. Incorrect user data being passed to UserChatScreen");
+      toast("Cannot chat with yourself");
+      // Optionally, you can prevent navigation or show a message
+      // finish(context);
+      // return;
+    }
+
     setState(() {});
 
     if (await userService.isReceiverInContacts(senderUserId: appStore.uid.validate(), receiverUserId: widget.receiverUser.uid.validate())) {
@@ -170,8 +193,6 @@ class _UserChatScreenState extends State<UserChatScreen> with WidgetsBindingObse
     data.updatedAtTime = Timestamp.now();
     data.messageType = isFile ? MessageType.Files.name : MessageType.TEXT.name;
     data.attachmentfiles = attachmentfiles;
-    // log('ChatMessageModel Data : ${data.toJson()}');
-
     messageCont.clear();
 
     if (!(await userService.isReceiverInContacts(senderUserId: appStore.uid.validate(), receiverUserId: widget.receiverUser.uid.validate()))) {
@@ -190,9 +211,10 @@ class _UserChatScreenState extends State<UserChatScreen> with WidgetsBindingObse
 
     await chatServices.addMessage(data).then((value) async {
       log("--Message Successfully Added--");
-
-      if (isReceiverOnline != 1) {
-        /// Send Notification
+            final isSelfChat = data.senderId == data.receiverId;
+      log("Is Self-Chat: $isSelfChat");
+      if (!isSelfChat && isReceiverOnline != 1) {
+        log("Sending notification to receiver");
         NotificationService()
             .sendPushNotifications(
             appStore.userFullName,
@@ -203,34 +225,35 @@ class _UserChatScreenState extends State<UserChatScreen> with WidgetsBindingObse
         ).catchError((e) {
           log("Notification Error ${e.toString()}");
         });
+      } else if (isSelfChat) {
+        log("Self-chat: Skipping notification");
       }
 
-      /// Save receiverId to Sender Doc.
-      userService.saveToContacts(senderId: appStore.uid, receiverId: widget.receiverUser.uid.validate()).then((value) => log("---ReceiverId to Sender Doc.---")).catchError((e) {
-        log(e.toString());
-      });
-
-      /// Save senderId to Receiver Doc.
-      userService.saveToContacts(senderId: widget.receiverUser.uid.validate(), receiverId: appStore.uid).then((value) => log("---SenderId to Receiver Doc.---")).catchError((e) {
-        log(e.toString());
-      });
-
-      /// ENd
+      if (isSelfChat) {
+        log("Self-chat: Saving contact only once");
+        userService.saveToContacts(senderId: appStore.uid, receiverId: widget.receiverUser.uid.validate()).then((value) => log("---Contact saved for self-chat---")).catchError((e) {
+          log(e.toString());
+        });
+      } else {
+        log("Different users: Saving to both sender and receiver contacts");
+        userService.saveToContacts(senderId: appStore.uid, receiverId: widget.receiverUser.uid.validate()).then((value) => log("---ReceiverId to Sender Doc.---")).catchError((e) {
+          log(e.toString());
+        });
+        userService.saveToContacts(senderId: widget.receiverUser.uid.validate(), receiverId: appStore.uid).then((value) => log("---SenderId to Receiver Doc.---")).catchError((e) {
+          log(e.toString());
+        });
+      }
     }).catchError((e) {
       log(e.toString());
     });
   }
 
-  //endregion
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
-
     if (state == AppLifecycleState.detached) {
       chatServices.setOnlineCount(senderId: widget.receiverUser.uid.validate(), receiverId: appStore.uid.validate(), status: 0);
     }
-
     if (state == AppLifecycleState.paused) {
       chatServices.setOnlineCount(senderId: widget.receiverUser.uid.validate(), receiverId: appStore.uid.validate(), status: 0);
     }
@@ -238,7 +261,6 @@ class _UserChatScreenState extends State<UserChatScreen> with WidgetsBindingObse
       chatServices.setOnlineCount(senderId: widget.receiverUser.uid.validate(), receiverId: appStore.uid.validate(), status: 1);
     }
   }
-
   @override
   void setState(fn) {
     if (mounted) super.setState(fn);

@@ -103,6 +103,17 @@ Future handleResponse(Response response, {HttpResponseType httpResponseType = Ht
   } else if (response.statusCode == 429) {
     throw '${languages.tooManyRequests}';
   } else if (response.statusCode == 500) {
+    // Try to extract detailed error message from response
+    if (httpResponseType == HttpResponseType.JSON && response.body.isJson()) {
+      try {
+        var body = jsonDecode(response.body);
+        if (body is Map && body.containsKey('message')) {
+          throw parseHtmlString(body['message'] ?? languages.internalServerError);
+        }
+      } catch (e) {
+        // If parsing fails, use default message
+      }
+    }
     throw '${languages.internalServerError}';
   } else if (response.statusCode == 502) {
     throw '${languages.badGateway}';

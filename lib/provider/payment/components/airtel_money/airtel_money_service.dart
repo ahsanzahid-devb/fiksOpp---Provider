@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:handyman_provider_flutter/main.dart';
@@ -7,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:uuid/uuid.dart';
-
 import '../../../../components/app_widgets.dart';
 import '../../../../components/cached_image_widget.dart';
 import '../../../../networks/network_utils.dart';
@@ -17,7 +15,6 @@ import '../../../../utils/configs.dart';
 import '../../../../utils/images.dart' hide delete;
 import 'airtel_payment_response.dart';
 import 'aritel_auth_model.dart';
-
 class AirtelMoneyDialog extends StatefulWidget {
   final String reference;
   final int bookingId;

@@ -112,6 +112,17 @@ class _HandymanWidgetState extends State<HandymanWidget> {
                             UserData? user = await userService.getUserNull(email: widget.data!.email.validate());
                             if (user != null) {
                               Fluttertoast.cancel();
+                              
+                              // Check if trying to chat with yourself
+                              if (user.uid.validate() == appStore.uid.validate() && user.uid.validate().isNotEmpty) {
+                                log("⚠️ Self-chat prevented: User trying to chat with themselves");
+                                log("Current User ID: ${appStore.uid.validate()}");
+                                log("Receiver User ID: ${user.uid.validate()}");
+                                log("Receiver Email: ${user.email.validate()}");
+                                toast("Cannot chat with yourself");
+                                return;
+                              }
+                              
                               UserChatScreen(receiverUser: user).launch(context);
                             } else {
                               Fluttertoast.cancel();

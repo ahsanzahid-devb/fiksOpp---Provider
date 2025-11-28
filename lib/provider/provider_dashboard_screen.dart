@@ -275,13 +275,7 @@ class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                       );
                     },
                   ),
-                if (isCurrentFragmentIsJobRequest)
-                  IconButton(
-                    icon: ic_filter.iconImage(color: white, size: 20),
-                    onPressed: () {
-                      _showJobRequestServiceFilter();
-                    },
-                  ),
+                
               ],
             ),
             body: fragmentList[currentIndex],

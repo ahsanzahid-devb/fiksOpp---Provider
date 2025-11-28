@@ -35,6 +35,15 @@ class _UserItemWidgetState extends State<UserItemWidget> {
           UserData data = snap.data!;
           return InkWell(
             onTap: () {
+              // Check if trying to chat with yourself
+              if (data.uid.validate() == appStore.uid.validate() && data.uid.validate().isNotEmpty) {
+                log("⚠️ Self-chat prevented: User trying to chat with themselves from chat list");
+                log("Current User ID: ${appStore.uid.validate()}");
+                log("Receiver User ID: ${data.uid.validate()}");
+                log("Receiver Email: ${data.email.validate()}");
+                toast("Cannot chat with yourself");
+                return;
+              }
               UserChatScreen(receiverUser: data).launch(context, pageRouteAnimation: PageRouteAnimation.Fade, duration: 300.milliseconds);
             },
             child: Container(

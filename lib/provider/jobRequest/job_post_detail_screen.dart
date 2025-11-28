@@ -137,8 +137,15 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
                       .expand(),
                 ],
               ),
-            ).onTap(() {
+            ).onTap(() async {
               if (data.id != null) {
+                // Check if service belongs to a different provider
+                // Services from other providers cannot be viewed via service-detail API
+                if (data.providerId != null && 
+                    data.providerId.validate() != appStore.userId.validate()) {
+                  toast(languages.noServiceFound);
+                  return;
+                }
                 ServiceDetailScreen(serviceId: data.id.validate()).launch(context);
               }
             });

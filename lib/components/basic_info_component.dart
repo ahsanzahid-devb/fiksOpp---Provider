@@ -253,6 +253,17 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
                   UserData? user = await userService.getUserNull(email: userData.email.validate());
                   if (user != null) {
                     Fluttertoast.cancel();
+                    
+                    // Check if trying to chat with yourself
+                    if (user.uid.validate() == appStore.uid.validate() && user.uid.validate().isNotEmpty) {
+                      log("⚠️ Self-chat prevented: User trying to chat with themselves");
+                      log("Current User ID: ${appStore.uid.validate()}");
+                      log("Receiver User ID: ${user.uid.validate()}");
+                      log("Receiver Email: ${user.email.validate()}");
+                      toast("Cannot chat with yourself");
+                      return;
+                    }
+                    
                     if (widget.bookingDetail != null) {
                       isChattingAllow = widget.bookingDetail!.status == BookingStatusKeys.complete || widget.bookingDetail!.status == BookingStatusKeys.cancelled;
                     }

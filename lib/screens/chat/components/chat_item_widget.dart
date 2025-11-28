@@ -86,6 +86,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 1.height,
                 Row(
                   mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: widget.chatItemData.isMe! ? MainAxisAlignment.end : MainAxisAlignment.start,
                   children: [
                     Text(
                       time,
@@ -118,6 +119,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     1.height,
                     Row(
                       mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: widget.chatItemData.isMe! ? MainAxisAlignment.end : MainAxisAlignment.start,
                       children: [
                         Text(
                           time,
@@ -188,29 +190,30 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           deleteMessage();
         }
       },
-      child: Container(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: widget.chatItemData.isMe.validate() ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-          mainAxisAlignment: widget.chatItemData.isMe! ? MainAxisAlignment.end : MainAxisAlignment.start,
-          children: [
-            Container(
-              margin: widget.chatItemData.isMe.validate()
-                  ? EdgeInsets.only(top: 0.0, bottom: 0.0, left: isRTL ? 0 : context.width() * 0.25, right: 8)
-                  : EdgeInsets.only(top: 2.0, bottom: 2.0, left: 8, right: isRTL ? 0 : context.width() * 0.25),
-              padding: customPadding(widget.chatItemData.messageType),
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(color: gray, blurRadius: 0.1, spreadRadius: 0.2), //BoxShadow
-                ],
-                color: widget.chatItemData.isMe.validate() ? primaryColor : context.cardColor,
-                borderRadius: widget.chatItemData.isMe.validate() ? radiusOnly(bottomLeft: 12, topLeft: 12, bottomRight: 0, topRight: 12) : radiusOnly(bottomLeft: 0, topLeft: 12, bottomRight: 12, topRight: 12),
-              ),
-              child: chatItem(widget.chatItemData.messageType ?? ""),
-            ),
-          ],
+      child: Align(
+        alignment: widget.chatItemData.isMe.validate() ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: context.width() * 0.75,
+          ),
+          margin: EdgeInsets.only(
+            top: 2.0,
+            bottom: 2.0,
+            left: widget.chatItemData.isMe.validate() ? (isRTL ? 0 : 50) : 8,
+            right: widget.chatItemData.isMe.validate() ? 8 : (isRTL ? 0 : 50),
+          ),
+          padding: customPadding(widget.chatItemData.messageType),
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(color: gray, blurRadius: 0.1, spreadRadius: 0.2),
+            ],
+            color: widget.chatItemData.isMe.validate() ? primaryColor : context.cardColor,
+            borderRadius: widget.chatItemData.isMe.validate() 
+                ? radiusOnly(bottomLeft: 12, topLeft: 12, bottomRight: 0, topRight: 12) 
+                : radiusOnly(bottomLeft: 0, topLeft: 12, bottomRight: 12, topRight: 12),
+          ),
+          child: chatItem(widget.chatItemData.messageType ?? ""),
         ),
-        margin: EdgeInsets.only(top: 2, bottom: 2),
       ),
     );
   }

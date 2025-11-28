@@ -308,7 +308,7 @@ class ServiceDetailScreenState extends State<ServiceDetailScreen> {
               ? languages.noServiceFound
               : snap.error.toString(),
           subTitle: snap.error.toString().contains('Record not found') || snap.error.toString().contains('not found')
-              ? 'The service you are looking for does not exist or has been removed.'
+              ? 'This service detail is not available. The service may have been removed, or you may not have permission to view it.'
               : null,
           imageWidget: ErrorStateWidget(),
           retryText: languages.reload,
