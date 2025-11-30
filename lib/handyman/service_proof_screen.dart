@@ -15,7 +15,6 @@ import 'package:handyman_provider_flutter/utils/model_keys.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nb_utils/nb_utils.dart';
-
 import '../components/chat_gpt_loder.dart';
 import '../utils/colors.dart';
 import '../utils/getImage.dart';

@@ -58,10 +58,18 @@ android {
 
     signingConfigs {
         release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-            storePassword keystoreProperties['storePassword']
+            if (keystorePropertiesFile.exists()) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                def keystorePath = keystoreProperties['storeFile']
+                if (keystorePath != null) {
+                    // Resolve path relative to app directory (where build.gradle is located)
+                    storeFile keystorePath.startsWith('/') || keystorePath.contains(':') 
+                        ? file(keystorePath) 
+                        : file("${projectDir}/${keystorePath}")
+                }
+                storePassword keystoreProperties['storePassword']
+            }
         }
     }
 
@@ -76,7 +84,7 @@ android {
         release {
             shrinkResources false
             minifyEnabled false
-            signingConfig signingConfigs.release
+            signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
