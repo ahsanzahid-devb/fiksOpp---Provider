@@ -1,7 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison
 
 import 'dart:async';
-
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -43,13 +43,16 @@ import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:handyman_provider_flutter/utils/extensions/color_extension.dart';
 import 'package:handyman_provider_flutter/utils/extensions/string_extension.dart';
 import 'package:handyman_provider_flutter/utils/model_keys.dart';
+import 'package:handyman_provider_flutter/utils/getImage.dart';
 import 'package:intl/intl.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:permission_handler_platform_interface/permission_handler_platform_interface.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../components/base_scaffold_widget.dart';
 import '../components/empty_error_state_widget.dart';
+import '../components/add_reasons_component.dart';
 import '../models/update_location_response.dart';
 import '../provider/services/addons/component/service_addons_component.dart';
 import '../utils/images.dart';
@@ -78,6 +81,9 @@ class BookingDetailScreenState extends State<BookingDetailScreen> with WidgetsBi
 
   bool? confirmPaymentBtn = false;
   bool isCompleted = false;
+
+  /// Before-job image file captured/selected when provider starts the job.
+  File? _beforeJobImageFile;
   bool showBottomActionBar = false;
   UpdateLocationResponse? handymanLocation;
   BitmapDescriptor? customIcon;
@@ -213,7 +219,7 @@ class BookingDetailScreenState extends State<BookingDetailScreen> with WidgetsBi
     } else if (updatedStatus == BookingStatusKeys.rejected || updatedStatus == BookingStatusKeys.cancelled) {
       startDateTime = bookDetail.bookingDetail!.startAt.validate().isNotEmpty ? bookDetail.bookingDetail!.startAt.validate() : bookDetail.bookingDetail!.date.validate();
       endDateTime = DateFormat(BOOKING_SAVE_FORMAT).format(now);
-      timeInterval = bookDetail.bookingDetail!.durationDiff.toString();
+      timeInterval = bookDetail.bookingDetail!.durationDiff.validate().isEmptyOrNull ? "0" : bookDetail.bookingDetail!.durationDiff.validate();
       paymentStatus = bookDetail.bookingDetail!.isAdvancePaymentDone ? SERVICE_PAYMENT_STATUS_ADVANCE_PAID : bookDetail.bookingDetail!.paymentStatus.validate();
       //
     } else {
@@ -617,6 +623,7 @@ class BookingDetailScreenState extends State<BookingDetailScreen> with WidgetsBi
                         context: context,
                         isScrollControlled: true,
                         isDismissible: true,
+                        enableDrag: true,
                         shape: RoundedRectangleBorder(borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius)),
                         builder: (_) {
                           return DraggableScrollableSheet(
@@ -631,7 +638,9 @@ class BookingDetailScreenState extends State<BookingDetailScreen> with WidgetsBi
                             },
                           );
                         },
-                      );
+                      ).then((_) {
+                        // Ensure any pending operations are cleared after sheet is dismissed
+                      });
                   },
                   child: Text(
                     languages.viewStatus,
@@ -1049,8 +1058,9 @@ class BookingDetailScreenState extends State<BookingDetailScreen> with WidgetsBi
         child: Row(
           children: [
             AppButton(
-              text: res.service!.isOnlineService.validate() ? languages.start : languages.lblStartDrive,
-              color: startDriveButtonColor,
+              text: res.service!.isOnlineService.validate() ? languages.lblStartDrive : languages.lblStartDrive,
+              color: context.primaryColor,
+              textColor: white,
               onTap: () {
                 showConfirmDialogCustom(
                   context,
@@ -1137,8 +1147,67 @@ class BookingDetailScreenState extends State<BookingDetailScreen> with WidgetsBi
       );
     } else if (res.bookingDetail!.status == BookingStatusKeys.onGoing) {
       showBottomActionBar = true;
-
-      return Text(languages.lblWaitingForResponse, style: boldTextStyle()).center();
+      
+      // START BUTTON - Provider can start service when status is on_going
+      return AppButton(
+        text: "Start Job",
+        textColor: Colors.white,
+        color: context.primaryColor
+,        onTap: () {
+          _handleStartClick(status: res);
+        },
+      );
+    } else if (res.bookingDetail!.status == BookingStatusKeys.inProgress) {
+      showBottomActionBar = true;
+      
+      // HOLD and DONE BUTTONS - Provider can hold or complete service when status is in_progress
+      return Row(
+        children: [
+          if (!res.service!.isOnlineService.validate())
+            AppButton(
+              text: languages.lblHold,
+              textColor: Colors.white,
+              color: hold,
+              onTap: () {
+                _handleHoldClick(status: res);
+              },
+            ).expand(),
+          if (!res.service!.isOnlineService.validate()) 16.width,
+          AppButton(
+            text: languages.done,
+            textColor: Colors.white,
+            color: primaryColor,
+            onTap: () {
+              _handleDoneClick(status: res);
+            },
+          ).expand(),
+        ],
+      );
+    } else if (res.bookingDetail!.status == BookingStatusKeys.hold) {
+      showBottomActionBar = true;
+      
+      // RESUME and CANCEL BUTTONS - Provider can resume or cancel when status is hold
+      return Row(
+        children: [
+          AppButton(
+            text: languages.lblResume,
+            textColor: Colors.white,
+            color: primaryColor,
+            onTap: () {
+              _handleResumeClick(status: res);
+            },
+          ).expand(),
+          16.width,
+          AppButton(
+            text: languages.lblCancel,
+            textColor: Colors.white,
+            color: cancelled,
+            onTap: () {
+              _handleCancelClick(status: res);
+            },
+          ).expand(),
+        ],
+      );
     } else if (res.bookingDetail!.status == BookingStatusKeys.complete) {
       if (res.bookingDetail!.paymentMethod == PAYMENT_METHOD_COD && res.bookingDetail!.paymentStatus == PENDING) {
         showBottomActionBar = true;
@@ -1151,7 +1220,17 @@ class BookingDetailScreenState extends State<BookingDetailScreen> with WidgetsBi
                   confirmationRequestDialog(context, BookingStatusKeys.complete, res);
                 },
               );
-      } else if (res.bookingDetail!.paymentStatus == PAID || res.bookingDetail!.paymentStatus == PENDING_BY_ADMINS) {
+      } else {
+        // Show Service Proof button only if service proof hasn't been submitted yet
+        // Check if serviceProof list exists and has items
+        bool hasServiceProof = res.serviceProof != null && res.serviceProof!.isNotEmpty;
+        
+        if (hasServiceProof) {
+          // Service proof already submitted - hide the button
+          return Offstage();
+        }
+        
+        // Show Service Proof button for complete bookings without service proof
         showBottomActionBar = true;
         return AppButton(
           text: languages.lblServiceProof,
@@ -1170,6 +1249,340 @@ class BookingDetailScreenState extends State<BookingDetailScreen> with WidgetsBi
     }
     return Offstage();
   }
+
+  //region Provider Booking Flow Handlers
+
+  /// START SERVICE - When status is onGoing, show image picker and then move to inProgress.
+  void _handleStartClick({required BookingDetailResponse status}) {
+    _beforeJobImageFile = null;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      barrierColor: Colors.transparent,
+      backgroundColor: context.scaffoldBackgroundColor,
+      shape: RoundedRectangleBorder(borderRadius: radiusOnly(topLeft: 16, topRight: 16)),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setModalState) {
+            return Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + MediaQuery.of(ctx).viewInsets.bottom),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(languages.lblStart, style: boldTextStyle(size: 18)),
+                  8.height,
+                  Text(
+                    languages.noteYouCanUpload,
+                    style: secondaryTextStyle(),
+                  ),
+                  16.height,
+                  SizedBox(
+                    width: context.width(),
+                    child: Column(
+                      children: [
+                        DottedBorderWidget(
+                          color: primaryColor.withValues(alpha: 0.6),
+                          strokeWidth: 1,
+                          padding: EdgeInsets.all(16),
+                          radius: defaultRadius,
+                          child: _beforeJobImageFile != null
+                              ? ClipRRect(
+                                  borderRadius: radius(12),
+                                  child: Image.file(
+                                    _beforeJobImageFile!,
+                                    height: 180,
+                                    width: context.width(),
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.file_upload_outlined, size: 30, color: context.iconColor),
+                                    8.height,
+                                    Text(languages.uploadMedia, style: boldTextStyle()),
+                                  ],
+                                ).center().onTap(() async {
+                                    _showImgPickBottomSheet(ctx, setModalState);
+                                  }, highlightColor: Colors.transparent, splashColor: Colors.transparent),
+                        ),
+                        16.height,
+                        Text(languages.serviceProofMediaUploadNote, style: secondaryTextStyle()),
+                      ],
+                    ),
+                  ),
+                  24.height,
+                  AppButton(
+                    width: context.width(),
+                    text: languages.confirm,
+                    textColor: Colors.white,
+                    color: context.primaryColor,
+                    onTap: _beforeJobImageFile == null
+                        ? null
+                        : () async {
+                            if (_beforeJobImageFile == null) return;
+                            appStore.setLoading(true);
+                            try {
+                              final int bookingId = status.bookingDetail!.id.validate();
+                              
+                              // Upload before-job image to API
+                              final String imageUrl = await uploadBeforeJobImage(
+                                bookingId: bookingId,
+                                imageFile: _beforeJobImageFile!,
+                              );
+                              log('✅ Before-job image uploaded successfully: $imageUrl');
+
+                              // Move booking to inProgress with the uploaded image URL
+                              DateTime now = DateTime.now();
+                              startDateTime = DateFormat(BOOKING_SAVE_FORMAT).format(now);
+                              endDateTime = status.bookingDetail!.endAt.validate();
+                              timeInterval = status.bookingDetail!.durationDiff.validate().isEmptyOrNull
+                                  ? "0"
+                                  : status.bookingDetail!.durationDiff.validate();
+                              paymentStatus = status.bookingDetail!.isAdvancePaymentDone
+                                  ? SERVICE_PAYMENT_STATUS_ADVANCE_PAID
+                                  : status.bookingDetail!.paymentStatus.validate();
+
+                              var request = {
+                                CommonKeys.id: bookingId,
+                                BookingUpdateKeys.startAt: startDateTime,
+                                BookingUpdateKeys.endAt: endDateTime,
+                                BookingUpdateKeys.durationDiff: timeInterval,
+                                BookingUpdateKeys.reason: '',
+                                BookingUpdateKeys.status: BookingStatusKeys.inProgress,
+                                BookingUpdateKeys.paymentStatus: paymentStatus,
+                                'before_image': imageUrl, // Match API field name
+                              };
+
+                              await bookingUpdate(request).then((res) async {
+                                appStore.setLoading(false);
+                                finish(ctx);
+                                init(flag: true);
+                                setState(() {});
+                              }).catchError((e) {
+                                appStore.setLoading(false);
+                                toast(e.toString(), print: true);
+                              });
+                            } catch (e) {
+                              appStore.setLoading(false);
+                              toast(e.toString(), print: true);
+                            }
+                          },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showImgPickBottomSheet(BuildContext context, StateSetter setModalState) {
+    showModalBottomSheet<void>(
+      barrierColor: Colors.transparent,
+      backgroundColor: context.cardColor,
+      context: context,
+      builder: (BuildContext context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            SettingItemWidget(
+              title: languages.lblGallery,
+              leading: Icon(Icons.image, color: context.iconColor),
+              onTap: () async {
+                finish(context);
+                GetImage(ImageSource.gallery, path: (path, name, xFile) async {
+                  log('Path gallery : ${path.toString()} name $name');
+                  _beforeJobImageFile = File(path);
+                  setModalState(() {});
+                });
+              },
+            ),
+            SettingItemWidget(
+              title: languages.camera,
+              leading: Icon(Icons.camera, color: context.iconColor),
+              onTap: () {
+                finish(context);
+                GetImage(ImageSource.camera, path: (path, name, xFile) async {
+                  log('Path camera : ${path.toString()} name $name');
+                  _beforeJobImageFile = File(path);
+                  setModalState(() {});
+                });
+              },
+            ),
+          ],
+        ).paddingAll(16.0);
+      },
+    );
+  }
+
+  // HOLD SERVICE - When status is inProgress, change to hold
+  void _handleHoldClick({required BookingDetailResponse status}) {
+    if (status.bookingDetail!.status == BookingStatusKeys.inProgress) {
+      showInDialog(
+        context,
+        contentPadding: EdgeInsets.zero,
+        backgroundColor: context.scaffoldBackgroundColor,
+        builder: (context) {
+          return AppCommonDialog(
+            title: languages.confirmationRequestTxt,
+            child: AddReasonsComponent(),
+          );
+        },
+      ).then((value) async {
+        if (value != null && value.toString().isNotEmpty) {
+          appStore.setLoading(true);
+          updateBooking(status, value.toString(), BookingStatusKeys.hold);
+        }
+      });
+    }
+  }
+
+  // RESUME SERVICE - When status is hold, change back to inProgress
+  void _handleResumeClick({required BookingDetailResponse status}) {
+    showConfirmDialogCustom(
+      context,
+      dialogType: DialogType.CONFIRMATION,
+      primaryColor: context.primaryColor,
+      negativeText: languages.lblNo,
+      positiveText: languages.lblYes,
+      title: languages.confirmationRequestTxt,
+      onAccept: (c) async {
+        appStore.setLoading(true);
+        DateTime now = DateTime.now();
+        String? currentDateTime = DateFormat(BOOKING_SAVE_FORMAT).format(now);
+        
+        // Calculate duration difference for resume
+        String? startAt = status.bookingDetail!.startAt.validate();
+        if (startAt.isEmpty) {
+          startAt = currentDateTime;
+        }
+        
+        var request = {
+          CommonKeys.id: status.bookingDetail!.id.validate(),
+          BookingUpdateKeys.startAt: startAt,
+          BookingUpdateKeys.endAt: status.bookingDetail!.endAt.validate(),
+          BookingUpdateKeys.durationDiff: status.bookingDetail!.durationDiff.validate(),
+          BookingUpdateKeys.reason: '',
+          BookingUpdateKeys.status: BookingStatusKeys.inProgress,
+          BookingUpdateKeys.paymentStatus: status.bookingDetail!.isAdvancePaymentDone 
+              ? SERVICE_PAYMENT_STATUS_ADVANCE_PAID 
+              : status.bookingDetail!.paymentStatus.validate(),
+        };
+
+        await bookingUpdate(request).then((res) async {
+          toast(res.message!);
+          appStore.setLoading(false);
+          init(flag: true);
+          setState(() {});
+        }).catchError((e) {
+          appStore.setLoading(false);
+          toast(e.toString(), print: true);
+        });
+      },
+    );
+  }
+
+  // DONE SERVICE - When status is inProgress, change to pendingApproval
+  void _handleDoneClick({required BookingDetailResponse status}) {
+    bool isAnyServiceAddonUnCompleted = status.bookingDetail!.serviceaddon
+        .validate()
+        .any((element) => element.status.getBoolInt() == false);
+
+    showConfirmDialogCustom(
+      context,
+      negativeText: languages.lblNo,
+      dialogType: DialogType.CONFIRMATION,
+      primaryColor: context.primaryColor,
+      title: isAnyServiceAddonUnCompleted
+          ? languages.confirmationRequestTxt
+          : languages.confirmationRequestTxt,
+      subTitle: isAnyServiceAddonUnCompleted
+          ? languages.pleaseNoteThatAllServiceMarkedCompleted
+          : null,
+      positiveText: languages.lblYes,
+      onAccept: (c) async {
+        String endDateTime = DateFormat(BOOKING_SAVE_FORMAT).format(DateTime.now());
+        num durationDiff = 0;
+        
+        if (status.bookingDetail!.startAt.validate().isNotEmpty) {
+          durationDiff = DateTime.parse(endDateTime.validate())
+              .difference(DateTime.parse(status.bookingDetail!.startAt.validate()))
+              .inSeconds;
+        }
+        
+        Map request = {
+          CommonKeys.id: status.bookingDetail!.id.validate(),
+          BookingUpdateKeys.startAt: status.bookingDetail!.startAt.validate().isNotEmpty 
+              ? status.bookingDetail!.startAt.validate() 
+              : endDateTime,
+          BookingUpdateKeys.endAt: endDateTime,
+          BookingUpdateKeys.durationDiff: durationDiff.toString(),
+          BookingUpdateKeys.reason: '',
+          BookingUpdateKeys.status: BookingStatusKeys.pendingApproval,
+          BookingUpdateKeys.paymentStatus: status.bookingDetail!.isAdvancePaymentDone
+              ? SERVICE_PAYMENT_STATUS_ADVANCE_PAID
+              : status.bookingDetail!.paymentStatus.validate(),
+        };
+
+        // Complete all service addons
+        if (status.bookingDetail!.serviceaddon.validate().isNotEmpty) {
+          request.putIfAbsent(
+            'service_addon',
+            () => status.bookingDetail!.serviceaddon
+                .validate()
+                .map((e) => e.id)
+                .toList(),
+          );
+        }
+
+        // Recalculate for hourly services
+        if (status.bookingDetail!.isHourlyService) {
+          // For hourly services, use the calculated duration
+          var diff = DateTime.parse(endDateTime.validate())
+              .difference(DateTime.parse(status.bookingDetail!.startAt.validate()))
+              .inSeconds;
+          request[BookingUpdateKeys.durationDiff] = diff.toString();
+        }
+
+        appStore.setLoading(true);
+        await bookingUpdate(request).then((res) async {
+          toast(res.message!);
+          appStore.setLoading(false);
+          init(flag: true);
+          setState(() {});
+        }).catchError((e) {
+          appStore.setLoading(false);
+          toast(e.toString(), print: true);
+        });
+      },
+    );
+  }
+
+  // CANCEL SERVICE - Provider can cancel when status is hold
+  void _handleCancelClick({required BookingDetailResponse status}) {
+    showInDialog(
+      context,
+      contentPadding: EdgeInsets.zero,
+      builder: (context) {
+        return AppCommonDialog(
+          title: languages.lblReasonCancelling,
+          child: AddReasonsComponent(),
+        );
+      },
+    ).then((value) {
+      if (value != null && value.toString().isNotEmpty) {
+        appStore.setLoading(true);
+        updateBooking(status, value.toString(), BookingStatusKeys.cancelled);
+      }
+    });
+  }
+  
+  //endregion
 
   Widget extraChargesWidget({required List<ExtraChargesModel> extraChargesList, required BookingDetailResponse res}) {
     return Column(
@@ -1510,7 +1923,14 @@ class BookingDetailScreenState extends State<BookingDetailScreen> with WidgetsBi
                   width: context.width(),
                   decoration: BoxDecoration(color: context.cardColor),
                   child: _action(res: res.data!),
-                  padding: showBottomActionBar ? EdgeInsets.all(16) : EdgeInsets.zero,
+                  padding: showBottomActionBar 
+                      ? EdgeInsets.only(
+                          left: 16,
+                          right: 16,
+                          top: 16,
+                          bottom: 16 + MediaQuery.of(context).padding.bottom,
+                        )
+                      : EdgeInsets.zero,
                 ),
               )
             ],

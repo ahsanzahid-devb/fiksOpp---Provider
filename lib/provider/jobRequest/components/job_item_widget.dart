@@ -3,12 +3,9 @@ import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/extensions/color_extension.dart';
 import 'package:handyman_provider_flutter/utils/extensions/string_extension.dart';
 import 'package:nb_utils/nb_utils.dart';
-
 import '../../../components/cached_image_widget.dart';
-import '../../../components/price_widget.dart';
 import '../job_post_detail_screen.dart';
 import '../models/post_job_data.dart';
-
 class JobItemWidget extends StatelessWidget {
   final PostJobData? data;
 

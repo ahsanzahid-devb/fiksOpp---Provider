@@ -4,9 +4,7 @@ import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/models/booking_detail_response.dart';
 import 'package:handyman_provider_flutter/utils/configs.dart';
 import 'package:nb_utils/nb_utils.dart';
-
 import '../utils/constant.dart';
-
 class BookingHistoryBottomSheet extends StatelessWidget {
   final List<BookingActivity> data;
   final ScrollController? scrollController;
@@ -21,13 +19,12 @@ class BookingHistoryBottomSheet extends StatelessWidget {
         borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
       ),
       padding: EdgeInsets.all(16),
-      child: AnimatedScrollView(
+      child: SingleChildScrollView(
         controller: scrollController,
-        listAnimationType: ListAnimationType.FadeIn,
-        fadeInConfiguration: FadeInConfiguration(duration: 2.seconds),
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-        children: [
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
           Row(
             children: [
               Text(languages.bookingStatus, style: boldTextStyle(size: LABEL_TEXT_SIZE)).expand(),
@@ -75,7 +72,8 @@ class BookingHistoryBottomSheet extends StatelessWidget {
               ),
             ),
           if (data.isEmpty) Text(languages.noDataFound),
-        ],
+          ],
+        ),
       ),
     );
   }

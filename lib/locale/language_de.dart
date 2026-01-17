@@ -1659,6 +1659,42 @@ class LanguageDe extends Languages {
   String get start => 'Start';
 
   @override
+  String get lblStart => 'Start';
+
+  @override
+  String get lblHold => 'Halten';
+
+  @override
+  String get lblResume => 'Fortsetzen';
+
+  @override
+  String get lblConFirmResumeService => 'Sind Sie sicher, dass Sie den Service fortsetzen möchten?';
+
+  @override
+  String get lblConfirmService => 'Service bestätigen';
+
+  @override
+  String get lblEndServicesMsg => 'Sind Sie sicher, dass Sie den Service beenden möchten?';
+
+  @override
+  String get waitingForProviderToStart => 'Warten darauf, dass der Anbieter den Service startet';
+
+  @override
+  String get serviceInProgress => 'Service läuft';
+
+  @override
+  String get serviceOnHold => 'Service ist derzeit pausiert';
+
+  @override
+  String get lblAcceptBooking => 'Buchung akzeptieren';
+
+  @override
+  String get lblRejectReason => 'Ablehnungsgrund';
+
+  @override
+  String get lblApproveBooking => 'Buchung genehmigen';
+
+  @override
   String get digitalService => 'Digitaler Dienst';
 
   @override
@@ -2227,6 +2263,15 @@ class LanguageDe extends Languages {
 
   @override
   String get uploadMedia => 'Medien hochladen';
+
+  @override
+  String get lblBeforeJobImage => 'Bild vor dem Auftrag';
+
+  @override
+  String get lblAfterJobDescription => 'Beschreibung nach dem Auftrag';
+
+  @override
+  String get lblAfterJobImage => 'Bild nach dem Auftrag';
 
   @override
   String get viewStatus => 'Status anzeigen';

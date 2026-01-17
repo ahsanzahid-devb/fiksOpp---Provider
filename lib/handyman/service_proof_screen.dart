@@ -1,10 +1,10 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:handyman_provider_flutter/components/app_widgets.dart';
 import 'package:handyman_provider_flutter/components/back_widget.dart';
+import 'package:handyman_provider_flutter/components/cached_image_widget.dart';
 import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/models/booking_detail_response.dart';
 import 'package:handyman_provider_flutter/networks/network_utils.dart';
@@ -39,6 +39,7 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
   FilePickerResult? filePickerResult;
 
   List<XFile> imageFiles = [];
+  String? _beforeJobImagePath; // Cached or backend before-job image path
 
   @override
   void initState() {
@@ -48,7 +49,25 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
 
   init() async {
     serviceNameCont.text = widget.bookingDetail!.service!.name.validate();
+    
+    // Load before-job image (from backend or cache)
+    await _loadBeforeJobImage();
+    
     setState(() {});
+  }
+  
+  /// Load before-job image from backend response
+  Future<void> _loadBeforeJobImage() async {
+    try {
+      // Get from backend response
+      if (widget.bookingDetail!.bookingDetail!.beforeJobImage != null && 
+          widget.bookingDetail!.bookingDetail!.beforeJobImage!.isNotEmpty) {
+        _beforeJobImagePath = widget.bookingDetail!.bookingDetail!.beforeJobImage;
+        log('✅ Loaded before-job image from backend: $_beforeJobImagePath');
+      }
+    } catch (e) {
+      log('❌ Error loading before-job image: $e');
+    }
   }
 
   Future<void> submit() async {
@@ -168,6 +187,39 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Before Job Image Section
+                  if (_beforeJobImagePath != null && _beforeJobImagePath!.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(languages.lblBeforeJobImage, style: boldTextStyle()),
+                          12.height,
+                        Container(
+                          width: context.width(),
+                          height: 200,
+                          decoration: boxDecorationRoundedWithShadow(12),
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          child: _beforeJobImagePath!.startsWith('http')
+                              ? CachedImageWidget(
+                                  url: _beforeJobImagePath!,
+                                  height: 200,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.file(
+                                  File(_beforeJobImagePath!),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: context.cardColor,
+                                      child: Icon(Icons.broken_image, size: 50, color: context.iconColor),
+                                    ).center();
+                                  },
+                                ),
+                        ),
+                        16.height,
+                      ],
+                    ),
+                  
                   Row(
                     children: [
                       Text(languages.hintServiceName, style: boldTextStyle()),
@@ -201,12 +253,13 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
                   16.height,
                   Row(
                     children: [
-                      Text(languages.hintDescription, style: boldTextStyle()),
+                      Text(languages.lblAfterJobDescription, style: boldTextStyle()),
                       2.width,
                       Text('*', style: boldTextStyle(color: pending)),
                     ],
                   ),
                   12.height,
+               
                   AppTextField(
                     textFieldType: TextFieldType.MULTILINE,
                     controller: compliantCont,
@@ -223,6 +276,14 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
                     decoration: inputDecoration(context, hint: languages.hintDescription, showLabel: false),
                   ),
                   16.height,
+                   Row(
+                    children: [
+                      Text(languages.lblAfterJobImage, style: boldTextStyle()),
+                      2.width,
+                      Text('*', style: boldTextStyle(color: pending)),
+                    ],
+                  ),
+                   12.height,
                   SizedBox(
                     width: context.width(),
                     child: Column(

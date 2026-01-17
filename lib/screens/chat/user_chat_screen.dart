@@ -19,12 +19,10 @@ import 'package:handyman_provider_flutter/utils/configs.dart';
 import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nb_utils/nb_utils.dart';
-
 import '../../components/cached_image_widget.dart';
 import '../../networks/firebase_services/chat_messages_service.dart';
 import '../../utils/getImage.dart';
 import 'components/send_file_screen.dart';
-
 class UserChatScreen extends StatefulWidget {
   final UserData receiverUser;
   final bool isChattingAllow;

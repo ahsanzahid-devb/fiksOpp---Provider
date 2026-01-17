@@ -1653,6 +1653,42 @@ class LanguageEn extends Languages {
   String get start => 'Start';
 
   @override
+  String get lblStart => 'Start';
+
+  @override
+  String get lblHold => 'Hold';
+
+  @override
+  String get lblResume => 'Resume';
+
+  @override
+  String get lblConFirmResumeService => 'Are you sure you want to resume the service?';
+
+  @override
+  String get lblConfirmService => 'Confirm Service';
+
+  @override
+  String get lblEndServicesMsg => 'Are you sure you want to end the service?';
+
+  @override
+  String get waitingForProviderToStart => 'Waiting for provider to start service';
+
+  @override
+  String get serviceInProgress => 'Service is in progress';
+
+  @override
+  String get serviceOnHold => 'Service is currently on hold';
+
+  @override
+  String get lblAcceptBooking => 'Accept Booking';
+
+  @override
+  String get lblRejectReason => 'Reject Reason';
+
+  @override
+  String get lblApproveBooking => 'Approve Booking';
+
+  @override
   String get digitalService => 'Digital Service';
 
   @override
@@ -2217,10 +2253,19 @@ class LanguageEn extends Languages {
   String get viewDetail => 'View Detail';
 
   @override
-  String get serviceProofMediaUploadNote => 'Note : You can Upload Image with “JPG” , ‘PNG”, “JPEG” extension and you can select multiple images';
+  String get serviceProofMediaUploadNote => 'Note : You can Upload Image with "JPG" , "PNG", "JPEG" extension and you can select multiple images';
 
   @override
   String get uploadMedia => 'Upload Media';
+
+  @override
+  String get lblBeforeJobImage => 'Before Job Image';
+
+  @override
+  String get lblAfterJobDescription => 'After Job Description';
+
+  @override
+  String get lblAfterJobImage => 'After Job Image';
 
   @override
   String get viewStatus => 'View Status';

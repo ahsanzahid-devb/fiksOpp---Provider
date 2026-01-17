@@ -36,9 +36,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:686507061891:android:5a46df2a296e27e5ace1b6",
+        "mobilesdk_app_id": "1:686507061891:android:7a803b20f0c2ac58ace1b6",
         "android_client_info": {
-          "package_name": "fiksopp.inoor.buzz"
+          "package_name": "fiksopp.inoor.buzz.provider"
         }
       },
       "oauth_client": [

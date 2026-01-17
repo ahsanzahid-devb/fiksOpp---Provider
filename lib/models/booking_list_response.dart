@@ -127,6 +127,7 @@ class BookingData {
   num? finalDiscountAmount;
   num? finalCouponDiscountAmount;
   String? txnId;
+  String? beforeJobImage;
 
   //Local
   double get totalAmountWithExtraCharges => totalAmount.validate() + extraCharges.validate().sumByDouble((e) => e.qty.validate() * e.price.validate());
@@ -203,6 +204,7 @@ class BookingData {
     this.finalCouponDiscountAmount,
     this.serviceaddon,
     this.txnId,
+    this.beforeJobImage,
   });
 
   factory BookingData.fromJson(Map<String, dynamic> json) {
@@ -215,7 +217,7 @@ class BookingData {
       discount: json['discount'],
       amount: json['amount'],
       bookingSlot: json['booking_slot'],
-      durationDiff: json['duration_diff'],
+      durationDiff: json['duration_diff']?.toString(),
       durationDiffHour: json['duration_diff_hour'],
       handyman: json['handyman'] != null ? (json['handyman'] as List).map((i) => Handyman.fromJson(i)).toList() : [],
       id: json['id'],
@@ -262,6 +264,7 @@ class BookingData {
       finalCouponDiscountAmount: json['final_coupon_discount_amount'],
       serviceaddon: json['BookingAddonService'] != null ? (json['BookingAddonService'] as List).map((i) => ServiceAddon.fromJson(i)).toList() : null,
       txnId: json['txn_id'],
+      beforeJobImage: json['before_image'] ?? json['before_job_image'], // API returns 'before_image', fallback to 'before_job_image' for compatibility
     );
   }
 
@@ -332,6 +335,7 @@ class BookingData {
       data['BookingAddonService'] = this.serviceaddon!.map((v) => v.toJson()).toList();
     }
     data['txn_id'] = this.txnId;
+    data['before_job_image'] = this.beforeJobImage;
     return data;
   }
 }

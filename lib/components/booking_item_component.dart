@@ -130,15 +130,24 @@ class BookingItemComponentState extends State<BookingItemComponent> {
                       Row(
                         children: [
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: widget.bookingData.isPostJob ? 14 : 12, 
+                              vertical: widget.bookingData.isPostJob ? 4 : 2
+                            ),
                             decoration: BoxDecoration(
                               color: context.primaryColor.withValues(alpha:0.1),
                               borderRadius: radius(16),
-                              border: Border.all(color: context.primaryColor),
+                              border: Border.all(
+                                color: context.primaryColor,
+                                width: widget.bookingData.isPostJob ? 1.5 : 1
+                              ),
                             ),
                             child: Text(
                               '#${widget.bookingData.id.validate()}',
-                              style: boldTextStyle(color: context.primaryColor, size: 12),
+                              style: boldTextStyle(
+                                color: context.primaryColor, 
+                                size: widget.bookingData.isPostJob ? 13 : 12
+                              ),
                             ),
                           ).flexible(),
                           5.width,
@@ -192,15 +201,28 @@ class BookingItemComponentState extends State<BookingItemComponent> {
                     ],
                   ),
                   12.height,
-                  Marquee(
-                    child: Text(
-                      widget.bookingData.isPackageBooking
-                          ? '${widget.bookingData.bookingPackage!.name.validate()}'
-                          : '${widget.bookingData.serviceName.validate()}',
-                      style: boldTextStyle(),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Marquee(
+                        child: Text(
+                          widget.bookingData.isPackageBooking
+                              ? '${widget.bookingData.bookingPackage!.name.validate()}'
+                              : '${widget.bookingData.serviceName.validate()}',
+                          style: boldTextStyle(),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                      if (widget.bookingData.isPostJob)
+                        Padding(
+                          padding: EdgeInsets.only(top: 4),
+                          child: Text(
+                            '${languages.postJob} #${widget.bookingData.id.validate()}',
+                            style: secondaryTextStyle(size: 11, color: context.primaryColor),
+                          ),
+                        ),
+                    ],
                   ),
                   8.height,
                   if (widget.bookingData.bookingPackage != null)

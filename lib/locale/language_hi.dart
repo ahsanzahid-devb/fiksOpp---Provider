@@ -1653,6 +1653,42 @@ class LanguageHi extends Languages {
   String get start => 'शुरू';
 
   @override
+  String get lblStart => 'शुरू';
+
+  @override
+  String get lblHold => 'रोकें';
+
+  @override
+  String get lblResume => 'फिर से शुरू';
+
+  @override
+  String get lblConFirmResumeService => 'क्या आप सेवा फिर से शुरू करना चाहते हैं?';
+
+  @override
+  String get lblConfirmService => 'सेवा की पुष्टि करें';
+
+  @override
+  String get lblEndServicesMsg => 'क्या आप सेवा समाप्त करना चाहते हैं?';
+
+  @override
+  String get waitingForProviderToStart => 'प्रदाता द्वारा सेवा शुरू करने की प्रतीक्षा कर रहे हैं';
+
+  @override
+  String get serviceInProgress => 'सेवा प्रगति में है';
+
+  @override
+  String get serviceOnHold => 'सेवा वर्तमान में रोकी गई है';
+
+  @override
+  String get lblAcceptBooking => 'बुकिंग स्वीकार करें';
+
+  @override
+  String get lblRejectReason => 'अस्वीकार करने का कारण';
+
+  @override
+  String get lblApproveBooking => 'बुकिंग को मंजूरी दें';
+
+  @override
   String get digitalService => 'अंकीय सेवा';
 
   @override
@@ -2221,6 +2257,15 @@ class LanguageHi extends Languages {
 
   @override
   String get uploadMedia => 'मीडिया अपलोड करें';
+
+  @override
+  String get lblBeforeJobImage => 'काम से पहले की छवि';
+
+  @override
+  String get lblAfterJobDescription => 'काम के बाद का विवरण';
+
+  @override
+  String get lblAfterJobImage => 'काम के बाद की छवि';
 
   @override
   String get viewStatus => 'स्थिति देखें';

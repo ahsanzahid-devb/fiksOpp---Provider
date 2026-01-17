@@ -30,7 +30,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "fiksopp.inoor.buzz"
+    namespace "fiksopp.inoor.buzz.provider"
     compileSdk 36
     ndkVersion "27.0.12077973"
 
@@ -49,10 +49,10 @@ android {
     }
 
     defaultConfig {
-        applicationId "fiksopp.inoor.buzz"
+        applicationId "fiksopp.inoor.buzz.provider"
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion 36
-        versionCode 100
+        versionCode 111
         versionName '11.14.3'
     }
 

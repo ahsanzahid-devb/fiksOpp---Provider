@@ -9,7 +9,6 @@ import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/provider/components/chart_component.dart';
 import 'package:handyman_provider_flutter/screens/cash_management/component/today_cash_component.dart';
 import 'package:nb_utils/nb_utils.dart';
-
 import '../../../components/app_widgets.dart';
 import '../../../components/empty_error_state_widget.dart';
 import '../../../provider/components/upcoming_booking_component.dart';

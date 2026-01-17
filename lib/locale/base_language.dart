@@ -1103,6 +1103,30 @@ abstract class Languages {
 
   String get start;
 
+  String get lblStart;
+
+  String get lblHold;
+
+  String get lblResume;
+
+  String get lblConFirmResumeService;
+
+  String get lblConfirmService;
+
+  String get lblEndServicesMsg;
+
+  String get waitingForProviderToStart;
+
+  String get serviceInProgress;
+
+  String get serviceOnHold;
+
+  String get lblAcceptBooking;
+
+  String get lblRejectReason;
+
+  String get lblApproveBooking;
+
   String get digitalService;
 
   String get digitalServiceSwitchSubText;
@@ -1482,6 +1506,12 @@ abstract class Languages {
   String get serviceProofMediaUploadNote;
 
   String get uploadMedia;
+
+  String get lblBeforeJobImage;
+
+  String get lblAfterJobDescription;
+
+  String get lblAfterJobImage;
 
   String get viewStatus;
 

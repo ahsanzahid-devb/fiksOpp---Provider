@@ -175,7 +175,12 @@ class _AddExtraChargesScreenState extends State<AddExtraChargesScreen> {
         ],
       ),
       bottomNavigationBar: Container(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: 16 + MediaQuery.of(context).padding.bottom,
+        ),
         child: AppButton(
           text: languages.btnSave,
           color: context.primaryColor,

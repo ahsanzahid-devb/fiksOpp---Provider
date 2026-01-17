@@ -1651,6 +1651,42 @@ class LanguageAr extends Languages {
   String get start => 'يبدأ';
 
   @override
+  String get lblStart => 'ابدأ';
+
+  @override
+  String get lblHold => 'تعليق';
+
+  @override
+  String get lblResume => 'استئناف';
+
+  @override
+  String get lblConFirmResumeService => 'هل أنت متأكد أنك تريد استئناف الخدمة؟';
+
+  @override
+  String get lblConfirmService => 'تأكيد الخدمة';
+
+  @override
+  String get lblEndServicesMsg => 'هل أنت متأكد أنك تريد إنهاء الخدمة؟';
+
+  @override
+  String get waitingForProviderToStart => 'في انتظار مزود الخدمة لبدء الخدمة';
+
+  @override
+  String get serviceInProgress => 'الخدمة قيد التنفيذ';
+
+  @override
+  String get serviceOnHold => 'الخدمة متوقفة حالياً';
+
+  @override
+  String get lblAcceptBooking => 'قبول الحجز';
+
+  @override
+  String get lblRejectReason => 'سبب الرفض';
+
+  @override
+  String get lblApproveBooking => 'الموافقة على الحجز';
+
+  @override
   String get digitalService => 'الخدمة الرقمية';
 
   @override
@@ -2219,6 +2255,15 @@ class LanguageAr extends Languages {
 
   @override
   String get uploadMedia => 'تحميل الوسائط';
+
+  @override
+  String get lblBeforeJobImage => 'صورة قبل العمل';
+
+  @override
+  String get lblAfterJobDescription => 'وصف ما بعد العمل';
+
+  @override
+  String get lblAfterJobImage => 'صورة بعد العمل';
 
   @override
   String get viewStatus => 'عرض الحالة';

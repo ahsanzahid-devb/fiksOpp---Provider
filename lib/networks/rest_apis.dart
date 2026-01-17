@@ -1023,6 +1023,50 @@ Future<BaseResponseModel> bookingUpdate(Map request) async {
   return res;
 }
 
+/// Upload "before job" image for a booking.
+/// Endpoint: POST /api/booking-before-image (multipart)
+/// Fields:
+///   - booking_id (int)
+///   - image (file)
+/// Response JSON:
+///   { "booking_id": 22, "before_image": "https://.../path.jpg", "message": "..." }
+Future<String> uploadBeforeJobImage({
+  required int bookingId,
+  required File imageFile,
+}) async {
+  MultipartRequest multiPartRequest = await getMultiPartRequest('booking-before-image');
+
+  multiPartRequest.fields[CommonKeys.bookingId] = bookingId.toString();
+  multiPartRequest.files.add(await MultipartFile.fromPath('image', imageFile.path));
+  multiPartRequest.headers.addAll(buildHeaderTokens());
+
+  String uploadedImageUrl = '';
+
+  await sendMultiPartRequest(
+    multiPartRequest,
+    onSuccess: (temp) async {
+      try {
+        final body = jsonDecode(temp);
+        if (body is Map && body['before_image'] != null) {
+          uploadedImageUrl = body['before_image'].toString();
+        } else if (body is Map && body['data'] is Map && body['data']['before_image'] != null) {
+          uploadedImageUrl = body['data']['before_image'].toString();
+        } else {
+          throw languages.somethingWentWrong;
+        }
+      } catch (e) {
+        log(e.toString());
+        throw languages.somethingWentWrong;
+      }
+    },
+    onError: (error) {
+      throw error.toString();
+    },
+  );
+
+  return uploadedImageUrl;
+}
+
 Future<BaseResponseModel> assignBooking(Map request) async {
   return BaseResponseModel.fromJson(await handleResponse(
       await buildHttpResponse('booking-assigned',
