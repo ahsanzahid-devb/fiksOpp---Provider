@@ -13,10 +13,8 @@ import '../utils/constant.dart';
 import 'components/filter_booking_status_component.dart';
 import 'components/filter_customer_list_component.dart';
 import 'components/filter_date_range_component.dart';
-import 'components/filter_handyman_list_component.dart';
 import 'components/filter_payment_status_component.dart';
 import 'components/filter_payment_type_component.dart';
-import 'components/filter_provider_list_component.dart';
 import 'components/filter_service_list_component.dart';
 import 'models/payment_status_model.dart';
 

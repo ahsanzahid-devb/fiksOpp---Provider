@@ -5,7 +5,6 @@ import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/shimmer/job_request_shimmer.dart';
 import 'package:handyman_provider_flutter/provider/services/add_services.dart';
-import 'package:handyman_provider_flutter/utils/images.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../../components/base_scaffold_widget.dart';
@@ -37,7 +36,8 @@ class _JobListScreenState extends State<JobListScreen> {
       page,
       postJobList: myPostJobList,
       lastPageCallback: (val) => isLastPage = val,
-      serviceIds: filterStore.serviceId.isNotEmpty ? filterStore.serviceId : null,
+      serviceIds:
+          filterStore.serviceId.isNotEmpty ? filterStore.serviceId : null,
     );
     setState(() {});
   }
@@ -56,7 +56,8 @@ class _JobListScreenState extends State<JobListScreen> {
         height: context.height() * 0.8,
         decoration: boxDecorationWithRoundedCorners(
           backgroundColor: context.scaffoldBackgroundColor,
-          borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
+          borderRadius:
+              radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
         ),
         child: Column(
           children: [
@@ -64,11 +65,13 @@ class _JobListScreenState extends State<JobListScreen> {
               padding: EdgeInsets.all(16),
               decoration: boxDecorationWithRoundedCorners(
                 backgroundColor: context.cardColor,
-                borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
+                borderRadius:
+                    radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
               ),
               child: Row(
                 children: [
-                  Text(languages.selectService, style: boldTextStyle(size: 18)).expand(),
+                  Text(languages.selectService, style: boldTextStyle(size: 18))
+                      .expand(),
                   IconButton(
                     icon: Icon(Icons.close),
                     onPressed: () => finish(context),

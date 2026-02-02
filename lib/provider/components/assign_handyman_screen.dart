@@ -12,15 +12,18 @@ import 'package:nb_utils/nb_utils.dart';
 
 import '../../components/base_scaffold_widget.dart';
 import '../../components/empty_error_state_widget.dart';
-import '../../components/handyman_add_update_screen.dart';
-import '../../utils/constant.dart';
 
 class AssignHandymanScreen extends StatefulWidget {
   final int? bookingId;
   final Function? onUpdate;
   final int? serviceAddressId;
 
-  const AssignHandymanScreen({Key? key, this.onUpdate, required this.bookingId, required this.serviceAddressId}) : super(key: key);
+  const AssignHandymanScreen(
+      {Key? key,
+      this.onUpdate,
+      required this.bookingId,
+      required this.serviceAddressId})
+      : super(key: key);
 
   @override
   _AssignHandymanScreenState createState() => _AssignHandymanScreenState();
@@ -59,7 +62,8 @@ class _AssignHandymanScreenState extends State<AssignHandymanScreen> {
 
     showConfirmDialogCustom(
       context,
-      title: '${languages.lblAreYouSureYouWantToAssignThisServiceTo(userListData!.firstName.validate())}',
+      title:
+          '${languages.lblAreYouSureYouWantToAssignThisServiceTo(userListData!.firstName.validate())}',
       positiveText: languages.lblYes,
       negativeText: languages.lblNo,
       primaryColor: context.primaryColor,
@@ -127,7 +131,9 @@ class _AssignHandymanScreenState extends State<AssignHandymanScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         CachedImageWidget(
-          url: userData.profileImage!.isNotEmpty ? userData.profileImage.validate() : "",
+          url: userData.profileImage!.isNotEmpty
+              ? userData.profileImage.validate()
+              : "",
           height: 60,
           fit: BoxFit.cover,
           circle: true,
@@ -185,7 +191,8 @@ class _AssignHandymanScreenState extends State<AssignHandymanScreen> {
 
   Widget buildRadioListTile({required UserData userData}) {
     if (!userData.isHandymanAvailable.validate()) {
-      return buildHandymanItem(userData: userData).paddingSymmetric(vertical: 13, horizontal: 16);
+      return buildHandymanItem(userData: userData)
+          .paddingSymmetric(vertical: 13, horizontal: 16);
     }
     return RadioListTile<UserData>(
       value: userData,
@@ -236,7 +243,7 @@ class _AssignHandymanScreenState extends State<AssignHandymanScreen> {
             loadingWidget: LoaderWidget(),
             onSuccess: (snap) {
               return AnimatedListView(
-                controller: scrollController, 
+                controller: scrollController,
                 shrinkWrap: true,
                 physics: AlwaysScrollableScrollPhysics(),
                 listAnimationType: ListAnimationType.FadeIn,
@@ -270,8 +277,13 @@ class _AssignHandymanScreenState extends State<AssignHandymanScreen> {
                 itemBuilder: (BuildContext context, index) {
                   return Column(
                     children: [
-                      buildRadioListTile(userData: snap[index]).paddingOnly(bottom: 2, top: 2),
-                      Divider(endIndent: 16.0, indent: 16.0, height: 0, color: context.dividerColor),
+                      buildRadioListTile(userData: snap[index])
+                          .paddingOnly(bottom: 2, top: 2),
+                      Divider(
+                          endIndent: 16.0,
+                          indent: 16.0,
+                          height: 0,
+                          color: context.dividerColor),
                     ],
                   );
                 },
@@ -312,7 +324,9 @@ class _AssignHandymanScreenState extends State<AssignHandymanScreen> {
                     _handleAssignToMyself();
                   },
                   width: context.width(),
-                  shapeBorder: RoundedRectangleBorder(borderRadius: radius(), side: BorderSide(color: context.primaryColor)),
+                  shapeBorder: RoundedRectangleBorder(
+                      borderRadius: radius(),
+                      side: BorderSide(color: context.primaryColor)),
                   color: context.scaffoldBackgroundColor,
                   elevation: 0,
                   textColor: context.primaryColor,

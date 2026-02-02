@@ -6,7 +6,6 @@ import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/provider/components/chart_component.dart';
 import 'package:handyman_provider_flutter/provider/components/handyman_list_component.dart';
 import 'package:handyman_provider_flutter/provider/components/handyman_recently_online_component.dart';
-import 'package:handyman_provider_flutter/provider/components/job_list_component.dart';
 import 'package:handyman_provider_flutter/provider/components/services_list_component.dart';
 import 'package:handyman_provider_flutter/provider/components/total_component.dart';
 import 'package:handyman_provider_flutter/provider/fragments/shimmer/provider_dashboard_shimmer.dart';

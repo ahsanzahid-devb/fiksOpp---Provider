@@ -72,7 +72,7 @@ NotificationService notificationService = NotificationService();
 //endregion
 
 //region In App Purchase Service
-InAppPurchaseService inAppPurchaseService=InAppPurchaseService();
+InAppPurchaseService inAppPurchaseService = InAppPurchaseService();
 //region
 
 //region Global Variables
@@ -120,7 +120,7 @@ void main() async {
       log(e.toString());
     });
   }
- HttpOverrides.global = MyHttpOverrides();
+  HttpOverrides.global = MyHttpOverrides();
 
   defaultSettings();
 
@@ -171,7 +171,6 @@ class _MyAppState extends State<MyApp> {
     return RestartAppWidget(
       child: Observer(
         builder: (_) => MaterialApp(
-         
           debugShowCheckedModeBanner: false,
           navigatorKey: navigatorKey,
           home: SplashScreen(),
@@ -186,11 +185,12 @@ class _MyAppState extends State<MyApp> {
             GlobalCupertinoLocalizations.delegate,
           ],
           builder: (context, child) {
-                  return MediaQuery(
-                    child: child!,
-                    data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
-                  );
-                },
+            return MediaQuery(
+              child: child!,
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: TextScaler.linear(1.0)),
+            );
+          },
           localeResolutionCallback: (locale, supportedLocales) => locale,
           locale: Locale(appStore.selectedLanguageCode),
         ),
@@ -202,6 +202,8 @@ class _MyAppState extends State<MyApp> {
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }

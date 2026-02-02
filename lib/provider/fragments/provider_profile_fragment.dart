@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:handyman_provider_flutter/auth/change_password_screen.dart';
@@ -18,13 +17,10 @@ import 'package:handyman_provider_flutter/provider/handyman_commission_list_scre
 import 'package:handyman_provider_flutter/provider/handyman_list_screen.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/bid_list_screen.dart';
 import 'package:handyman_provider_flutter/provider/packages/package_list_screen.dart';
-import 'package:handyman_provider_flutter/provider/services/service_list_screen.dart';
 import 'package:handyman_provider_flutter/provider/subscription/subscription_history_screen.dart';
 import 'package:handyman_provider_flutter/provider/taxes/taxes_screen.dart';
 import 'package:handyman_provider_flutter/provider/timeSlots/my_time_slots_screen.dart';
 import 'package:handyman_provider_flutter/provider/wallet/wallet_history_screen.dart';
-import 'package:handyman_provider_flutter/screens/about_us_screen.dart';
-import 'package:handyman_provider_flutter/screens/languages_screen.dart';
 import 'package:handyman_provider_flutter/screens/verify_provider_screen.dart';
 import 'package:handyman_provider_flutter/utils/colors.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
