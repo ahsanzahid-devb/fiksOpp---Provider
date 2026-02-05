@@ -93,6 +93,7 @@ List<LanguageDataModel> languageList() {
     LanguageDataModel(id: 3, name: 'Arabic', languageCode: 'ar', fullLanguageCode: 'ar-AR', flag: 'assets/flag/ic_ar.png'),
     LanguageDataModel(id: 4, name: 'French', languageCode: 'fr', fullLanguageCode: 'fr-FR', flag: 'assets/flag/ic_fr.png'),
     LanguageDataModel(id: 5, name: 'German', languageCode: 'de', fullLanguageCode: 'de-DE', flag: 'assets/flag/ic_de.png'),
+    LanguageDataModel(id: 6, name: 'Norwegian', languageCode: 'no', fullLanguageCode: 'no-NO', flag: 'assets/flag/ic_us.png'),
   ];
 
   /*if (getStringAsync(SERVER_LANGUAGES).isNotEmpty) {
