@@ -21,6 +21,7 @@ import 'package:handyman_provider_flutter/provider/subscription/subscription_his
 import 'package:handyman_provider_flutter/provider/taxes/taxes_screen.dart';
 import 'package:handyman_provider_flutter/provider/timeSlots/my_time_slots_screen.dart';
 import 'package:handyman_provider_flutter/provider/wallet/wallet_history_screen.dart';
+import 'package:handyman_provider_flutter/screens/languages_screen.dart';
 import 'package:handyman_provider_flutter/screens/verify_provider_screen.dart';
 import 'package:handyman_provider_flutter/utils/colors.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
@@ -608,7 +609,7 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
                   title: languages.lblOptionalUpdateNotify,
                   titleTextStyle: boldTextStyle(size: 12),
                   padding:
-                      EdgeInsets.only(bottom: 16, right: 16, left: 16, top: 20),
+                      EdgeInsets.only(bottom: 16, right: 16, left: 16, top: 16),
                   trailing: Transform.scale(
                     scale: 0.6,
                     child: Switch.adaptive(
@@ -633,7 +634,7 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
               ),
               divider: Offstage(),
               items: [
-                8.height,
+                // 8.height,
                 SettingItemWidget(
                   decoration: BoxDecoration(color: context.cardColor),
                   leading: Image.asset(ic_theme,
@@ -648,7 +649,8 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
                           ? white
                           : gray.withValues(alpha: 0.8),
                       size: 18),
-                  padding: EdgeInsets.only(top: 20, left: 16, right: 16),
+                  padding:
+                      EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 0),
                   onTap: () async {
                     await showInDialog(
                       context,
@@ -657,19 +659,32 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
                     );
                   },
                 ),
-                // SettingItemWidget(
-                //   decoration: BoxDecoration(color: context.cardColor),
-                //   leading: Image.asset(language, height: 16, width: 16, color: appStore.isDarkMode ? white : appTextSecondaryColor),
-                //   title: languages.language,
-                //   titleTextStyle: boldTextStyle(size: 12),
-                //   trailing: Icon(Icons.chevron_right, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8), size: 18),
-                //   padding: EdgeInsets.only(top: 20, left: 16, right: 16),
-                //   onTap: () {
-                //     LanguagesScreen().launch(context);
-                //   },
-                // ),
                 SettingItemWidget(
                   decoration: BoxDecoration(color: context.cardColor),
+                  leading: Image.asset(language,
+                      height: 16,
+                      width: 16,
+                      color:
+                          appStore.isDarkMode ? white : appTextSecondaryColor),
+                  title: languages.language,
+                  titleTextStyle: boldTextStyle(size: 12),
+                  trailing: Icon(Icons.chevron_right,
+                      color: appStore.isDarkMode
+                          ? white
+                          : gray.withValues(alpha: 0.8),
+                      size: 18),
+                  padding:
+                      EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 0),
+                  onTap: () {
+                    LanguagesScreen().launch(context);
+                  },
+                ),
+                SettingItemWidget(
+                  decoration: BoxDecoration(
+                    color: context.cardColor,
+                    borderRadius: BorderRadiusDirectional.vertical(
+                        bottom: Radius.circular(16)),
+                  ),
                   leading: Image.asset(changePassword,
                       height: 16,
                       width: 16,
@@ -682,7 +697,8 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
                           ? white
                           : gray.withValues(alpha: 0.8),
                       size: 18),
-                  padding: EdgeInsets.only(top: 20, left: 16, right: 16),
+                  padding:
+                      EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 16),
                   onTap: () {
                     ChangePasswordScreen().launch(context);
                   },
@@ -776,6 +792,8 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
             VersionInfoWidget(prefixText: 'v', textStyle: secondaryTextStyle())
                 .center(),
             16.height,
+            // Extra bottom padding so content is not cut by nav bar / safe area
+            SizedBox(height: MediaQuery.of(context).padding.bottom + 80),
           ],
         );
       },

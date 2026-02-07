@@ -148,7 +148,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           scrolledUnderElevation: 0,
           systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarIconBrightness: appStore.isDarkMode ? Brightness.light : Brightness.dark,
+            statusBarIconBrightness:
+                appStore.isDarkMode ? Brightness.light : Brightness.dark,
             statusBarColor: context.scaffoldBackgroundColor,
           ),
         ),
@@ -179,7 +180,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
             /// 🔄 Loader shown when loading
             Observer(
-              builder: (context) => LoaderWidget().center().visible(appStore.isLoading),
+              builder: (context) =>
+                  LoaderWidget().center().visible(appStore.isLoading),
             ),
           ],
         ),
@@ -330,10 +332,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     child: Text(languages.provider, style: primaryTextStyle()),
                     value: USER_TYPE_PROVIDER,
                   ),
-                  DropdownMenuItem(
-                    child: Text(languages.handyman, style: primaryTextStyle()),
-                    value: USER_TYPE_HANDYMAN,
-                  ),
                 ],
                 focusNode: userTypeFocus,
                 dropdownColor: context.cardColor,
@@ -373,7 +371,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     _valueNotifier.notifyListeners();
                   }
                 },
-
               ),
               if (selectedUserTypeValue == USER_TYPE_PROVIDER) ...[
                 12.height,
@@ -395,7 +392,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       initiallyExpanded: zoneList.isNotEmpty,
                       dense: true,
                       visualDensity: VisualDensity.compact,
-                      title: Text(languages.selectZones, style: secondaryTextStyle()),
+                      title: Text(languages.selectZones,
+                          style: secondaryTextStyle()),
                       onExpansionChanged: (val) {
                         isZoneTileExpanded = val;
                         setState(() {});
@@ -403,11 +401,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       trailing: AnimatedCrossFade(
                         firstChild: Icon(Icons.arrow_drop_down),
                         secondChild: Icon(Icons.arrow_drop_up),
-                        crossFadeState: isZoneTileExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                        crossFadeState: isZoneTileExpanded
+                            ? CrossFadeState.showSecond
+                            : CrossFadeState.showFirst,
                         duration: 200.milliseconds,
                       ),
                       children: zoneList.map((zone) {
-                        bool isSelected = selectedZoneIds.contains(zone.id.toString());
+                        bool isSelected =
+                            selectedZoneIds.contains(zone.id.toString());
                         return Container(
                           margin: EdgeInsets.only(bottom: 8.0),
                           child: Theme(
@@ -420,12 +421,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   : context.iconColor,
                             ),
                             child: CheckboxListTile(
-                              checkboxShape: RoundedRectangleBorder(borderRadius: radius(4)),
+                              checkboxShape: RoundedRectangleBorder(
+                                  borderRadius: radius(4)),
                               activeColor: context.primaryColor,
-                              checkColor: appStore.isDarkMode ? context.iconColor : context.cardColor,
-                              contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                              checkColor: appStore.isDarkMode
+                                  ? context.iconColor
+                                  : context.cardColor,
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 16),
                               title: Text(zone.name.validate(),
-                                  style: secondaryTextStyle(color: context.iconColor)),
+                                  style: secondaryTextStyle(
+                                      color: context.iconColor)),
                               value: isSelected,
                               onChanged: (val) {
                                 if (val == true) {
@@ -446,7 +452,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
               ]
-
             ],
           ),
         ),
@@ -751,53 +756,58 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void saveUser() async {
     if (formKey.currentState!.validate()) {
-      if (selectedUserCommissionType == null || selectedUserCommissionType!.id == -1) {
+      if (selectedUserCommissionType == null ||
+          selectedUserCommissionType!.id == -1) {
         return toast(languages.pleaseSelectCommission);
       }
-      if (selectedUserTypeValue == USER_TYPE_PROVIDER && selectedZoneIds.isEmpty) {
-        return toast(languages.plzSelectOneZone); 
+      if (selectedUserTypeValue == USER_TYPE_PROVIDER &&
+          selectedZoneIds.isEmpty) {
+        return toast(languages.plzSelectOneZone);
       }
       formKey.currentState!.save();
       hideKeyboard(context);
-        var request = {
-          UserKeys.firstName: fNameCont.text.trim(),
-          UserKeys.lastName: lNameCont.text.trim(),
-          UserKeys.userName: userNameCont.text.trim(),
-          UserKeys.userType: selectedUserTypeValue,
-          UserKeys.contactNumber: buildMobileNumber(),
-          UserKeys.email: emailCont.text.trim(),
-          UserKeys.password: passwordCont.text.trim(),
-          UserKeys.designation: designationCont.text.trim(),
-          UserKeys.status: 0,
-        };
+      var request = {
+        UserKeys.firstName: fNameCont.text.trim(),
+        UserKeys.lastName: lNameCont.text.trim(),
+        UserKeys.userName: userNameCont.text.trim(),
+        UserKeys.userType: selectedUserTypeValue,
+        UserKeys.contactNumber: buildMobileNumber(),
+        UserKeys.email: emailCont.text.trim(),
+        UserKeys.password: passwordCont.text.trim(),
+        UserKeys.designation: designationCont.text.trim(),
+        UserKeys.status: 0,
+      };
 
-        if (selectedProvider != null) {
-          request[UserKeys.providerId] = selectedProviderId;
+      if (selectedProvider != null) {
+        request[UserKeys.providerId] = selectedProviderId;
+      }
+
+      if (selectedUserTypeValue == USER_TYPE_PROVIDER) {
+        request.putIfAbsent(UserKeys.providerTypeId,
+            () => selectedUserCommissionType!.id.toString());
+        if (selectedZoneIds.isNotEmpty) {
+          request[UserKeys.zoneId] = selectedZoneIds.join(',');
+          log('✅ Zone IDs added: ${request[UserKeys.zoneId]}');
+        } else {
+          log('⚠️ selectedZoneIds is empty!');
         }
+      }
 
-        if (selectedUserTypeValue == USER_TYPE_PROVIDER) {
-          request.putIfAbsent(UserKeys.providerTypeId, () => selectedUserCommissionType!.id.toString());
-          if (selectedZoneIds.isNotEmpty) {
-            request[UserKeys.zoneId] = selectedZoneIds.join(',');
-            log('✅ Zone IDs added: ${request[UserKeys.zoneId]}');
-          } else {
-            log('⚠️ selectedZoneIds is empty!');
-          }
-        }
-
-        log(request);
-        if(selectedUserTypeValue == USER_TYPE_PROVIDER) {
-          UploadDocumentsScreen(formRequest: request).launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop);
-        }else{
-         await registerUser(request).then((userRegisterData) async {
+      log(request);
+      if (selectedUserTypeValue == USER_TYPE_PROVIDER) {
+        UploadDocumentsScreen(formRequest: request).launch(context,
+            pageRouteAnimation: PageRouteAnimation.SlideBottomTop);
+      } else {
+        await registerUser(request).then((userRegisterData) async {
           appStore.setLoading(false);
           toast(userRegisterData.message.validate());
-          push(SignInScreen(), isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
+          push(SignInScreen(),
+              isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
         }).catchError((e) {
           toast(e.toString(), print: true);
           appStore.setLoading(false);
         });
-        }
+      }
     }
   }
 }
