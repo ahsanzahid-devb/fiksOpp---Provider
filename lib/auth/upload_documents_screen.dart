@@ -36,7 +36,8 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
   File? imageFile;
   List<Documents> uploadDocResp = [];
 
-  initState() {
+  @override
+  void initState() {
     super.initState();
     init();
   }
@@ -48,7 +49,10 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
   }
 
   void getMultipleFile({int? updateId, Function(String)? setImage}) async {
-    filePickerResult = await FilePicker.platform.pickFiles(allowMultiple: false, type: FileType.custom, allowedExtensions: ['jpg', 'png', 'jpeg', 'pdf']);
+    filePickerResult = await FilePicker.platform.pickFiles(
+        allowMultiple: false,
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'png', 'jpeg', 'pdf']);
 
     if (filePickerResult != null) {
       showConfirmDialogCustom(
@@ -76,20 +80,27 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
       return;
     }
     log("Document List: ${uploadDocResp.where((element) => element.filePath?.isEmpty ?? true).toList()}");
-    if (uploadDocResp.isEmpty || (uploadDocResp.where((element) => (element.isRequired == 1 && (element.filePath?.isEmpty ?? true))).isNotEmpty)) {
+    if (uploadDocResp.isEmpty ||
+        (uploadDocResp
+            .where((element) => (element.isRequired == 1 &&
+                (element.filePath?.isEmpty ?? true)))
+            .isNotEmpty)) {
       toast(languages.pleaseUploadAllRequired);
       return;
     }
     appStore.setLoading(true);
-    List<Documents> list = uploadDocResp.where((element) => element.filePath?.isNotEmpty ?? false).toList();
+    List<Documents> list = uploadDocResp
+        .where((element) => element.filePath?.isNotEmpty ?? false)
+        .toList();
     for (int i = 0; i < list.length; i++) {
       widget.formRequest['document_id[$i]'] = list[i].id;
     }
     log("Request ---> ${widget.formRequest}");
-    await registerUser(widget.formRequest,imageFile: list).then((value) {
+    await registerUser(widget.formRequest, imageFile: list).then((value) {
       appStore.setLoading(false);
       toast(value.message.validate());
-      push(SignInScreen(), isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
+      push(SignInScreen(),
+          isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
     }).catchError((error) {
       appStore.setLoading(false);
       toast(error.toString());
@@ -106,22 +117,24 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
       children: [
         ValueListenableBuilder(
           valueListenable: _valueNotifier,
-          builder: (context, value, child) => SelectedItemWidget(isSelected: isAcceptedTc).onTap(() async {
+          builder: (context, value, child) =>
+              SelectedItemWidget(isSelected: isAcceptedTc).onTap(() async {
             isAcceptedTc = !isAcceptedTc;
             _valueNotifier.notifyListeners();
           }),
         ),
         16.width,
-        
         RichTextWidget(
           list: [
-            TextSpan(text: '${languages.lblIAgree} ', style: secondaryTextStyle()),
+            TextSpan(
+                text: '${languages.lblIAgree} ', style: secondaryTextStyle()),
             TextSpan(
               text: languages.lblTermsOfService,
               style: boldTextStyle(color: primaryColor),
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
-                  checkIfLink(context, appConfigurationStore.termConditions, title: languages.lblTermsAndConditions);
+                  checkIfLink(context, appConfigurationStore.termConditions,
+                      title: languages.lblTermsAndConditions);
                 },
             ),
             TextSpan(text: ' & ', style: secondaryTextStyle()),
@@ -130,7 +143,8 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
               style: boldTextStyle(color: primaryColor),
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
-                  checkIfLink(context, appConfigurationStore.privacyPolicy, title: languages.lblPrivacyPolicy);
+                  checkIfLink(context, appConfigurationStore.privacyPolicy,
+                      title: languages.lblPrivacyPolicy);
                 },
             ),
           ],
@@ -159,20 +173,22 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(languages.uploadRequiredDocuments, style: boldTextStyle(size: 14)),
+                    Text(languages.uploadRequiredDocuments,
+                        style: boldTextStyle(size: 14)),
                     8.height,
                     RichText(
                       text: TextSpan(
                         style: secondaryTextStyle(size: 12),
                         children: [
-                           TextSpan(
+                          TextSpan(
                             text: languages.pleaseUploadTheFollowing,
                           ),
                           TextSpan(
                             text: '*',
-                            style: secondaryTextStyle(size: 12).copyWith(color: Colors.red, fontWeight: FontWeight.bold),
+                            style: secondaryTextStyle(size: 12).copyWith(
+                                color: Colors.red, fontWeight: FontWeight.bold),
                           ),
-                           TextSpan(
+                          TextSpan(
                             text: ' ${languages.requiredDocumentsMustBe}',
                           ),
                         ],
@@ -181,14 +197,19 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
                     35.height,
                     SnapHelperWidget<DocumentListResponse>(
                       future: future,
-                      loadingWidget: Center(child: LoaderWidget()).paddingTop(context.height() * 0.2),
+                      loadingWidget: Center(child: LoaderWidget())
+                          .paddingTop(context.height() * 0.2),
                       onSuccess: (list) {
-                        uploadDocResp = list.documents ?? [];
+                        // Only set from API on first load so we don't overwrite user-selected file paths on rebuild
+                        if (uploadDocResp.isEmpty) {
+                          uploadDocResp = list.documents ?? [];
+                        }
                         return AnimatedListView(
                           itemCount: uploadDocResp.length,
                           shrinkWrap: true,
                           listAnimationType: ListAnimationType.FadeIn,
-                          fadeInConfiguration: FadeInConfiguration(duration: 2.seconds),
+                          fadeInConfiguration:
+                              FadeInConfiguration(duration: 2.seconds),
                           emptyWidget: NoDataWidget(
                             title: languages.noNotificationTitle,
                             subTitle: languages.noNotificationSubTitle,
@@ -205,19 +226,30 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
                                     text: TextSpan(
                                   style: primaryTextStyle(size: 14),
                                   children: [
-                                    TextSpan(text: data.name.validate(), style: boldTextStyle(size: 14, weight: FontWeight.w500)),
-                                    if (data.isRequired == 1) TextSpan(text: ' *', style: primaryTextStyle(color: Colors.red, size: 14)),
+                                    TextSpan(
+                                        text: data.name.validate(),
+                                        style: boldTextStyle(
+                                            size: 14, weight: FontWeight.w500)),
+                                    if (data.isRequired == 1)
+                                      TextSpan(
+                                          text: ' *',
+                                          style: primaryTextStyle(
+                                              color: Colors.red, size: 14)),
                                   ],
                                 )),
                                 12.height,
                                 GestureDetector(
                                   onTap: () {
-                                    getMultipleFile(setImage: (imagePath){
+                                    getMultipleFile(setImage: (imagePath) {
                                       log("Image Path: $imagePath");
-                                      list.documents?[index] = list.documents?[index].copyWith(filePath: imagePath) ?? Documents();
-                                      log("File Path: ${list.documents?[index].filePath}");
+                                      if (index < uploadDocResp.length) {
+                                        uploadDocResp[index] =
+                                            uploadDocResp[index]
+                                                .copyWith(filePath: imagePath);
+                                        log("File Path: ${uploadDocResp[index].filePath}");
+                                      }
+                                      setState(() {});
                                     });
-                                    setState(() {});
                                   },
                                   child: DottedBorderWidget(
                                     color: context.dividerColor,
@@ -226,86 +258,159 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
                                       height: 200,
                                       width: context.width(),
                                       decoration: BoxDecoration(
-                                        color:  lightPrimaryColor,
+                                        color: lightPrimaryColor,
                                         borderRadius: radius(defaultRadius),
                                       ),
                                       alignment: Alignment.center,
-                                      child: data.filePath?.isNotEmpty ?? false ? Container(
-                                      height: 200,
-                                      width: context.width(),
-                                      decoration: BoxDecoration(
-                                        color: lightPrimaryColor,
-                                        borderRadius: radius(defaultRadius),
-                                        image: data.filePath?.contains('.pdf') ?? false ?
-                                         DecorationImage(
-                                          image: AssetImage(img_files),
-                                            colorFilter: ColorFilter.mode(
-                                            black.withValues(alpha: 0.6),
-                                            BlendMode.darken,
-                                            ),
-                                          fit: BoxFit.cover,
-                                        ): DecorationImage(
-                                          image: FileImage(File(data.filePath!)),
-                                          fit: BoxFit.cover,
-                                        ),
-                                        ),
-                                        child: data.filePath?.contains('.pdf')??  false ? Container(
-                                          height: 40,
-                                          width: double.infinity,
-                                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.only(
-                                              bottomLeft: radiusCircular(defaultRadius),
-                                              bottomRight: radiusCircular(defaultRadius)
-                                            )
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            mainAxisAlignment: MainAxisAlignment.end,
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text("${data.filePath.validate().split("/").last}", style: boldTextStyle(color: white), maxLines: 2,overflow: TextOverflow.ellipsis),
-                                              8.height,
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  GestureDetector(
-                                                    onTap: (){
-                                                      PdfViewerComponent(pdfFile: data.filePath.validate(),isFile: true).launch(context);
-                                                    },
-                                                    child: Container(
-                                                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(4),
-                                                        color: context.primaryColor,
+                                      child: data.filePath?.isNotEmpty ?? false
+                                          ? Container(
+                                              height: 200,
+                                              width: context.width(),
+                                              decoration: BoxDecoration(
+                                                color: lightPrimaryColor,
+                                                borderRadius:
+                                                    radius(defaultRadius),
+                                                image: data.filePath?.contains(
+                                                            '.pdf') ??
+                                                        false
+                                                    ? DecorationImage(
+                                                        image: AssetImage(
+                                                            img_files),
+                                                        colorFilter:
+                                                            ColorFilter.mode(
+                                                          black.withValues(
+                                                              alpha: 0.6),
+                                                          BlendMode.darken,
+                                                        ),
+                                                        fit: BoxFit.cover,
+                                                      )
+                                                    : DecorationImage(
+                                                        image: FileImage(File(
+                                                            data.filePath!)),
+                                                        fit: BoxFit.cover,
                                                       ),
-                                                      alignment: Alignment.center,
-                                                      child: Text(languages.viewPDF, style: boldTextStyle(color: white)),
-                                                    ),
-                                                  ),
-                                                ],
                                               ),
-                                            ],
-                                          ),
-                                        ): Offstage(),
-                                        ): Column(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Image.asset(ic_documents, height: 58),
-                                          18.height,
-                                          RichText(
-                                              text: TextSpan(
-                                            style: primaryTextStyle(size: 14),
-                                            children: [
-                                              TextSpan(text: languages.dropYourFilesHereOr, style: primaryTextStyle(size: 14, weight: FontWeight.w500,color: black)),
-                                              TextSpan(text: " ${languages.browse}", style: boldTextStyle(size: 14, color: context.primaryColor)),
-                                            ],
-                                          )),
-                                        ],
-                                      ),
+                                              child:
+                                                  data.filePath?.contains(
+                                                              '.pdf') ??
+                                                          false
+                                                      ? Container(
+                                                          height: 40,
+                                                          width:
+                                                              double.infinity,
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                  vertical: 10),
+                                                          alignment:
+                                                              Alignment.center,
+                                                          decoration: BoxDecoration(
+                                                              borderRadius: BorderRadius.only(
+                                                                  bottomLeft:
+                                                                      radiusCircular(
+                                                                          defaultRadius),
+                                                                  bottomRight:
+                                                                      radiusCircular(
+                                                                          defaultRadius))),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .end,
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              Text(
+                                                                  "${data.filePath.validate().split("/").last}",
+                                                                  style: boldTextStyle(
+                                                                      color:
+                                                                          white),
+                                                                  maxLines: 2,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis),
+                                                              8.height,
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  GestureDetector(
+                                                                    onTap: () {
+                                                                      PdfViewerComponent(
+                                                                              pdfFile: data.filePath.validate(),
+                                                                              isFile: true)
+                                                                          .launch(context);
+                                                                    },
+                                                                    child:
+                                                                        Container(
+                                                                      padding: EdgeInsets.symmetric(
+                                                                          horizontal:
+                                                                              16,
+                                                                          vertical:
+                                                                              6),
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(4),
+                                                                        color: context
+                                                                            .primaryColor,
+                                                                      ),
+                                                                      alignment:
+                                                                          Alignment
+                                                                              .center,
+                                                                      child: Text(
+                                                                          languages
+                                                                              .viewPDF,
+                                                                          style:
+                                                                              boldTextStyle(color: white)),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        )
+                                                      : Offstage(),
+                                            )
+                                          : Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Image.asset(ic_documents,
+                                                    height: 58),
+                                                18.height,
+                                                RichText(
+                                                    text: TextSpan(
+                                                  style: primaryTextStyle(
+                                                      size: 14),
+                                                  children: [
+                                                    TextSpan(
+                                                        text: languages
+                                                            .dropYourFilesHereOr,
+                                                        style: primaryTextStyle(
+                                                            size: 14,
+                                                            weight:
+                                                                FontWeight.w500,
+                                                            color: black)),
+                                                    TextSpan(
+                                                        text:
+                                                            " ${languages.browse}",
+                                                        style: boldTextStyle(
+                                                            size: 14,
+                                                            color: context
+                                                                .primaryColor)),
+                                                  ],
+                                                )),
+                                              ],
+                                            ),
                                     ),
                                   ),
                                 ),
@@ -314,6 +419,8 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
                             );
                           },
                           onSwipeRefresh: () async {
+                            uploadDocResp = [];
+                            imageFile = null;
                             init();
                             setState(() {});
                             return await 2.seconds.delay;
@@ -339,18 +446,19 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
               _buildTcAcceptWidget(),
               Observer(
                 builder: (_) => AppButton(
-                  margin: EdgeInsets.only(bottom: 12),
-                  text: languages.lblSignup,
-                  height: 40,
-                  color: appStore.isLoading ? primaryColor.withValues(alpha: 0.5) : primaryColor,
-                  textStyle: boldTextStyle(color: white),
-                  width: context.width() - context.navigationBarHeight,
-                  onTap:  () {
-                        if(!appStore.isLoading) {
-                          registerFun();
-                        }
-                  }
-                ),
+                    margin: EdgeInsets.only(bottom: 12),
+                    text: languages.lblSignup,
+                    height: 40,
+                    color: appStore.isLoading
+                        ? primaryColor.withValues(alpha: 0.5)
+                        : primaryColor,
+                    textStyle: boldTextStyle(color: white),
+                    width: context.width() - context.navigationBarHeight,
+                    onTap: () {
+                      if (!appStore.isLoading) {
+                        registerFun();
+                      }
+                    }),
               ).paddingOnly(left: 16.0, right: 16.0)
             ],
           ),

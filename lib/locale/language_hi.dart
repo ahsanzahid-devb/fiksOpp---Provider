@@ -951,6 +951,9 @@ class LanguageHi extends Languages {
   String get myBid => 'मेरी बोली';
 
   @override
+  String get bidSavedSuccessfully => 'बोली सफलतापूर्वक सहेजी गई।';
+
+  @override
   String get inputMustBeNumberOrDigit => 'इनपुट संख्या या अंक होना चाहिए';
 
   @override

@@ -950,6 +950,9 @@ class LanguageEn extends Languages {
   String get myBid => 'My Bid';
 
   @override
+  String get bidSavedSuccessfully => 'Bid saved successfully.';
+
+  @override
   String get inputMustBeNumberOrDigit => 'Input must be number or digit';
 
   @override

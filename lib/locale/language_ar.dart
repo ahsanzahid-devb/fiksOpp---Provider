@@ -949,6 +949,9 @@ class LanguageAr extends Languages {
   String get myBid => 'عطائاتي';
 
   @override
+  String get bidSavedSuccessfully => 'تم حفظ العرض بنجاح.';
+
+  @override
   String get inputMustBeNumberOrDigit => 'يجب أن يكون الإدخال ارفام';
 
   @override

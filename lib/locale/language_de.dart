@@ -950,6 +950,9 @@ class LanguageDe extends Languages {
   String get myBid => 'Mein Angebot';
 
   @override
+  String get bidSavedSuccessfully => 'Gebot erfolgreich gespeichert.';
+
+  @override
   String get inputMustBeNumberOrDigit => 'Die Eingabe muss Anzahl oder Ziffer sein';
 
   @override

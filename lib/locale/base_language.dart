@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 abstract class Languages {
-  static Languages of(BuildContext context) => Localizations.of<Languages>(context, Languages)!;
+  static Languages of(BuildContext context) =>
+      Localizations.of<Languages>(context, Languages)!;
 
   String planAboutToExpire(int days);
 
@@ -634,6 +635,8 @@ abstract class Languages {
   String get enterBidPrice;
 
   String get myBid;
+
+  String get bidSavedSuccessfully;
 
   String get inputMustBeNumberOrDigit;
 
@@ -1691,7 +1694,7 @@ abstract class Languages {
   String get selectZones;
 
   String get plzSelectOneZone;
-  
+
   String get lblNext;
 
   String get uploadDocuments;
@@ -1703,7 +1706,7 @@ abstract class Languages {
   String get requiredDocumentsMustBe;
 
   String get dropYourFilesHereOr;
-  
+
   String get browse;
 
   String get pleaseUploadAllRequired;
