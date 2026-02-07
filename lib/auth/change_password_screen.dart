@@ -93,11 +93,12 @@ class ChangePasswordScreenState extends State<ChangePasswordScreen> {
               height: context.height(),
               child: Form(
                 key: formKey,
-                autovalidateMode: AutovalidateMode.always,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(languages.changePasswordTitle, style: secondaryTextStyle()),
+                    Text(languages.changePasswordTitle,
+                        style: secondaryTextStyle()),
                     24.height,
                     AppTextField(
                       textFieldType: TextFieldType.PASSWORD,
@@ -105,8 +106,10 @@ class ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       focus: oldPasswordFocus,
                       isValidationRequired: true,
                       obscureText: true,
-                      suffixPasswordVisibleWidget: ic_show.iconImage(size: 10).paddingAll(14),
-                      suffixPasswordInvisibleWidget: ic_hide.iconImage(size: 10).paddingAll(14),
+                      suffixPasswordVisibleWidget:
+                          ic_show.iconImage(size: 10).paddingAll(14),
+                      suffixPasswordInvisibleWidget:
+                          ic_hide.iconImage(size: 10).paddingAll(14),
                       validator: (val) {
                         if (val == null || val.isEmpty) {
                           return languages.hintRequired;
@@ -116,7 +119,8 @@ class ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         return null;
                       },
                       nextFocus: newPasswordFocus,
-                      decoration: inputDecoration(context, hint: languages.hintOldPasswordTxt),
+                      decoration: inputDecoration(context,
+                          hint: languages.hintOldPasswordTxt),
                     ),
                     16.height,
                     AppTextField(
@@ -125,8 +129,10 @@ class ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       focus: newPasswordFocus,
                       isValidationRequired: true,
                       obscureText: true,
-                      suffixPasswordVisibleWidget: ic_show.iconImage(size: 10).paddingAll(14),
-                      suffixPasswordInvisibleWidget: ic_hide.iconImage(size: 10).paddingAll(14),
+                      suffixPasswordVisibleWidget:
+                          ic_show.iconImage(size: 10).paddingAll(14),
+                      suffixPasswordInvisibleWidget:
+                          ic_hide.iconImage(size: 10).paddingAll(14),
                       validator: (val) {
                         if (val == null || val.isEmpty) {
                           return languages.hintRequired;
@@ -136,7 +142,8 @@ class ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         return null;
                       },
                       nextFocus: reenterPasswordFocus,
-                      decoration: inputDecoration(context, hint: languages.hintNewPasswordTxt),
+                      decoration: inputDecoration(context,
+                          hint: languages.hintNewPasswordTxt),
                     ),
                     16.height,
                     AppTextField(
@@ -164,7 +171,8 @@ class ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           changePassword();
                         });
                       },
-                      decoration: inputDecoration(context, hint: languages.hintReenterPasswordTxt),
+                      decoration: inputDecoration(context,
+                          hint: languages.hintReenterPasswordTxt),
                     ),
                     24.height,
                     AppButton(
@@ -185,7 +193,9 @@ class ChangePasswordScreenState extends State<ChangePasswordScreen> {
               ),
             ),
           ),
-          Observer(builder: (_) => LoaderWidget().center().visible(appStore.isLoading)),
+          Observer(
+              builder: (_) =>
+                  LoaderWidget().center().visible(appStore.isLoading)),
         ],
       ),
     );
