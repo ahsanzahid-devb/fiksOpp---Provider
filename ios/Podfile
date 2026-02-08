@@ -33,14 +33,16 @@ target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
-target 'ImageNotification' do
-   use_frameworks!
-   pod 'Firebase/Messaging'
-   pod 'GoogleUtilities/Environment'
-   pod 'GoogleUtilities/Logger'
-   pod 'GoogleUtilities/Network'
-   pod 'GoogleUtilities/UserDefaults'
-end
+# ImageNotification (Notification Service Extension) - uncomment after adding target in Xcode:
+# Xcode: File > New > Target > Notification Service Extension, name it ImageNotification
+# target 'ImageNotification' do
+#    use_frameworks!
+#    pod 'Firebase/Messaging'
+#    pod 'GoogleUtilities/Environment'
+#    pod 'GoogleUtilities/Logger'
+#    pod 'GoogleUtilities/Network'
+#    pod 'GoogleUtilities/UserDefaults'
+# end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|

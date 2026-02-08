@@ -120,7 +120,7 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
           builder: (context, value, child) =>
               SelectedItemWidget(isSelected: isAcceptedTc).onTap(() async {
             isAcceptedTc = !isAcceptedTc;
-            _valueNotifier.notifyListeners();
+            _valueNotifier.value = !_valueNotifier.value;
           }),
         ),
         16.width,
