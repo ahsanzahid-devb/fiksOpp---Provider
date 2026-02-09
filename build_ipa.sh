@@ -19,7 +19,9 @@ export TMPDIR=/tmp
 export TEMP=/tmp
 export TMP=/tmp
 
-# Help large git clones (e.g. BoringSSL-GRPC) succeed; 500MB buffer
+# Fix BoringSSL-GRPC clone: "HTTP/2 stream was not closed cleanly" (use HTTP/1.1)
+git config --global http.version HTTP/1.1 2>/dev/null || true
+# Help large git clones succeed; 500MB buffer
 git config --global http.postBuffer 524288000 2>/dev/null || true
 git config --global http.lowSpeedLimit 0
 git config --global http.lowSpeedTime 999999

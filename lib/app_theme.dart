@@ -19,22 +19,29 @@ class AppTheme {
     ),
     scaffoldBackgroundColor: Colors.white,
     fontFamily: GoogleFonts.inter().fontFamily,
-    bottomNavigationBarTheme: BottomNavigationBarThemeData(backgroundColor: Colors.white),
+    bottomNavigationBarTheme:
+        BottomNavigationBarThemeData(backgroundColor: Colors.white),
     iconTheme: IconThemeData(color: appTextSecondaryColor),
     textTheme: GoogleFonts.interTextTheme(),
     unselectedWidgetColor: Colors.black,
     dividerColor: borderColor,
     bottomSheetTheme: BottomSheetThemeData(
-      shape: RoundedRectangleBorder(borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius)),
+      shape: RoundedRectangleBorder(
+          borderRadius:
+              radiusOnly(topLeft: defaultRadius, topRight: defaultRadius)),
       backgroundColor: Colors.white,
     ),
     cardColor: cardColor,
-    appBarTheme: AppBarTheme(systemOverlayStyle: SystemUiOverlayStyle(statusBarIconBrightness: Brightness.light, statusBarColor: primaryColor)),
+    appBarTheme: AppBarTheme(
+        systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarIconBrightness: Brightness.light,
+            statusBarColor: primaryColor)),
     dialogTheme: DialogThemeData(
-      backgroundColor: Colors.white,
-      surfaceTintColor: Colors.transparent,
-      shape: dialogShape()),
-    navigationBarTheme: NavigationBarThemeData(labelTextStyle: WidgetStateProperty.all(primaryTextStyle(size: 10))),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: dialogShape()),
+    navigationBarTheme: NavigationBarThemeData(
+        labelTextStyle: WidgetStateProperty.all(primaryTextStyle(size: 10))),
     checkboxTheme: CheckboxThemeData(
       checkColor: WidgetStateProperty.all(Colors.white),
       fillColor: WidgetStateProperty.all(Colors.white),
@@ -54,32 +61,39 @@ class AppTheme {
     primaryColor: primaryColor,
     colorScheme: ColorScheme.fromSeed(
       seedColor: primaryColor,
-      outlineVariant: borderColor.withValues(alpha:0.4),
+      outlineVariant: borderColor.withValues(alpha: 0.4),
     ),
     appBarTheme: AppBarTheme(
-      systemOverlayStyle: SystemUiOverlayStyle(statusBarIconBrightness: Brightness.light, statusBarColor: primaryColor),
+      systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarIconBrightness: Brightness.light,
+          statusBarColor: primaryColor),
     ),
     scaffoldBackgroundColor: scaffoldColorDark,
     fontFamily: GoogleFonts.inter().fontFamily,
-    bottomNavigationBarTheme: BottomNavigationBarThemeData(backgroundColor: scaffoldSecondaryDark),
+    bottomNavigationBarTheme:
+        BottomNavigationBarThemeData(backgroundColor: scaffoldSecondaryDark),
     iconTheme: IconThemeData(color: Colors.white),
     textTheme: GoogleFonts.interTextTheme(),
     unselectedWidgetColor: Colors.white60,
     bottomSheetTheme: BottomSheetThemeData(
-      shape: RoundedRectangleBorder(borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius)),
+      shape: RoundedRectangleBorder(
+          borderRadius:
+              radiusOnly(topLeft: defaultRadius, topRight: defaultRadius)),
       backgroundColor: scaffoldSecondaryDark,
     ),
     dividerColor: dividerDarkColor,
     cardColor: scaffoldSecondaryDark,
     dialogTheme: DialogThemeData(
-      backgroundColor: scaffoldSecondaryDark,
-      surfaceTintColor: Colors.transparent,
-      shape: dialogShape()),
+        backgroundColor: scaffoldSecondaryDark,
+        surfaceTintColor: Colors.transparent,
+        shape: dialogShape()),
     checkboxTheme: CheckboxThemeData(
       checkColor: WidgetStateProperty.all(Colors.white),
       fillColor: WidgetStateProperty.all(Colors.white),
     ),
-    navigationBarTheme: NavigationBarThemeData(labelTextStyle: WidgetStateProperty.all(primaryTextStyle(size: 10, color: Colors.white))),
+    navigationBarTheme: NavigationBarThemeData(
+        labelTextStyle: WidgetStateProperty.all(
+            primaryTextStyle(size: 10, color: Colors.white))),
     pageTransitionsTheme: PageTransitionsTheme(
       builders: <TargetPlatform, PageTransitionsBuilder>{
         TargetPlatform.android: OpenUpwardsPageTransitionsBuilder(),

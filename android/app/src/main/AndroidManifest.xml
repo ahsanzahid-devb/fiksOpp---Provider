@@ -20,7 +20,7 @@
     </queries>
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="provider_app"
+        android:label="FiksOppProvider"
         android:allowBackup="false"
         android:fullBackupContent="false"
         tools:replace="android:label">
