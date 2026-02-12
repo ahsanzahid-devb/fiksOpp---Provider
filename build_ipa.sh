@@ -9,7 +9,11 @@
 set -e
 cd "$(dirname "$0")"
 
-echo "Cleaning CocoaPods cache (fixes JSON parse errors)..."
+echo "Step 1: Flutter pub get (ensures ios/Flutter/Generated.xcconfig exists)..."
+flutter pub get
+
+echo ""
+echo "Step 2: Cleaning CocoaPods cache (fixes JSON parse errors)..."
 pod cache clean --all 2>/dev/null || true
 rm -rf ios/Pods ios/Podfile.lock ios/.symlinks
 rm -rf ~/Library/Caches/CocoaPods 2>/dev/null || true

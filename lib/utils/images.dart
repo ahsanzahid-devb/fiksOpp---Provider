@@ -1,4 +1,4 @@
-const appLogo = 'assets/ic_app_logo.png';
+const appLogo = 'assets/ .png';
 
 const chat_default_wallpaper = "assets/images/default_wallpaper.png";
 const imgForceUpdate = 'assets/images/force_update.png';
@@ -7,7 +7,6 @@ const splash_background = "assets/images/splash_background.jpg";
 const splash_light_background = "assets/images/splash_light_background.png";
 const img_location = "assets/images/img_location.png";
 const img_files = "assets/images/img_files.jpg";
-
 const servicesAddress = 'assets/icons/ic_services_address.png';
 const services = 'assets/icons/ic_services.png';
 const handyman = 'assets/icons/ic_handyman.png';
@@ -80,8 +79,10 @@ const ic_add = 'assets/icons/ic_add.png';
 const ic_piggy_bank = 'assets/icons/ic_piggy_bank.png';
 const ic_scan = 'assets/icons/ic_scan.png';
 const ic_password = 'assets/icons/ic_password.png';
-const ic_diagonal_left_down_arrow = 'assets/icons/ic_diagonal_left_down_arrow.png';
-const ic_diagonal_right_up_arrow = 'assets/icons/ic_diagonal_right_up_arrow.png';
+const ic_diagonal_left_down_arrow =
+    'assets/icons/ic_diagonal_left_down_arrow.png';
+const ic_diagonal_right_up_arrow =
+    'assets/icons/ic_diagonal_right_up_arrow.png';
 const indicator_2 = 'assets/images/indicator_2.png';
 const ic_fill_textMsg = "assets/icons/ic_fill_textMsg.png";
 const ic_profile = 'assets/icons/ic_profile.png';
@@ -98,4 +99,3 @@ const total_revenue_final = 'assets/icons/ic_total_revenue.png';
 const ic_briefcase = 'assets/icons/briefcase.png';
 const ic_documents = 'assets/icons/ic_documents.png';
 const ic_clean = 'assets/icons/ic_clean.png';
-
