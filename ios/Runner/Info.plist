@@ -56,5 +56,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app uses your location to show nearby jobs and services relevant to your current area.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs access to your location even in the background to keep your job locations and service requests up to date.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app uses the camera so you can take photos and videos of jobs and service work.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs access to your photo library so you can upload existing photos and videos of jobs and service work.</string>
 </dict>
 </plist>
