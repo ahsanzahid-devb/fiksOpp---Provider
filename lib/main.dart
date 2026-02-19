@@ -78,9 +78,6 @@ InAppPurchaseService inAppPurchaseService = InAppPurchaseService();
 Languages languages = LanguageEn();
 List<RevenueChartData> chartData = [];
 List<ExtraChargesModel> chargesList = [];
-//endregion
-
-//region Cached Response Variables for Dashboard Tabs
 DashboardResponse? cachedProviderDashboardResponse;
 HandymanDashBoardResponse? cachedHandymanDashboardResponse;
 List<BookingData>? cachedBookingList;
