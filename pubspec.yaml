@@ -100,9 +100,9 @@ flutter_launcher_icons:
   image_path:   "assets/icons/logo.png"
   min_sdk_android: 21 # Android min sdk min:16, default 21
   remove_alpha_ios: true # Remove alpha channel for iOS (required by App Store)
-  adaptive_icon_background: "#000000" # Background color for adaptive icon (Android)
+  adaptive_icon_background: "#FFFFFF" # Background color for adaptive icon (Android)
   adaptive_icon_foreground: "assets/icons/logo.png" # Foreground image for adaptive icon (Android)
-
+ 
   
 flutter:
   uses-material-design: true
