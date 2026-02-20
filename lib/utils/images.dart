@@ -1,4 +1,4 @@
-const appLogo = 'assets/ .png';
+const appLogo = 'assets/icons/logo.png';
 
 const chat_default_wallpaper = "assets/images/default_wallpaper.png";
 const imgForceUpdate = 'assets/images/force_update.png';

@@ -1,6 +1,0 @@
-package fiksopp.inoor.buzz
-
-import io.flutter.embedding.android.FlutterFragmentActivity
-
-class MainActivity: FlutterFragmentActivity() {
-}
