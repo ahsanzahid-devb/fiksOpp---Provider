@@ -23,7 +23,8 @@ class PayToScreen extends StatefulWidget {
   final PaymentHistoryData paymentData;
   final num? totalNumberOfBookings;
 
-  PayToScreen({Key? key, required this.paymentData, this.totalNumberOfBookings}) : super(key: key);
+  PayToScreen({Key? key, required this.paymentData, this.totalNumberOfBookings})
+      : super(key: key);
 
   @override
   State<PayToScreen> createState() => _PayToScreenState();
@@ -57,7 +58,8 @@ class _PayToScreenState extends State<PayToScreen> {
 
   Widget buildTotalAmountWidget() {
     return SettingSection(
-      title: Text(languages.totalAmountToPay, style: boldTextStyle(size: LABEL_TEXT_SIZE)),
+      title: Text(languages.totalAmountToPay,
+          style: boldTextStyle(size: LABEL_TEXT_SIZE)),
       headerPadding: EdgeInsets.only(top: 24, bottom: 12, left: 16, right: 16),
       headingDecoration: headingDecoration,
       divider: Offstage(),
@@ -68,9 +70,13 @@ class _PayToScreenState extends State<PayToScreen> {
           decoration: boxDecorationDefault(color: context.cardColor),
           child: Row(
             children: [
-              PriceWidget(price: widget.paymentData.totalAmount.validate(), size: 16),
+              PriceWidget(
+                  price: widget.paymentData.totalAmount.validate(), size: 16),
               8.width,
-              if (widget.totalNumberOfBookings != null) Text('${languages.from} ${widget.totalNumberOfBookings} ${languages.booking}', style: secondaryTextStyle()),
+              if (widget.totalNumberOfBookings != null)
+                Text(
+                    '${languages.from} ${widget.totalNumberOfBookings} ${languages.booking}',
+                    style: secondaryTextStyle()),
             ],
           ),
         )
@@ -93,7 +99,8 @@ class _PayToScreenState extends State<PayToScreen> {
 
               return RadioListTile<CashFilterModel>(
                 value: data,
-                tileColor: data == selectedPaymentList ? context.cardColor : null,
+                tileColor:
+                    data == selectedPaymentList ? context.cardColor : null,
                 controlAffinity: ListTileControlAffinity.trailing,
                 title: Text(data.name.validate(), style: primaryTextStyle()),
                 groupValue: selectedPaymentList,
@@ -127,10 +134,13 @@ class _PayToScreenState extends State<PayToScreen> {
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: SettingSection(
-              headerPadding: EdgeInsets.only(left: 0, right: 0, bottom: 12, top: 8),
-              title: Text(languages.detailsOfTheBank, style: boldTextStyle(size: LABEL_TEXT_SIZE)),
+              headerPadding:
+                  EdgeInsets.only(left: 0, right: 0, bottom: 12, top: 8),
+              title: Text(languages.detailsOfTheBank,
+                  style: boldTextStyle(size: LABEL_TEXT_SIZE)),
               subTitle: Text(
-                languages.selectABankTransferMoneyAndEnterTheReferenceIDInTheTextFieldBelow,
+                languages
+                    .selectABankTransferMoneyAndEnterTheReferenceIDInTheTextFieldBelow,
                 style: secondaryTextStyle(),
               ).paddingBottom(8),
               headingDecoration: headingDecoration,
@@ -140,7 +150,8 @@ class _PayToScreenState extends State<PayToScreen> {
                   if (snap.data!.bankData.validate().isEmpty)
                     NoDataWidget(
                       title: languages.noBanksAvailable,
-                      subTitle: languages.chooseCashOrContactAdminForBankInformation,
+                      subTitle:
+                          languages.chooseCashOrContactAdminForBankInformation,
                       imageWidget: ErrorStateWidget(),
                       retryText: languages.reload,
                       onRetry: () {
@@ -155,7 +166,10 @@ class _PayToScreenState extends State<PayToScreen> {
                       child: AppTextField(
                         controller: referenceIdCont,
                         textFieldType: TextFieldType.NUMBER,
-                        decoration: inputDecoration(context, hint: languages.refNumber, prefixIcon: ic_document.iconImage(size: 10).paddingAll(14)),
+                        decoration: inputDecoration(context,
+                            hint: languages.refNumber,
+                            prefixIcon:
+                                ic_document.iconImage(size: 10).paddingAll(14)),
                       ),
                     ),
                     16.height,
@@ -167,42 +181,65 @@ class _PayToScreenState extends State<PayToScreen> {
                         BankData data = snap.data!.bankData.validate()[index];
                         return Container(
                           padding: EdgeInsets.all(16),
-                          margin: EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-                          decoration: boxDecorationDefault(color: context.cardColor),
+                          margin:
+                              EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                          decoration:
+                              boxDecorationDefault(color: context.cardColor),
                           child: Column(
                             children: [
                               Row(
                                 children: [
-                                  Text(languages.bankName, style: secondaryTextStyle()).expand(),
-                                  Text(data.bankName.validate(), style: boldTextStyle(), textAlign: TextAlign.end).expand(),
+                                  Text(languages.bankName,
+                                          style: secondaryTextStyle())
+                                      .expand(),
+                                  Text(data.bankName.validate(),
+                                          style: boldTextStyle(),
+                                          textAlign: TextAlign.end)
+                                      .expand(),
                                 ],
                               ),
                               Divider(height: 20, color: context.dividerColor),
                               Row(
                                 children: [
-                                  Text(languages.accountNumber, style: secondaryTextStyle()),
+                                  Text(languages.accountNumber,
+                                      style: secondaryTextStyle()),
                                   8.width,
                                   GestureDetector(
                                     onTap: () {
-                                      data.accountNo.validate().copyToClipboard();
+                                      data.accountNo
+                                          .validate()
+                                          .copyToClipboard();
                                     },
                                     child: Icon(Icons.copy, size: 14),
                                   ),
-                                  Text(data.accountNo.validate(), style: boldTextStyle(), textAlign: TextAlign.end).expand(),
+                                  Text(data.accountNo.validate(),
+                                          style: boldTextStyle(),
+                                          textAlign: TextAlign.end)
+                                      .expand(),
                                 ],
                               ),
                               Divider(height: 20, color: context.dividerColor),
                               Row(
                                 children: [
-                                  Text(languages.iFSCCode, style: secondaryTextStyle()).expand(),
-                                  Text(data.ifscNo.validate(), style: boldTextStyle(), textAlign: TextAlign.end).expand(),
+                                  Text(languages.iFSCCode,
+                                          style: secondaryTextStyle())
+                                      .expand(),
+                                  Text(data.ifscNo.validate(),
+                                          style: boldTextStyle(),
+                                          textAlign: TextAlign.end)
+                                      .expand(),
                                 ],
                               ),
                               Divider(height: 20, color: context.dividerColor),
                               Row(
                                 children: [
-                                  Text(languages.bankAddress, style: secondaryTextStyle()).expand(),
-                                  Text(data.branchName.validate(), style: boldTextStyle(), textAlign: TextAlign.end).expand(),
+                                  Text(languages.bankAddress,
+                                          style: secondaryTextStyle())
+                                      .expand(),
+                                  Text(data.branchName.validate(),
+                                          style: boldTextStyle(),
+                                          textAlign: TextAlign.end)
+                                      .expand(),
                                 ],
                               ),
                               Divider(height: 20, color: context.dividerColor),
@@ -213,7 +250,10 @@ class _PayToScreenState extends State<PayToScreen> {
                     ).paddingTop(16)
                   ]
                 else
-                  Text(languages.pleaseWaitWhileWeLoadBankDetails, style: primaryTextStyle()).center().paddingTop(60),
+                  Text(languages.pleaseWaitWhileWeLoadBankDetails,
+                          style: primaryTextStyle())
+                      .center()
+                      .paddingTop(60),
               ],
             ),
           );
@@ -231,7 +271,9 @@ class _PayToScreenState extends State<PayToScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appBarTitle: isUserTypeProvider ? languages.sendCashToAdmin : languages.sendCashToProvider,
+      appBarTitle: isUserTypeProvider
+          ? languages.sendCashToAdmin
+          : languages.sendCashToProvider,
       body: SnapHelperWidget<UserInfoResponse>(
         future: userDataFuture,
         loadingWidget: LoaderWidget(),
@@ -244,7 +286,10 @@ class _PayToScreenState extends State<PayToScreen> {
                 padding: EdgeInsets.only(bottom: 90),
                 physics: AlwaysScrollableScrollPhysics(),
                 children: [
-                  CashProviderWidget(headingDecoration: headingDecoration, context: context, data: data),
+                  CashProviderWidget(
+                      headingDecoration: headingDecoration,
+                      context: context,
+                      data: data),
                   buildTotalAmountWidget(),
                   buildPaymentWidget(),
                   buildBankAndReferenceWidget(),
@@ -270,8 +315,12 @@ class _PayToScreenState extends State<PayToScreen> {
                           context,
                           isFinishRequired: true,
                           paymentData: widget.paymentData,
-                          status: isUserTypeProvider ? PENDING_BY_ADMIN : PENDING_BY_PROVIDER,
-                          action: isUserTypeProvider ? PROVIDER_SEND_ADMIN : HANDYMAN_SEND_PROVIDER,
+                          status: isUserTypeProvider
+                              ? PENDING_BY_ADMIN
+                              : SEND_TO_PROVIDER, // was PENDING_BY_PROVIDER (commented tab)
+                          action: isUserTypeProvider
+                              ? PROVIDER_SEND_ADMIN
+                              : HANDYMAN_SEND_PROVIDER,
                         );
                       }
                     } else {
@@ -279,12 +328,18 @@ class _PayToScreenState extends State<PayToScreen> {
                         context,
                         isFinishRequired: true,
                         paymentData: widget.paymentData,
-                        status: isUserTypeProvider ? PENDING_BY_ADMIN : PENDING_BY_PROVIDER,
-                        action: isUserTypeProvider ? PROVIDER_SEND_ADMIN : HANDYMAN_SEND_PROVIDER,
+                        status: isUserTypeProvider
+                            ? PENDING_BY_ADMIN
+                            : SEND_TO_PROVIDER, // was PENDING_BY_PROVIDER (commented tab)
+                        action: isUserTypeProvider
+                            ? PROVIDER_SEND_ADMIN
+                            : HANDYMAN_SEND_PROVIDER,
                       );
                     }
                   },
-                  text: (isUserTypeProvider ? languages.sendToAdmin : languages.sendToProvider),
+                  text: (isUserTypeProvider
+                      ? languages.sendToAdmin
+                      : languages.sendToProvider),
                   color: context.primaryColor,
                 ),
               ).visible(!appStore.isLoading),
@@ -311,7 +366,8 @@ class CashProviderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingSection(
-      title: Text(isUserTypeProvider ? languages.admin : languages.provider, style: boldTextStyle(size: LABEL_TEXT_SIZE)),
+      title: Text(isUserTypeProvider ? languages.admin : languages.provider,
+          style: boldTextStyle(size: LABEL_TEXT_SIZE)),
       headingDecoration: headingDecoration,
       divider: Offstage(),
       items: [
@@ -326,14 +382,19 @@ class CashProviderWidget extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(data.displayName.validate(), style: boldTextStyle(size: 12)),
+                  Text(data.displayName.validate(),
+                      style: boldTextStyle(size: 12)),
                   TextIcon(
                     spacing: 6,
                     edgeInsets: EdgeInsets.fromLTRB(0, 4, 8, 8),
                     onTap: () {
                       launchMail("${data.email.validate()}");
                     },
-                    prefix: Image.asset(ic_message, width: 12, height: 12, color: appStore.isDarkMode ? Colors.white : Colors.black),
+                    prefix: Image.asset(ic_message,
+                        width: 12,
+                        height: 12,
+                        color:
+                            appStore.isDarkMode ? Colors.white : Colors.black),
                     text: data.email.validate(),
                     textStyle: secondaryTextStyle(),
                     expandedText: true,
@@ -344,7 +405,11 @@ class CashProviderWidget extends StatelessWidget {
                     onTap: () {
                       launchCall(data.contactNumber.validate());
                     },
-                    prefix: Image.asset(calling, width: 12, height: 12, color: appStore.isDarkMode ? Colors.white : Colors.black),
+                    prefix: Image.asset(calling,
+                        width: 12,
+                        height: 12,
+                        color:
+                            appStore.isDarkMode ? Colors.white : Colors.black),
                     text: '${data.contactNumber.validate()}',
                     textStyle: secondaryTextStyle(),
                     expandedText: true,

@@ -12,8 +12,8 @@ class CashHistoryModel {
   });
 
   factory CashHistoryModel.fromJson(Map<String, dynamic> json) => CashHistoryModel(
-        totalCashInHand: json["total_cash_in_hand"],
-        todayCash: json["today_cash"],
+        totalCashInHand: num.tryParse(json["total_cash_in_hand"]?.toString() ?? '') ?? 0,
+        todayCash: num.tryParse(json["today_cash"]?.toString() ?? '') ?? 0,
         data: json["cash_detail"] == null ? [] : List<PaymentHistoryData>.from(json["cash_detail"]!.map((x) => PaymentHistoryData.fromJson(x))),
       );
 

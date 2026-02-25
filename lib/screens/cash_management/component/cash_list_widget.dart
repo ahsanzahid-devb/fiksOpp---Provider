@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:handyman_provider_flutter/components/price_widget.dart';
 import 'package:handyman_provider_flutter/main.dart';
-import 'package:handyman_provider_flutter/screens/booking_detail_screen.dart';
 import 'package:handyman_provider_flutter/screens/cash_management/cash_constant.dart';
+import 'package:handyman_provider_flutter/screens/cash_management/view/cash_payment_detail_screen.dart';
 import 'package:handyman_provider_flutter/screens/cash_management/cash_repository.dart';
 import 'package:handyman_provider_flutter/screens/cash_management/model/payment_history_model.dart';
 import 'package:handyman_provider_flutter/screens/cash_management/view/pay_to_screen.dart';
@@ -86,7 +86,7 @@ class _CashListWidgetState extends State<CashListWidget> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        BookingDetailScreen(bookingId: widget.data.bookingId.validate().toInt()).launch(context);
+        CashPaymentDetailScreen(data: widget.data).launch(context);
       },
       child: Container(
         decoration: boxDecorationDefault(color: context.cardColor),

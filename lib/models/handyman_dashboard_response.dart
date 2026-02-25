@@ -44,10 +44,10 @@ class HandymanDashBoardResponse {
     handymanReviews = json['handyman_reviews'] != null ? (json['handyman_reviews'] as List).map((i) => RatingData.fromJson(i)).toList() : null;
     status = json['status'];
     todayBooking = json['today_booking'];
-    todayCashAmount = json['today_cash'];
-    totalCashInHand = json['total_cash_in_hand'];
+    todayCashAmount = num.tryParse(json['today_cash']?.toString() ?? '') ?? 0;
+    totalCashInHand = num.tryParse(json['total_cash_in_hand']?.toString() ?? '') ?? 0;
     totalBooking = json['total_booking'];
-    totalRevenue = json['total_revenue'];
+    totalRevenue = num.tryParse(json['total_revenue']?.toString() ?? '') ?? 0;
     upcomingBookings = json['upcomming_booking'] != null ? (json['upcomming_booking'] as List).map((i) => BookingData.fromJson(i)).toList() : null;
 
     isHandymanAvailable = json['isHandymanAvailable'];
@@ -62,10 +62,10 @@ class HandymanDashBoardResponse {
         chartData.add(RevenueChartData(month: months[index], revenue: 0));
       }
     });
-    notificationUnreadCount = json['notification_unread_count'];
+    notificationUnreadCount = num.tryParse(json['notification_unread_count']?.toString() ?? '') ?? 0;
 
     isEmailVerified = json['is_email_verified'];
-    remainingPayout = json['remaining_payout'];
+    remainingPayout = num.tryParse(json['remaining_payout']?.toString() ?? '') ?? 0;
   }
 
   Map<String, dynamic> toJson() {

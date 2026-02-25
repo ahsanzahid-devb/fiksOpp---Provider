@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:handyman_provider_flutter/screens/cash_management/model/payment_history_model.dart';
+import 'package:handyman_provider_flutter/screens/cash_management/view/cash_payment_history_detail_screen.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -13,7 +14,11 @@ class PaymentHistoryListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return GestureDetector(
+      onTap: () {
+        CashPaymentHistoryDetailScreen(data: data).launch(context);
+      },
+      child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Column(
@@ -43,6 +48,7 @@ class PaymentHistoryListWidget extends StatelessWidget {
           ],
         ).paddingOnly(bottom: 18).expand(),
       ],
-    );
+    ),
+  );
   }
 }

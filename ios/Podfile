@@ -38,5 +38,11 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    
+    # Enable dSYM generation for all pods (required for App Store upload)
+    target.build_configurations.each do |config|
+      config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
+      config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
+    end
   end
 end

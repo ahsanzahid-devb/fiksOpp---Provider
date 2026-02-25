@@ -31,3 +31,12 @@ Video: https://youtu.be/XI6sGQbuw1M
 ## 6. How to generate App Bundles in Android
 
 Video: https://youtu.be/ZawptmY379s
+
+---
+
+## Backend API updates (payment & cash)
+
+For payment and cash data to show correctly in the app (dashboard, cash balance, payment history), the backend APIs must return the right data. See:
+
+- **[BACKEND_API_UPDATES.md](BACKEND_API_UPDATES.md)** – List of APIs to update and what to change on the backend.
+- **[PAYMENT_FLOW_AND_TRACKING.md](PAYMENT_FLOW_AND_TRACKING.md)** – How payment and cash flow work in the app and how to troubleshoot.

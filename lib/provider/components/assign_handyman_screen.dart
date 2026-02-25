@@ -35,7 +35,7 @@ class _AssignHandymanScreenState extends State<AssignHandymanScreen> {
   Future<List<UserData>>? future;
   List<UserData> handymanList = [];
 
-  int page = 2;
+  int page = 1;
   bool isLastPage = false;
 
   UserData? userListData;
@@ -242,6 +242,19 @@ class _AssignHandymanScreenState extends State<AssignHandymanScreen> {
             future: future,
             loadingWidget: LoaderWidget(),
             onSuccess: (snap) {
+              if (snap.isEmpty) {
+                return NoDataWidget(
+                  title: languages.noHandymanAvailable,
+                  imageWidget: EmptyStateWidget(),
+                  retryText: languages.reload,
+                  onRetry: () {
+                    page = 1;
+                    appStore.setLoading(true);
+                    init();
+                    setState(() {});
+                  },
+                ).paddingAll(16);
+              }
               return AnimatedListView(
                 controller: scrollController,
                 shrinkWrap: true,
@@ -251,20 +264,17 @@ class _AssignHandymanScreenState extends State<AssignHandymanScreen> {
                 slideConfiguration: SlideConfiguration(verticalOffset: 400),
                 padding: EdgeInsets.only(top: 8, bottom: 90),
                 itemCount: snap.length,
-                // emptyWidget: NoDataWidget(
-                //   title: languages.noHandymanAvailable,
-                //   imageWidget: EmptyStateWidget(),
-                //   retryText: languages.lblAddHandyman,
-                //   onRetry: () {
-                //     HandymanAddUpdateScreen(
-                //       userType: USER_TYPE_HANDYMAN,
-                //       onUpdate: () {
-                //         init();
-                //         setState(() {});
-                //       },
-                //     ).launch(context);
-                //   },
-                // ),
+                emptyWidget: NoDataWidget(
+                  title: languages.noHandymanAvailable,
+                  imageWidget: EmptyStateWidget(),
+                  retryText: languages.reload,
+                  onRetry: () {
+                    page = 1;
+                    appStore.setLoading(true);
+                    init();
+                    setState(() {});
+                  },
+                ),
                 onNextPage: () {
                   if (!isLastPage) {
                     page++;

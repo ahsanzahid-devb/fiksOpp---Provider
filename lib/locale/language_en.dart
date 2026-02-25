@@ -1533,6 +1533,9 @@ class LanguageEn extends Languages {
   String get cashBalance => "Cash Balance";
 
   @override
+  String get cashManagement => "Cash Management";
+
+  @override
   String get close => "Close";
 
   @override
@@ -2291,6 +2294,9 @@ class LanguageEn extends Languages {
 
   @override
   String get setting => 'SETTING';
+
+  @override
+  String get viewBooking => 'View Booking';
 
   @override
   String get viewBreakdown => 'View Breakdown';

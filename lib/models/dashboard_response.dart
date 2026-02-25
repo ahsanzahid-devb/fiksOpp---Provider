@@ -61,13 +61,13 @@ class DashboardResponse {
     isEmailVerified = json['is_email_verified'];
     status = json['status'];
     totalBooking = json['total_booking'];
-    totalRevenue = num.tryParse(json['total_revenue'].toString());
+    totalRevenue = num.tryParse(json['total_revenue']?.toString() ?? '') ?? 0;
     totalService = json['total_service'];
     totalActiveHandyman = json['total_active_handyman'];
-    todayCashAmount = num.tryParse(json['today_cash'].toString());
-    totalCashInHand = num.tryParse(json['total_cash_in_hand'].toString());
-    notificationUnreadCount = num.tryParse(json['notification_unread_count'].toString());
-    remainingPayout = num.tryParse(json['remaining_payout'].toString());
+    todayCashAmount = num.tryParse(json['today_cash']?.toString() ?? '') ?? 0;
+    totalCashInHand = num.tryParse(json['total_cash_in_hand']?.toString() ?? '') ?? 0;
+    notificationUnreadCount = num.tryParse(json['notification_unread_count']?.toString() ?? '') ?? 0;
+    remainingPayout = num.tryParse(json['remaining_payout']?.toString() ?? '') ?? 0;
     commission = json['commission'] != null
         ? Commission.fromJson(json['commission'])
         : null;

@@ -43,12 +43,12 @@ class TotalComponent extends StatelessWidget {
         // ),
         TotalWidget(
           title: languages.remainingPayout,
-          total: snap.remainingPayout.validate().toPriceFormat().toString(),
+          total: (snap.remainingPayout ?? 0).toPriceFormat().toString(),
           icon: ic_remainng_payout_new,
         ),
         TotalWidget(
           title: languages.totalRevenue,
-          total: snap.totalRevenue.validate().toPriceFormat(),
+          total: (snap.totalRevenue ?? 0).toPriceFormat(),
           icon: total_revenue_final,
         ).onTap(
           () {

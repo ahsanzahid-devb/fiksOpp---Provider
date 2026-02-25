@@ -8,9 +8,7 @@ import 'package:handyman_provider_flutter/provider/provider_dashboard_screen.dar
 import 'package:handyman_provider_flutter/screens/maintenance_mode_screen.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/configs.dart';
-import 'package:handyman_provider_flutter/utils/images.dart';
 import 'package:nb_utils/nb_utils.dart';
-
 import '../components/app_widgets.dart';
 import '../networks/rest_apis.dart';
 import '../utils/constant.dart';
@@ -67,17 +65,22 @@ class SplashScreenState extends State<SplashScreen> {
     );
 
     /// Apply theme mode
-    int themeModeIndex =
-        getIntAsync(THEME_MODE_INDEX, defaultValue: THEME_MODE_SYSTEM);
+    int themeModeIndex = getIntAsync(
+      THEME_MODE_INDEX,
+      defaultValue: THEME_MODE_SYSTEM,
+    );
     if (themeModeIndex == THEME_MODE_SYSTEM) {
       appStore.setDarkMode(
-          MediaQuery.of(context).platformBrightness == Brightness.dark);
+        MediaQuery.of(context).platformBrightness == Brightness.dark,
+      );
     }
 
     /// Maintenance mode check
     if (appConfigurationStore.maintenanceModeStatus) {
-      MaintenanceModeScreen()
-          .launch(context, pageRouteAnimation: PageRouteAnimation.Fade);
+      MaintenanceModeScreen().launch(
+        context,
+        pageRouteAnimation: PageRouteAnimation.Fade,
+      );
       return;
     }
 
@@ -88,19 +91,28 @@ class SplashScreenState extends State<SplashScreen> {
 
     /// Handle navigation
     if (!appStore.isLoggedIn) {
-      SignInScreen().launch(context,
-          isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
+      SignInScreen().launch(
+        context,
+        isNewTask: true,
+        pageRouteAnimation: PageRouteAnimation.Fade,
+      );
     } else {
       await updateProfilePhoto();
 
       if (isUserTypeProvider) {
         setStatusBarColor(primaryColor);
-        ProviderDashboardScreen(index: 0).launch(context,
-            isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
+        ProviderDashboardScreen(index: 0).launch(
+          context,
+          isNewTask: true,
+          pageRouteAnimation: PageRouteAnimation.Fade,
+        );
       } else if (isUserTypeHandyman) {
         setStatusBarColor(primaryColor);
-        HandymanDashboardScreen(index: 0).launch(context,
-            isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
+        HandymanDashboardScreen(index: 0).launch(
+          context,
+          isNewTask: true,
+          pageRouteAnimation: PageRouteAnimation.Fade,
+        );
       } else {
         SignInScreen().launch(context, isNewTask: true);
       }
@@ -130,11 +142,7 @@ class SplashScreenState extends State<SplashScreen> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                Assets.assetsIcAppLogo,
-                height: 120,
-                width: 120,
-              ),
+              Image.asset(Assets.assetsIcAppLogo, height: 120, width: 120),
               32.height,
               Text(
                 APP_NAME,
@@ -151,8 +159,10 @@ class SplashScreenState extends State<SplashScreen> {
                     return appStore.isLoading
                         ? LoaderWidget().center()
                         : TextButton(
-                            child:
-                                Text(languages.reload, style: boldTextStyle()),
+                            child: Text(
+                              languages.reload,
+                              style: boldTextStyle(),
+                            ),
                             onPressed: () {
                               appStore.setLoading(true);
                               init();

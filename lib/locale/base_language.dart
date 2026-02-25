@@ -1024,6 +1024,8 @@ abstract class Languages {
 
   String get cashBalance;
 
+  String get cashManagement;
+
   String get close;
 
   String get retryPaymentDetails;
@@ -1528,6 +1530,8 @@ abstract class Languages {
   String get other;
 
   String get setting;
+
+  String get viewBooking;
 
   String get viewBreakdown;
 

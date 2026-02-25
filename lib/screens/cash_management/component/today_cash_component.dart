@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:handyman_provider_flutter/components/price_widget.dart';
 import 'package:handyman_provider_flutter/main.dart';
-import 'package:handyman_provider_flutter/screens/cash_management/view/cash_balance_detail_screen.dart';
+import 'package:handyman_provider_flutter/screens/cash_management/view/cash_management_screen.dart';
 import 'package:handyman_provider_flutter/utils/images.dart';
 import 'package:nb_utils/nb_utils.dart';
 
@@ -14,7 +14,7 @@ class TodayCashComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        CashBalanceDetailScreen(totalCashInHand: totalCashInHand).launch(context);
+        CashManagementScreen(totalCashInHand: totalCashInHand).launch(context);
       },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
