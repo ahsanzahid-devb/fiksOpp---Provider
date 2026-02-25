@@ -7,6 +7,37 @@ import 'common.dart';
 import 'configs.dart';
 import 'constant.dart';
 
+/// Coerce API value (int 0/1 or bool) to bool. Prevents "type 'int' is not a subtype of type 'bool'" when backend sends 0/1.
+bool _configBool(dynamic v, {bool defaultValue = false}) {
+  if (v == null) return defaultValue;
+  if (v is bool) return v;
+  if (v is int) return v != 0;
+  return defaultValue;
+}
+
+bool? _configBoolOrNull(dynamic v) {
+  if (v == null) return null;
+  if (v is bool) return v;
+  if (v is int) return v != 0;
+  return false;
+}
+
+/// Parse config value to int (API may send "2" or 2). Used e.g. for decimal_point.
+int _configDecimalPoint(dynamic v, {int defaultValue = 2}) {
+  if (v == null) return defaultValue;
+  if (v is int) return v;
+  if (v is String) return int.tryParse(v) ?? defaultValue;
+  return defaultValue;
+}
+
+/// Coerce API value (int or string "0"/"1") to int. Prevents type errors when backend sends mixed types.
+int _configInt(dynamic v, {int defaultValue = 0}) {
+  if (v == null) return defaultValue;
+  if (v is int) return v;
+  if (v is String) return int.tryParse(v) ?? defaultValue;
+  return defaultValue;
+}
+
 //region Get Configurations
 
 bool get isCurrencyPositionLeft => appConfigurationStore.currencyPosition == CURRENCY_POSITION_LEFT;
@@ -26,7 +57,7 @@ Future<void> setAppConfigurations(AppConfigurationModel data) async {
   await appConfigurationStore.setCurrencyCode(data.currencyCode.validate());
   await appConfigurationStore.setCurrencyPosition(data.currencyPosition.validate());
   await appConfigurationStore.setCurrencySymbol(data.currencySymbol.validate());
-  await appConfigurationStore.setPriceDecimalPoint(data.decimalPoint.toInt());
+  await appConfigurationStore.setPriceDecimalPoint(_configDecimalPoint(data.decimalPoint));
 
   await appConfigurationStore.setJobRequestStatus(data.jobRequestServiceStatus.validate().getBoolInt());
   await appConfigurationStore.setChatGptStatus(data.chatGptStatus.validate().getBoolInt());
@@ -50,8 +81,6 @@ Future<void> setAppConfigurations(AppConfigurationModel data) async {
   await appConfigurationStore.setRefundPolicy(data.refundPolicy ?? REFUND_POLICY_URL);
 
   await appConfigurationStore.setBannerPerDayAmount(data.providerBannerAmount);
-
-  await appConfigurationStore.setPromotionalBannerStatus(data.promotional_banner);
 
   await appConfigurationStore.setPromotionalBannerStatus(data.promotional_banner);
 
@@ -607,37 +636,37 @@ class AppConfigurationModel {
         timeZone = map["time_zone"],
         distanceType = map["distance_type"],
         radius = map["radius"],
-        isUserAuthorized = map["is_user_authorized"],
+        isUserAuthorized = _configBoolOrNull(map["is_user_authorized"]),
         playStoreUrl = map["playstore_url"],
         appstoreUrl = map["appstore_url"],
         providerAppstoreUrl = map["provider_appstore_url"],
         providerPlayStoreUrl = map["provider_playstore_url"],
-        currencyCode = map["currency_coden"],
+        currencyCode = map["currency_code"],
         currencyPosition = map["currency_position"],
         currencySymbol = map["currency_symbol"],
-        decimalPoint = map["decimal_point"],
+        decimalPoint = map["decimal_point"]?.toString(),
         googleMapKey = map["google_map_key"],
-        advancePaymentStatus = map["advance_payment_status"],
-        slotServiceStatus = map["slot_service_status"],
-        digitalServiceStatus = map["digital_service_status"],
-        servicePackageStatus = map["service_package_status"],
-        serviceAddonStatus = map["service_addon_status"],
-        jobRequestServiceStatus = map["job_request_service_status"],
-        socialLoginStatus = map["social_login_status"],
-        googleLoginStatus = map["google_login_status"],
-        appleLoginStatus = map["apple_login_status"],
-        otpLoginStatus = map["otp_login_status"],
-        onlinePaymentStatus = map["online_payment_status"],
-        blogStatus = map["blog_status"],
-        maintenanceMode = map["maintenance_mode"],
-        walletStatus = map["wallet_status"],
-        chatGptStatus = map["chat_gpt_status"],
-        testChatGptWithoutKey = map["test_chat_gpt_without_key"],
+        advancePaymentStatus = _configInt(map["advance_payment_status"]),
+        slotServiceStatus = _configInt(map["slot_service_status"]),
+        digitalServiceStatus = _configInt(map["digital_service_status"]),
+        servicePackageStatus = _configInt(map["service_package_status"]),
+        serviceAddonStatus = _configInt(map["service_addon_status"]),
+        jobRequestServiceStatus = _configInt(map["job_request_service_status"]),
+        socialLoginStatus = _configInt(map["social_login_status"]),
+        googleLoginStatus = _configInt(map["google_login_status"]),
+        appleLoginStatus = _configInt(map["apple_login_status"]),
+        otpLoginStatus = _configInt(map["otp_login_status"]),
+        onlinePaymentStatus = _configInt(map["online_payment_status"]),
+        blogStatus = _configInt(map["blog_status"]),
+        maintenanceMode = _configInt(map["maintenance_mode"]),
+        walletStatus = _configInt(map["wallet_status"]),
+        chatGptStatus = _configInt(map["chat_gpt_status"]),
+        testChatGptWithoutKey = _configInt(map["test_chat_gpt_without_key"]),
         chatGptKey = map["chat_gpt_key"],
-        forceUpdateProviderApp = map["force_update_provider_app"],
-        providerAppMinimumVersion = map["provider_app_minimum_version"],
-        providerAppLatestVersion = map["provider_app_latest_version"],
-        firebaseNotificationStatus = map["firebase_notification_status"],
+        forceUpdateProviderApp = _configInt(map["force_update_provider_app"]),
+        providerAppMinimumVersion = _configInt(map["provider_app_minimum_version"]),
+        providerAppLatestVersion = _configInt(map["provider_app_latest_version"]),
+        firebaseNotificationStatus = _configInt(map["firebase_notification_status"]),
         firebaseKey = map["firebase_key"],
         facebookUrl = map["facebook_url"],
         linkedinUrl = map["linkedin_url"],
@@ -649,14 +678,14 @@ class AppConfigurationModel {
         earningType = map["earning_type"],
         helpAndSupport = map["help_support"],
         refundPolicy = map["refund_policy"],
-        autoAssignStatus = map["auto_assign_status"],
-        promotional_banner = map["promotional_banner"],
-        enable_chat = map["enable_chat"],
-        isInAppPurchaseEnable = map["is_in_app_purchase_enable"] != null ?  map["is_in_app_purchase_enable"]: 0 ,
-        revenueCatEntitlementIdentifier = map["entitlement_id"] is String ? map["entitlement_id"] : "",
-        revenueCatGoogleAPIKey = map["google_public_api_key"] is String ? map["google_public_api_key"] : "",
-        revenueCatAppleAPIKey = map["apple_public_api_key"] is String ? map["apple_public_api_key"] : "",
-        providerBannerAmount = map["provider_banner_amount"] is num ? map["provider_banner_amount"] : 0,
+        autoAssignStatus = _configInt(map["auto_assign_status"]),
+        promotional_banner = _configBool(map["promotional_banner"]),
+        enable_chat = _configInt(map["enable_chat"], defaultValue: 0),
+        isInAppPurchaseEnable = _configInt(map["is_in_app_purchase_enable"]),
+        revenueCatEntitlementIdentifier = map["entitlement_id"] is String ? map["entitlement_id"] as String : (map["entitlement_id"]?.toString() ?? ""),
+        revenueCatGoogleAPIKey = map["google_public_api_key"] is String ? map["google_public_api_key"] as String : (map["google_public_api_key"]?.toString() ?? ""),
+        revenueCatAppleAPIKey = map["apple_public_api_key"] is String ? map["apple_public_api_key"] as String : (map["apple_public_api_key"]?.toString() ?? ""),
+        providerBannerAmount = (map["provider_banner_amount"] is num ? map["provider_banner_amount"] as num : num.tryParse(map["provider_banner_amount"]?.toString() ?? "") ?? 0),
         roleAndPermission = map["role_and_permission"] != null
             ? RolesAndPermissionModel.fromJsonMap(map["role_and_permission"])
             : null;
@@ -1165,7 +1194,7 @@ class RolesAndPermissionModel {
         pendingProvider = map["pending_provider"] == null ? null : map["pending_provider"],
         pendingHandyman = map["pending_handyman"] == null ? null : map["pending_handyman"],
         pages = map["pages"] == null ? null : map["pages"],
-        helpAndSupport = map["Help_and_support"] ?? 0,
+        helpAndSupport = map["Help_and_support"] ?? map["help_and_support"] ?? 0,
         privacyPolicy = map["privacy_policy"] ?? 0,
         termsAndcondition = map["terms_condition"] ?? 0,
         providerAddress = map["provider_address"] == null ? null : map["provider_address"],
@@ -1206,7 +1235,7 @@ class RolesAndPermissionModel {
         servicePackageEdit = map["servicepackage_edit"] == null ? null : map["servicepackage_edit"],
         servicePackageDelete = map["servicepackage_delete"] == null ? null : map["servicepackage_delete"],
         servicePackageList = map["servicepackage_list"] == null ? null : map["servicepackage_list"],
-        refundAndCancellationPolicy = map["refund_and_cancellation_policy"] == null ? null : map["refund_and_cancellation_policy"],
+        refundAndCancellationPolicy = map["Refund_and_Cancellation_Policy"] ?? map["refund_and_cancellation_policy"],
         blog = map["blog"] == null ? null : map["blog"],
         blogAdd = map["blog_add"] == null ? null : map["blog_add"],
         blogEdit = map["blog_edit"] == null ? null : map["blog_edit"],
@@ -1254,7 +1283,7 @@ class RolesAndPermissionModel {
         helpDeskAdd = map["helpdesk_add"] == null ? null : map["helpdesk_add"],
         helpDeskEdit = map["helpdesk_edit"] == null ? null : map["helpdesk_edit"],
         helpDeskList = map["helpdesk_list"] == null ? null : map["helpdesk_list"],
-        promotional_banner = map["promotional_banner"] == null ? null : map["promotional_banner"];
+        promotional_banner = map["promotional_banner"] == null ? null : _configBool(map["promotional_banner"]);
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};

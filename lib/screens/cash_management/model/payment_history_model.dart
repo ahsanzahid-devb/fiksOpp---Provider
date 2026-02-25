@@ -57,21 +57,34 @@ class PaymentHistoryData {
     this.totalAmount,
   });
 
+  static num? _num(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v;
+    if (v is String) return num.tryParse(v);
+    return null;
+  }
+
+  static String? _str(dynamic v) {
+    if (v == null) return null;
+    if (v is String) return v.isEmpty ? null : v;
+    return v.toString();
+  }
+
   factory PaymentHistoryData.fromJson(Map<String, dynamic> json) => PaymentHistoryData(
-        id: json["id"],
-        paymentId: json["payment_id"],
-        bookingId: json["booking_id"],
-        action: json["action"],
-        text: json["text"],
-        type: json["type"],
-        status: json["status"],
-        parentId: json["parent_id"],
-        senderId: json["sender_id"],
-        receiverId: json["receiver_id"],
-        txnId: json["txn_id"],
-        otherTransactionDetail: json["other_transaction_detail"],
-        datetime: json["datetime"] == null ? null : DateTime.parse(json["datetime"]),
-        totalAmount: json["total_amount"],
+        id: _num(json["id"]),
+        paymentId: _num(json["payment_id"]),
+        bookingId: _num(json["booking_id"]),
+        action: _str(json["action"]),
+        text: _str(json["text"]),
+        type: _str(json["type"]),
+        status: _str(json["status"]),
+        parentId: _num(json["parent_id"]),
+        senderId: _num(json["sender_id"]),
+        receiverId: _num(json["receiver_id"]),
+        txnId: _str(json["txn_id"]),
+        otherTransactionDetail: json["other_transaction_detail"] == null ? null : _str(json["other_transaction_detail"]),
+        datetime: json["datetime"] == null ? null : DateTime.tryParse(json["datetime"].toString()),
+        totalAmount: _num(json["total_amount"]),
       );
 
   Map<String, dynamic> toJson() => {
