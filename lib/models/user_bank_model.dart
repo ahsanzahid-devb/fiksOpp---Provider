@@ -7,12 +7,14 @@ class UserBankDetails {
   UserBankDetails({this.pagination, this.bankData});
 
   UserBankDetails.fromJson(Map<String, dynamic> json) {
-    pagination = json['pagination'] != null ? new Pagination.fromJson(json['pagination']) : null;
-    if (json['data'] != null) {
-      bankData = <BankData>[];
-      json['data'].forEach((v) {
-        bankData!.add(new BankData.fromJson(v));
-      });
+    pagination = json['pagination'] != null && json['pagination'] is Map
+        ? Pagination.fromJson(Map<String, dynamic>.from(json['pagination']))
+        : null;
+    bankData = <BankData>[];
+    if (json['data'] != null && json['data'] is List) {
+      for (var v in json['data']) {
+        bankData!.add(BankData.fromJson(Map<String, dynamic>.from(v as Map)));
+      }
     }
   }
 
@@ -38,32 +40,60 @@ class BankData {
   String? mobileNo;
   String? aadharNo;
   String? panNo;
+  int? isDefault;
 
-  BankData({this.id, this.providerId, this.bankName, this.branchName, this.accountNo, this.ifscNo, this.mobileNo, this.aadharNo, this.panNo});
+  BankData({
+    this.id,
+    this.providerId,
+    this.bankName,
+    this.branchName,
+    this.accountNo,
+    this.ifscNo,
+    this.mobileNo,
+    this.aadharNo,
+    this.panNo,
+    this.isDefault,
+  });
+
+  static int? _int(dynamic v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    if (v is String) return int.tryParse(v);
+    return null;
+  }
+
+  static String _str(dynamic v) {
+    if (v == null) return '';
+    if (v is String) return v;
+    return v.toString();
+  }
 
   BankData.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    providerId = json['provider_id'];
-    bankName = json['bank_name'];
-    branchName = json['branch_name'];
-    accountNo = json['account_no'];
-    ifscNo = json['ifsc_no'];
-    mobileNo = json['mobile_no'];
-    aadharNo = json['aadhar_no'];
-    panNo = json['pan_no'];
+    id = _int(json['id']);
+    providerId = _int(json['provider_id']);
+    bankName = _str(json['bank_name']);
+    branchName = _str(json['branch_name']);
+    accountNo = _str(json['account_no']);
+    ifscNo = _str(json['ifsc_no']);
+    mobileNo = _str(json['mobile_no']);
+    aadharNo = _str(json['aadhar_no']);
+    panNo = _str(json['pan_no']);
+    isDefault = _int(json['is_default']);
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['provider_id'] = this.providerId;
-    data['bank_name'] = this.bankName;
-    data['branch_name'] = this.branchName;
-    data['account_no'] = this.accountNo;
-    data['ifsc_no'] = this.ifscNo;
-    data['mobile_no'] = this.mobileNo;
-    data['aadhar_no'] = this.aadharNo;
-    data['pan_no'] = this.panNo;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['provider_id'] = providerId;
+    data['bank_name'] = bankName;
+    data['branch_name'] = branchName;
+    data['account_no'] = accountNo;
+    data['ifsc_no'] = ifscNo;
+    data['mobile_no'] = mobileNo;
+    data['aadhar_no'] = aadharNo;
+    data['pan_no'] = panNo;
+    data['is_default'] = isDefault;
     return data;
   }
 }

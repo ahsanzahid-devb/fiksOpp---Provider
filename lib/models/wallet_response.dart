@@ -4,9 +4,9 @@ class WalletResponse {
   WalletResponse({this.balance});
 
   factory WalletResponse.fromJson(Map<String, dynamic> json) {
-    return WalletResponse(
-      balance: json['balance'],
-    );
+    final b = json['balance'];
+    final num? balance = b == null ? null : (b is num ? b : num.tryParse(b.toString()));
+    return WalletResponse(balance: balance ?? 0);
   }
 
   Map<String, dynamic> toJson() {

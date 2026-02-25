@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -34,6 +35,44 @@ Uri buildBaseUrl(String endPoint) {
   return url;
 }
 
+/// Returns true if [e] is a connection-related error (transient, worth retrying once).
+bool _isConnectionError(Object e) {
+  return e is SocketException ||
+      e is TimeoutException ||
+      e is OSError ||
+      e is http.ClientException;
+}
+
+Future<Response> _doRequest({
+  required Uri url,
+  required String endPoint,
+  required Map<String, String> headers,
+  required HttpMethodType method,
+  Map? request,
+}) async {
+  Response response;
+  if (method == HttpMethodType.POST) {
+    response = await http.post(url, body: jsonEncode(request), headers: headers);
+  } else if (method == HttpMethodType.DELETE) {
+    response = await delete(url, headers: headers);
+  } else if (method == HttpMethodType.PUT) {
+    response = await put(url, body: jsonEncode(request), headers: headers);
+  } else {
+    response = await get(url, headers: headers);
+  }
+  apiPrint(
+    url: url.toString(),
+    endPoint: endPoint,
+    headers: jsonEncode(headers),
+    hasRequest: method == HttpMethodType.POST || method == HttpMethodType.PUT,
+    request: jsonEncode(request),
+    statusCode: response.statusCode,
+    responseBody: response.body,
+    methodtype: method.name,
+  );
+  return response;
+}
+
 Future<Response> buildHttpResponse(
   String endPoint, {
   HttpMethodType method = HttpMethodType.GET,
@@ -43,31 +82,16 @@ Future<Response> buildHttpResponse(
   var headers = header ?? buildHeaderTokens();
   Uri url = buildBaseUrl(endPoint);
 
-  Response response;
+  Future<Response> run() => _doRequest(
+        url: url,
+        endPoint: endPoint,
+        headers: headers,
+        method: method,
+        request: request,
+      );
 
   try {
-    if (method == HttpMethodType.POST) {
-      // log('Request: ${jsonEncode(request)}');
-      response = await http.post(url, body: jsonEncode(request), headers: headers);
-    } else if (method == HttpMethodType.DELETE) {
-      response = await delete(url, headers: headers);
-    } else if (method == HttpMethodType.PUT) {
-      response = await put(url, body: jsonEncode(request), headers: headers);
-    } else {
-      response = await get(url, headers: headers);
-    }
-
-    apiPrint(
-      url: url.toString(),
-      endPoint: endPoint,
-      headers: jsonEncode(headers),
-      hasRequest: method == HttpMethodType.POST || method == HttpMethodType.PUT,
-      request: jsonEncode(request),
-      statusCode: response.statusCode,
-      responseBody: response.body,
-      methodtype: method.name,
-    );
-    // log('Response (${method.name}) ${response.statusCode}: ${response.body}');
+    Response response = await run();
 
     if (appStore.isLoggedIn && response.statusCode == 401 && !endPoint.startsWith('http')) {
       return await reGenerateToken().then((value) async {
@@ -75,18 +99,30 @@ Future<Response> buildHttpResponse(
       }).catchError((e) {
         throw errorSomethingWentWrong;
       });
-    } else {
-      return response;
     }
-  } on Exception {
+    return response;
+  } on Object catch (e) {
+    if (_isConnectionError(e)) {
+      await Future<void>.delayed(const Duration(seconds: 2));
+      try {
+        Response response = await run();
+        if (appStore.isLoggedIn && response.statusCode == 401 && !endPoint.startsWith('http')) {
+          return await reGenerateToken().then((value) async {
+            return await buildHttpResponse(endPoint, method: method, request: request, header: header);
+          }).catchError((_) {
+            throw errorSomethingWentWrong;
+          });
+        }
+        return response;
+      } on Object {
+        throw errorInternetNotAvailable;
+      }
+    }
     throw errorInternetNotAvailable;
   }
 }
 
 Future handleResponse(Response response, {HttpResponseType httpResponseType = HttpResponseType.JSON}) async {
-  if (!await isNetworkAvailable()) {
-    throw errorInternetNotAvailable;
-  }
   if (response.statusCode == 400) {
     throw '${languages.badRequest}';
   } else if (response.statusCode == 403) {

@@ -1259,8 +1259,10 @@ Future<List<WalletHistory>> getWalletHistory({
     );
     if (page == 1) list.clear();
     list.addAll(res.data.validate());
+    final balance = res.availableBalance ?? 0;
     if (res.availableBalance != null) {
-      availableBalance?.call(res.availableBalance ?? 0);
+      availableBalance?.call(balance);
+      if (page == 1) appStore.setUserWalletAmountFromValue(balance);
     }
     cachedWalletList = list;
     appStore.setLoading(false);
@@ -1527,11 +1529,26 @@ Future<BaseResponseModel> deleteAccountCompletely() async {
 //endregion
 
 //region Post Job Request
+
+const _postJobListCacheDuration = Duration(seconds: 5);
+Map<String, ({DateTime until, List<PostJobData> data, bool isLastPage})> _postJobListCache = {};
+
 Future<List<PostJobData>> getPostJobList(int page,
     {var perPage = PER_PAGE_ITEM,
     required List<PostJobData> postJobList,
     Function(bool)? lastPageCallback,
     List<int>? serviceIds}) async {
+  final cacheKey = '${page}_${serviceIds?.join(',') ?? 'all'}';
+  final now = DateTime.now();
+  final cached = _postJobListCache[cacheKey];
+  if (cached != null && cached.until.isAfter(now)) {
+    if (page == 1) postJobList.clear();
+    postJobList.addAll(cached.data);
+    lastPageCallback?.call(cached.isLastPage);
+    appStore.setLoading(false);
+    return postJobList;
+  }
+
   try {
     String url = 'get-post-job?per_page=$perPage&page=$page';
     if (serviceIds != null && serviceIds.isNotEmpty) {
@@ -1545,9 +1562,16 @@ Future<List<PostJobData>> getPostJobList(int page,
       postJobList.clear();
     }
 
-    lastPageCallback?.call(res.postJobData.validate().length != PER_PAGE_ITEM);
+    final list = res.postJobData.validate();
+    final isLastPage = list.length != PER_PAGE_ITEM;
+    lastPageCallback?.call(isLastPage);
+    postJobList.addAll(list);
 
-    postJobList.addAll(res.postJobData.validate());
+    _postJobListCache[cacheKey] = (
+      until: now.add(_postJobListCacheDuration),
+      data: List<PostJobData>.from(list),
+      isLastPage: isLastPage,
+    );
     appStore.setLoading(false);
   } catch (e) {
     appStore.setLoading(false);

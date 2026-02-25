@@ -9,10 +9,12 @@ class WalletHistoryListResponse {
   WalletHistoryListResponse({this.data, this.pagination, this.availableBalance});
 
   factory WalletHistoryListResponse.fromJson(Map<String, dynamic> json) {
+    final ab = json['available_balance'];
+    final num? availableBalance = ab == null ? 0 : (ab is num ? ab : num.tryParse(ab.toString()));
     return WalletHistoryListResponse(
-      data: json['data'] != null ? (json['data'] as List).map((i) => WalletHistory.fromJson(i)).toList() : null,
+      data: json['data'] != null ? (json['data'] as List).map((i) => WalletHistory.fromJson(i as Map<String, dynamic>)).toList() : <WalletHistory>[],
       pagination: json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null,
-      availableBalance: json['available_balance'] != null ? json['available_balance'] : 0,
+      availableBalance: availableBalance ?? 0,
     );
   }
 

@@ -1145,6 +1145,17 @@ mixin _$AppStore on _AppStore, Store {
   }
 
   @override
+  void setUserWalletAmountFromValue(num value) {
+    final _$actionInfo = _$_AppStoreActionController.startAction(
+        name: '_AppStore.setUserWalletAmountFromValue');
+    try {
+      return super.setUserWalletAmountFromValue(value);
+    } finally {
+      _$_AppStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setSelectedServiceData(ServiceData data) {
     final _$actionInfo = _$_AppStoreActionController.startAction(
         name: '_AppStore.setSelectedServiceData');

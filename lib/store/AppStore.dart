@@ -185,6 +185,11 @@ abstract class _AppStore with Store {
   }
 
   @action
+  void setUserWalletAmountFromValue(num value) {
+    userWalletAmount = value;
+  }
+
+  @action
   void setTotalHandyman(int val) {
     totalHandyman = val;
   }

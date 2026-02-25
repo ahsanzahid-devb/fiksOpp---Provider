@@ -78,14 +78,15 @@ class DashboardResponse {
     commission = json['commission'] != null
         ? Commission.fromJson(json['commission'])
         : null;
+
+    service = <ServiceData>[];
     if (json['service'] != null && json['service'] is List) {
-      service = [];
       for (var v in json['service']) {
         service!.add(ServiceData.fromJson(v as Map<String, dynamic>));
       }
     }
+    handyman = <UserData>[];
     if (json['handyman'] != null && json['handyman'] is List) {
-      handyman = [];
       for (var v in json['handyman']) {
         handyman!.add(UserData.fromJson(v as Map<String, dynamic>));
       }
@@ -122,21 +123,22 @@ class DashboardResponse {
         ? ProviderWallet.fromJson(json['provider_wallet'])
         : null;
 
+    onlineHandyman = [];
     if (json['online_handyman'] != null && json['online_handyman'] is List) {
       onlineHandyman = (json['online_handyman'] as List).map((e) => e.toString()).toList();
-    } else {
-      onlineHandyman = null;
     }
-    myPostJobData = json['post_requests'] != null && json['post_requests'] is List
-        ? (json['post_requests'] as List)
-            .map((i) => PostJobData.fromJson(i as Map<String, dynamic>))
-            .toList()
-        : null;
-    upcomingBookings = json['upcomming_booking'] != null && json['upcomming_booking'] is List
-        ? (json['upcomming_booking'] as List)
-            .map((i) => BookingData.fromJson(i as Map<String, dynamic>))
-            .toList()
-        : null;
+    myPostJobData = <PostJobData>[];
+    if (json['post_requests'] != null && json['post_requests'] is List) {
+      myPostJobData = (json['post_requests'] as List)
+          .map((i) => PostJobData.fromJson(i as Map<String, dynamic>))
+          .toList();
+    }
+    upcomingBookings = <BookingData>[];
+    if (json['upcomming_booking'] != null && json['upcomming_booking'] is List) {
+      upcomingBookings = (json['upcomming_booking'] as List)
+          .map((i) => BookingData.fromJson(i as Map<String, dynamic>))
+          .toList();
+    }
     isSubscribed = _int(json['is_subscribed']);
     subscription = json['subscription'] != null
         ? ProviderSubscriptionModel.fromJson(json['subscription'])

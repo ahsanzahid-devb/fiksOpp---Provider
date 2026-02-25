@@ -45,14 +45,22 @@ class Pagination {
     this.previousPage,
   });
 
+  static int _int(dynamic v, [int def = -1]) {
+    if (v == null) return def;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    if (v is String) return int.tryParse(v) ?? def;
+    return def;
+  }
+
   factory Pagination.fromJson(Map<String, dynamic> json) {
     return Pagination(
-      totalItems: json['total_items'] is int ? json['total_items'] : -1,
-      perPage: json['per_page'] is int ? json['per_page'] : -1,
-      currentPage: json['currentPage'] is int ? json['currentPage'] : -1,
-      totalPages: json['totalPages'] is int ? json['totalPages'] : -1,
-      from: json['from'] is int ? json['from'] : -1,
-      to: json['to'] is int ? json['to'] : -1,
+      totalItems: _int(json['total_items'], 0),
+      perPage: _int(json['per_page']),
+      currentPage: _int(json['currentPage']),
+      totalPages: _int(json['totalPages']),
+      from: _int(json['from']),
+      to: _int(json['to']),
       nextPage: json['next_page'],
       previousPage: json['previous_page'],
     );
@@ -99,19 +107,33 @@ class BankHistory {
     this.isDefault = -1,
   });
 
+  static int _int(dynamic v, [int def = -1]) {
+    if (v == null) return def;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    if (v is String) return int.tryParse(v) ?? def;
+    return def;
+  }
+
+  static String _str(dynamic v) {
+    if (v == null) return '';
+    if (v is String) return v;
+    return v.toString();
+  }
+
   factory BankHistory.fromJson(Map<String, dynamic> json) {
     return BankHistory(
-      id: json['id'] is int ? json['id'] : -1,
-      providerId: json['provider_id'] is int ? json['provider_id'] : -1,
-      bankName: json['bank_name'] is String ? json['bank_name'] : "",
-      branchName: json['branch_name'] is String ? json['branch_name'] : "",
-      accountNo: json['account_no'] is String ? json['account_no'] : "",
-      ifscNo: json['ifsc_no'] is String ? json['ifsc_no'] : "",
-      mobileNo: json['mobile_no'] is String ? json['mobile_no'] : "",
-      aadharNo: json['aadhar_no'] is String ? json['aadhar_no'] : "",
-      panNo: json['pan_no'] is String ? json['pan_no'] : "",
-      bankAttchments: json['bank_attchments'] is List ? json['bank_attchments'] : [],
-      isDefault: json['is_default'] is int ? json['is_default'] : -1,
+      id: _int(json['id']),
+      providerId: _int(json['provider_id']),
+      bankName: _str(json['bank_name']),
+      branchName: _str(json['branch_name']),
+      accountNo: _str(json['account_no']),
+      ifscNo: _str(json['ifsc_no']),
+      mobileNo: _str(json['mobile_no']),
+      aadharNo: _str(json['aadhar_no']),
+      panNo: _str(json['pan_no']),
+      bankAttchments: json['bank_attchments'] is List ? List<dynamic>.from(json['bank_attchments']) : [],
+      isDefault: _int(json['is_default'], -1),
     );
   }
 

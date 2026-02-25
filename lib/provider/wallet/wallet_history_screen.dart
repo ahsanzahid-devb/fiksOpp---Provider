@@ -43,8 +43,7 @@ class WalletHistoryScreenState extends State<WalletHistoryScreen> {
         isLastPage = b;
       },
     );
-
-    appStore.setUserWalletAmount();
+    // Balance is updated from wallet-history response via setUserWalletAmountFromValue to avoid duplicate user-wallet-balance call
   }
 
   @override

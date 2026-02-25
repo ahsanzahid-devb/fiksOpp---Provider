@@ -23,6 +23,7 @@
         android:label="FiksOppProvider"
         android:allowBackup="false"
         android:fullBackupContent="false"
+        android:enableOnBackInvokedCallback="true"
         tools:replace="android:label">
 
         <meta-data

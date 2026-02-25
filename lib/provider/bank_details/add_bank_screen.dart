@@ -68,13 +68,14 @@ class _AddBankScreenState extends State<AddBankScreen> {
       multiPartRequest,
       onSuccess: (data) async {
         appStore.setLoading(false);
-        if (data != null) {
-          print(data);
-          if ((data as String).isJson()) {
-            BaseResponseModel res = BaseResponseModel.fromJson(jsonDecode(data));
-            finish(context, [true, bankNameCont.text]);
-            if (res.status ?? false) {}
-            toast( res.message!);
+        if (data != null && (data as String).isJson()) {
+          final res = BaseResponseModel.fromJson(jsonDecode(data));
+          if (res.status ?? false) {
+            toast(res.message!);
+            // Defer pop to next frame so dropdown overlay (if any) is not confused with route result
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) finish(context, [true, bankNameCont.text]);
+            });
           }
         }
       },

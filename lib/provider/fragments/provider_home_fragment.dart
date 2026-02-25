@@ -135,21 +135,20 @@ class _ProviderHomeFragmentState extends State<ProviderHomeFragment> {
                       planBanner(snap.data!),
                     _buildHeaderWidget(snap.data!),
                     TodayCashComponent(
-                        totalCashInHand: snap.data!.totalCashInHand.validate()),
+                        totalCashInHand: snap.data!.totalCashInHand ?? 0),
                     TotalComponent(snap: snap.data!),
                     ChartComponent(),
                     HandymanRecentlyOnlineComponent(
-                        images: snap.data!.onlineHandyman.validate()),
+                        images: snap.data!.onlineHandyman ?? []),
                     HandymanListComponent(
-                      list: snap.data!.handyman.validate(),
-                      totalActiveHandyman:
-                          snap.data!.totalActiveHandyman.validate(),
+                      list: snap.data!.handyman ?? [],
+                      totalActiveHandyman: snap.data!.totalActiveHandyman ?? 0,
                       onRefresh: init,
                     ),
                     UpcomingBookingComponent(
-                        bookingData: snap.data!.upcomingBookings.validate()),
-                    // JobListComponent(list: snap.data!.myPostJobData.validate()).paddingOnly(left: 16, right: 16, top: 8).visible(rolesAndPermissionStore.postJobList),
-                    ServiceListComponent(list: snap.data!.service.validate())
+                        bookingData: snap.data!.upcomingBookings ?? []),
+                    // JobListComponent(list: snap.data!.myPostJobData ?? []).paddingOnly(left: 16, right: 16, top: 8).visible(rolesAndPermissionStore.postJobList),
+                    ServiceListComponent(list: snap.data!.service ?? [])
                         .visible(rolesAndPermissionStore.serviceList),
                   ],
                   onSwipeRefresh: () async {
