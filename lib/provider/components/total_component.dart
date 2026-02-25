@@ -21,7 +21,7 @@ class TotalComponent extends StatelessWidget {
       children: [
         TotalWidget(
           title: languages.lblTotalBooking,
-          total: snap.totalBooking.toString(),
+          total: (snap.totalBooking ?? 0).toString(),
           icon: total_booking,
         ).onTap(
           () {

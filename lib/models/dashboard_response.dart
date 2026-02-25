@@ -57,13 +57,20 @@ class DashboardResponse {
     this.remainingPayout,
   });
 
+  static int _int(dynamic v, [int defaultValue = 0]) {
+    if (v == null) return defaultValue;
+    if (v is int) return v;
+    if (v is String) return int.tryParse(v) ?? defaultValue;
+    return defaultValue;
+  }
+
   DashboardResponse.fromJson(Map<String, dynamic> json) {
-    isEmailVerified = json['is_email_verified'];
-    status = json['status'];
-    totalBooking = json['total_booking'];
+    isEmailVerified = _int(json['is_email_verified']);
+    status = json['status'] == true || json['status'] == 1;
+    totalBooking = _int(json['total_booking']);
     totalRevenue = num.tryParse(json['total_revenue']?.toString() ?? '') ?? 0;
-    totalService = json['total_service'];
-    totalActiveHandyman = json['total_active_handyman'];
+    totalService = _int(json['total_service']);
+    totalActiveHandyman = _int(json['total_active_handyman']);
     todayCashAmount = num.tryParse(json['today_cash']?.toString() ?? '') ?? 0;
     totalCashInHand = num.tryParse(json['total_cash_in_hand']?.toString() ?? '') ?? 0;
     notificationUnreadCount = num.tryParse(json['notification_unread_count']?.toString() ?? '') ?? 0;
@@ -71,49 +78,66 @@ class DashboardResponse {
     commission = json['commission'] != null
         ? Commission.fromJson(json['commission'])
         : null;
-    if (json['service'] != null) {
+    if (json['service'] != null && json['service'] is List) {
       service = [];
-      json['service'].forEach((v) {
-        service!.add(new ServiceData.fromJson(v));
-      });
+      for (var v in json['service']) {
+        service!.add(ServiceData.fromJson(v as Map<String, dynamic>));
+      }
     }
-    if (json['handyman'] != null) {
+    if (json['handyman'] != null && json['handyman'] is List) {
       handyman = [];
-      json['handyman'].forEach((v) {
-        handyman!.add(UserData.fromJson(v));
-      });
+      for (var v in json['handyman']) {
+        handyman!.add(UserData.fromJson(v as Map<String, dynamic>));
+      }
     }
 
-    Iterable it = json['monthly_revenue']['revenueData'];
     chartData = [];
-    it.forEachIndexed((element, index) {
-      if ((element as Map).containsKey('${index + 1}')) {
-        chartData.add(RevenueChartData(
-            month: months[index],
-            revenue: element[(index + 1).toString()].toString().toDouble()));
-      } else {
-        chartData.add(RevenueChartData(month: months[index], revenue: 0));
+    final monthlyRevenue = json['monthly_revenue'];
+    if (monthlyRevenue != null &&
+        monthlyRevenue is Map &&
+        monthlyRevenue['revenueData'] != null &&
+        monthlyRevenue['revenueData'] is List) {
+      final it = monthlyRevenue['revenueData'] as List;
+      it.forEachIndexed((element, index) {
+        if (index < months.length) {
+          if (element is Map && element.containsKey('${index + 1}')) {
+            final key = (index + 1).toString();
+            final val = element[key]?.toString() ?? '0';
+            chartData.add(RevenueChartData(
+                month: months[index],
+                revenue: (double.tryParse(val) ?? 0)));
+          } else {
+            chartData.add(RevenueChartData(month: months[index], revenue: 0));
+          }
+        }
+      });
+    }
+    if (chartData.length < months.length) {
+      for (var i = chartData.length; i < months.length; i++) {
+        chartData.add(RevenueChartData(month: months[i], revenue: 0));
       }
-    });
+    }
 
     providerWallet = json['provider_wallet'] != null
         ? ProviderWallet.fromJson(json['provider_wallet'])
         : null;
 
-    onlineHandyman = json['online_handyman'] != null
-        ? json['online_handyman'].cast<String>()
-        : null;
-    myPostJobData = json['post_requests'] != null
+    if (json['online_handyman'] != null && json['online_handyman'] is List) {
+      onlineHandyman = (json['online_handyman'] as List).map((e) => e.toString()).toList();
+    } else {
+      onlineHandyman = null;
+    }
+    myPostJobData = json['post_requests'] != null && json['post_requests'] is List
         ? (json['post_requests'] as List)
-            .map((i) => PostJobData.fromJson(i))
+            .map((i) => PostJobData.fromJson(i as Map<String, dynamic>))
             .toList()
         : null;
-    upcomingBookings = json['upcomming_booking'] != null
+    upcomingBookings = json['upcomming_booking'] != null && json['upcomming_booking'] is List
         ? (json['upcomming_booking'] as List)
-            .map((i) => BookingData.fromJson(i))
+            .map((i) => BookingData.fromJson(i as Map<String, dynamic>))
             .toList()
         : null;
-    isSubscribed = json['is_subscribed'] ?? 0;
+    isSubscribed = _int(json['is_subscribed']);
     subscription = json['subscription'] != null
         ? ProviderSubscriptionModel.fromJson(json['subscription'])
         : null;
