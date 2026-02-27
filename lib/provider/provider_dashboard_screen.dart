@@ -30,7 +30,7 @@ class ProviderDashboardScreen extends StatefulWidget {
 }
 
 class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
-  int currentIndex = 1;
+  int currentIndex = 0;
 
   DateTime? currentBackPressTime;
 
