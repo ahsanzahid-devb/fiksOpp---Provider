@@ -142,7 +142,7 @@ class SplashScreenState extends State<SplashScreen> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(Assets.assetsIcAppLogo, height: 120, width: 120),
+              Image.asset(Assets.logo, height: 120, width: 120),
               32.height,
               Text(
                 APP_NAME,
