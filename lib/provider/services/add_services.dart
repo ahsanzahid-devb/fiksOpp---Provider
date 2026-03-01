@@ -182,6 +182,8 @@ class _AddServicesState extends State<AddServices> {
         await removeEnTranslations();
         final req = _buildServiceRequest();
         await _submitService(req);
+        LiveStream().emit(LIVESTREAM_PROVIDER_ALL_BOOKING, 0);
+        finish(context, true);
       }
     }
   }

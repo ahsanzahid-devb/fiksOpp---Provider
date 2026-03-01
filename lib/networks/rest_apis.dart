@@ -860,8 +860,8 @@ Future<List<BookingData>> getBookingList(
     } catch (e) {
       // Backend sometimes throws 500 on provider/handyman-scoped "all" queries.
       // As a resilience fallback, retry without provider/handyman filters.
-      final shouldRetry =
-          (e.toString().contains('getAttachments') || e.toString().contains('count(): Argument #1'));
+      final shouldRetry = (e.toString().contains('getAttachments') ||
+          e.toString().contains('count(): Argument #1'));
 
       if (shouldRetry &&
           (queryString.contains('provider_id=') ||
@@ -1034,10 +1034,12 @@ Future<String> uploadBeforeJobImage({
   required int bookingId,
   required File imageFile,
 }) async {
-  MultipartRequest multiPartRequest = await getMultiPartRequest('booking-before-image');
+  MultipartRequest multiPartRequest =
+      await getMultiPartRequest('booking-before-image');
 
   multiPartRequest.fields[CommonKeys.bookingId] = bookingId.toString();
-  multiPartRequest.files.add(await MultipartFile.fromPath('image', imageFile.path));
+  multiPartRequest.files
+      .add(await MultipartFile.fromPath('image', imageFile.path));
   multiPartRequest.headers.addAll(buildHeaderTokens());
 
   String uploadedImageUrl = '';
@@ -1049,7 +1051,9 @@ Future<String> uploadBeforeJobImage({
         final body = jsonDecode(temp);
         if (body is Map && body['before_image'] != null) {
           uploadedImageUrl = body['before_image'].toString();
-        } else if (body is Map && body['data'] is Map && body['data']['before_image'] != null) {
+        } else if (body is Map &&
+            body['data'] is Map &&
+            body['data']['before_image'] != null) {
           uploadedImageUrl = body['data']['before_image'].toString();
         } else {
           throw languages.somethingWentWrong;
@@ -1531,7 +1535,8 @@ Future<BaseResponseModel> deleteAccountCompletely() async {
 //region Post Job Request
 
 const _postJobListCacheDuration = Duration(seconds: 5);
-Map<String, ({DateTime until, List<PostJobData> data, bool isLastPage})> _postJobListCache = {};
+Map<String, ({DateTime until, List<PostJobData> data, bool isLastPage})>
+    _postJobListCache = {};
 
 Future<List<PostJobData>> getPostJobList(int page,
     {var perPage = PER_PAGE_ITEM,
@@ -1555,8 +1560,7 @@ Future<List<PostJobData>> getPostJobList(int page,
       url += '&service_id=${serviceIds.join(',')}';
     }
     var res = PostJobResponse.fromJson(await handleResponse(
-        await buildHttpResponse(url,
-            method: HttpMethodType.GET)));
+        await buildHttpResponse(url, method: HttpMethodType.GET)));
 
     if (page == 1) {
       postJobList.clear();

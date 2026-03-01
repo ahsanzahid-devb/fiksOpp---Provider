@@ -68,6 +68,38 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
     setState(() {});
   }
 
+  void _showDeleteAccountConfirmation(BuildContext context) {
+    showConfirmDialogCustom(
+      context,
+      negativeText: languages.lblCancel,
+      positiveText: languages.lblDelete,
+      onAccept: (_) {
+        ifNotTester(context, () {
+          appStore.setLoading(true);
+          deleteAccountCompletely().then((value) async {
+            try {
+              if (appStore.uid != "") {
+                await userService.removeDocument(appStore.uid);
+                await userService.deleteUser();
+              }
+            } catch (e) {
+              log(e);
+            }
+            appStore.setLoading(false);
+            await clearPreferences();
+            toast(value.message);
+            push(SignInScreen(), isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
+          }).catchError((e) {
+            appStore.setLoading(false);
+            toast(e.toString());
+          });
+        });
+      },
+      dialogType: DialogType.DELETE,
+      title: languages.lblDeleteAccountConformation,
+    );
+  }
+
   @override
   void setState(fn) {
     if (mounted) super.setState(fn);
@@ -330,6 +362,15 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                       ChangePasswordScreen().launch(context);
                     },
                   ),
+                  if (appStore.isLoggedIn)
+                    SettingItemWidget(
+                      decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(0))),
+                      leading: ic_delete.iconImage(size: 16),
+                      title: languages.lblDeleteAccount,
+                      titleTextStyle: boldTextStyle(size: 12),
+                      trailing: Icon(Icons.chevron_right, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8), size: 24),
+                      onTap: () => _showDeleteAccountConfirmation(context),
+                    ),
                   SettingItemWidget(
                     decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(0))),
                     leading: Image.asset(about, width: 16, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8)),
@@ -406,39 +447,7 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                     paddingBeforeTrailing: 4,
                     title: languages.lblDeleteAccount,
                     titleTextStyle: boldTextStyle(size: 12),
-                    onTap: () {
-                      showConfirmDialogCustom(
-                        context,
-                        negativeText: languages.lblCancel,
-                        positiveText: languages.lblDelete,
-                        onAccept: (_) {
-                          ifNotTester(context, () {
-                            appStore.setLoading(true);
-
-                            deleteAccountCompletely().then((value) async {
-                              try {
-                                await userService.removeDocument(appStore.uid);
-                                await userService.deleteUser();
-                              } catch (e) {
-                                print(e);
-                              }
-
-                              appStore.setLoading(false);
-
-                              await clearPreferences();
-                              toast(value.message);
-
-                              push(SignInScreen(), isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
-                            }).catchError((e) {
-                              appStore.setLoading(false);
-                              toast(e.toString());
-                            });
-                          });
-                        },
-                        dialogType: DialogType.DELETE,
-                        title: languages.lblDeleteAccountConformation,
-                      );
-                    },
+                    onTap: () => _showDeleteAccountConfirmation(context),
                   ),
                   SettingItemWidget(
                     decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(16))),

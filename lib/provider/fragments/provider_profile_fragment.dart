@@ -68,6 +68,34 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
     appStore.setUserWalletAmount();
   }
 
+  void _showDeleteAccountConfirmation(BuildContext context) {
+    showConfirmDialogCustom(
+      context,
+      negativeText: languages.lblCancel,
+      positiveText: languages.lblDelete,
+      onAccept: (_) {
+        ifNotTester(context, () {
+          appStore.setLoading(true);
+          deleteAccountCompletely().then((value) async {
+            if (appStore.uid != "") {
+              await userService.removeDocument(appStore.uid);
+              await userService.deleteUser();
+            }
+            appStore.setLoading(false);
+            await clearPreferences();
+            toast(value.message);
+            push(SignInScreen(), isNewTask: true);
+          }).catchError((e) {
+            appStore.setLoading(false);
+            toast(e.toString());
+          });
+        });
+      },
+      dialogType: DialogType.DELETE,
+      title: languages.lblDeleteAccountConformation,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Observer(
@@ -683,7 +711,7 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
                   decoration: BoxDecoration(
                     color: context.cardColor,
                     borderRadius: BorderRadiusDirectional.vertical(
-                        bottom: Radius.circular(16)),
+                        bottom: Radius.circular(0)),
                   ),
                   leading: Image.asset(changePassword,
                       height: 16,
@@ -698,11 +726,34 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
                           : gray.withValues(alpha: 0.8),
                       size: 18),
                   padding:
-                      EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 16),
+                      EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 0),
                   onTap: () {
                     ChangePasswordScreen().launch(context);
                   },
                 ),
+                if (appStore.isLoggedIn)
+                  SettingItemWidget(
+                    decoration: BoxDecoration(
+                      color: context.cardColor,
+                      borderRadius: BorderRadiusDirectional.vertical(
+                          bottom: Radius.circular(16)),
+                    ),
+                    leading: ic_delete.iconImage(
+                        size: 16,
+                        color: appStore.isDarkMode
+                            ? white
+                            : appTextSecondaryColor),
+                    title: languages.lblDeleteAccount,
+                    titleTextStyle: boldTextStyle(size: 12),
+                    padding:
+                        EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 16),
+                    trailing: Icon(Icons.chevron_right,
+                        color: appStore.isDarkMode
+                            ? white
+                            : gray.withValues(alpha: 0.8),
+                        size: 18),
+                    onTap: () => _showDeleteAccountConfirmation(context),
+                  ),
                 // SettingItemWidget(
                 //   decoration: BoxDecoration(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(16))),
                 //   leading: Image.asset(about, height: 16, width: 16, color: appStore.isDarkMode ? white : appTextSecondaryColor),
@@ -741,36 +792,7 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
                   titleTextStyle: boldTextStyle(size: 12),
                   padding:
                       EdgeInsets.only(bottom: 16, right: 16, left: 16, top: 20),
-                  onTap: () {
-                    showConfirmDialogCustom(
-                      context,
-                      negativeText: languages.lblCancel,
-                      positiveText: languages.lblDelete,
-                      onAccept: (_) {
-                        ifNotTester(context, () {
-                          appStore.setLoading(true);
-
-                          deleteAccountCompletely().then((value) async {
-                            if (appStore.uid != "") {
-                              await userService.removeDocument(appStore.uid);
-                              await userService.deleteUser();
-                            }
-                            appStore.setLoading(false);
-
-                            await clearPreferences();
-                            toast(value.message);
-
-                            push(SignInScreen(), isNewTask: true);
-                          }).catchError((e) {
-                            appStore.setLoading(false);
-                            toast(e.toString());
-                          });
-                        });
-                      },
-                      dialogType: DialogType.DELETE,
-                      title: languages.lblDeleteAccountConformation,
-                    );
-                  },
+                  onTap: () => _showDeleteAccountConfirmation(context),
                 ),
                 SettingItemWidget(
                   decoration: boxDecorationDefault(

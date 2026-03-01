@@ -264,8 +264,19 @@ class BookingData {
       finalCouponDiscountAmount: json['final_coupon_discount_amount'],
       serviceaddon: json['BookingAddonService'] != null ? (json['BookingAddonService'] as List).map((i) => ServiceAddon.fromJson(i)).toList() : null,
       txnId: json['txn_id'],
-      beforeJobImage: json['before_image'] ?? json['before_job_image'], // API returns 'before_image', fallback to 'before_job_image' for compatibility
+      beforeJobImage: _normalizeBeforeJobImageUrl(json['before_image'] ?? json['before_job_image']),
     );
+  }
+
+  /// Fix duplicated base URL in before_image (backend may return "https://domain.com/storage/https://domain.com/storage/path.jpg").
+  static String? _normalizeBeforeJobImageUrl(dynamic value) {
+    if (value == null) return null;
+    final url = value.toString().trim();
+    if (url.isEmpty) return null;
+    final lower = url.toLowerCase();
+    final lastHttps = lower.lastIndexOf('https://');
+    if (lastHttps > 0) return url.substring(lastHttps);
+    return url;
   }
 
   Map<String, dynamic> toJson() {

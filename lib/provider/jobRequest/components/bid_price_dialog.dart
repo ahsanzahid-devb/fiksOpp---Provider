@@ -4,6 +4,7 @@ import 'package:handyman_provider_flutter/components/app_widgets.dart';
 import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
+import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:handyman_provider_flutter/utils/extensions/context_ext.dart';
 import 'package:handyman_provider_flutter/utils/model_keys.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -48,12 +49,11 @@ class _BidPriceDialogState extends State<BidPriceDialog> {
 
       saveBid(request).then((value) {
         appStore.setLoading(false);
-
         toast(value.message.validate());
+        LiveStream().emit(LIVESTREAM_PROVIDER_ALL_BOOKING, 0);
         finish(context, true);
       }).catchError((e) {
         appStore.setLoading(false);
-
         String errorMessage = e.toString();
         // Backend often returns 500 after saving bid (e.g. notification step fails). Treat as success.
         if (errorMessage.contains("Attempt to read property") ||
@@ -61,6 +61,7 @@ class _BidPriceDialogState extends State<BidPriceDialog> {
             errorMessage.contains("500")) {
           log("⚠️ Backend error after saving bid (bid may have been saved): $errorMessage");
           toast(languages.bidSavedSuccessfully);
+          LiveStream().emit(LIVESTREAM_PROVIDER_ALL_BOOKING, 0);
           finish(context, true);
         } else {
           toast(errorMessage);

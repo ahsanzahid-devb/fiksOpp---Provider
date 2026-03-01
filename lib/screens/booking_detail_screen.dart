@@ -1707,7 +1707,7 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
         };
 
         await bookingUpdate(request).then((res) async {
-          toast(res.message!);
+          toast(res.message ?? '');
           appStore.setLoading(false);
           init(flag: true);
           setState(() {});
@@ -1788,7 +1788,7 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
 
         appStore.setLoading(true);
         await bookingUpdate(request).then((res) async {
-          toast(res.message!);
+          toast(res.message ?? '');
           appStore.setLoading(false);
           init(flag: true);
           setState(() {});

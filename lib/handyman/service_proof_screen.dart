@@ -49,21 +49,34 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
 
   init() async {
     serviceNameCont.text = widget.bookingDetail!.service!.name.validate();
-    
+
     // Load before-job image (from backend or cache)
     await _loadBeforeJobImage();
-    
+
     setState(() {});
   }
-  
+
+  /// Normalize image URL if backend returned a duplicated base (e.g. base + full URL).
+  /// Backend may return: "https://domain.com/storage/https://domain.com/storage/booking_images/foo.jpg"
+  static String? _normalizeImageUrl(String? url) {
+    if (url == null || url.isEmpty) return url;
+    final lower = url.toLowerCase();
+    // Find last occurrence of "https://" (case-insensitive) to get the real single URL
+    final lastHttps = lower.lastIndexOf('https://');
+    if (lastHttps > 0) {
+      final normalized = url.substring(lastHttps);
+      return normalized;
+    }
+    return url;
+  }
+
   /// Load before-job image from backend response
   Future<void> _loadBeforeJobImage() async {
     try {
-      // Get from backend response
-      if (widget.bookingDetail!.bookingDetail!.beforeJobImage != null && 
-          widget.bookingDetail!.bookingDetail!.beforeJobImage!.isNotEmpty) {
-        _beforeJobImagePath = widget.bookingDetail!.bookingDetail!.beforeJobImage;
-        log('✅ Loaded before-job image from backend: $_beforeJobImagePath');
+      final raw = widget.bookingDetail!.bookingDetail!.beforeJobImage;
+      if (raw != null && raw.isNotEmpty) {
+        _beforeJobImagePath = _normalizeImageUrl(raw);
+        log('✅ Loaded before-job image from backend (normalized): $_beforeJobImagePath');
       }
     } catch (e) {
       log('❌ Error loading before-job image: $e');
@@ -73,25 +86,35 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
   Future<void> submit() async {
     hideKeyboard(context);
 
-    MultipartRequest multiPartRequest = await getMultiPartRequest('save-service-proof');
-    multiPartRequest.fields[CommonKeys.serviceId] = widget.bookingDetail!.service!.id.toString().validate();
-    multiPartRequest.fields[CommonKeys.bookingId] = widget.bookingDetail!.bookingDetail!.id.toString().validate();
-    multiPartRequest.fields[CommonKeys.userId] = getIntAsync(USER_ID).toString();
-    multiPartRequest.fields[SaveBookingAttachment.title] = titleCont.text.validate();
-    multiPartRequest.fields[SaveBookingAttachment.description] = compliantCont.text.validate();
+    MultipartRequest multiPartRequest =
+        await getMultiPartRequest('save-service-proof');
+    multiPartRequest.fields[CommonKeys.serviceId] =
+        widget.bookingDetail!.service!.id.toString().validate();
+    multiPartRequest.fields[CommonKeys.bookingId] =
+        widget.bookingDetail!.bookingDetail!.id.toString().validate();
+    multiPartRequest.fields[CommonKeys.userId] =
+        getIntAsync(USER_ID).toString();
+    multiPartRequest.fields[SaveBookingAttachment.title] =
+        titleCont.text.validate();
+    multiPartRequest.fields[SaveBookingAttachment.description] =
+        compliantCont.text.validate();
 
     if (imageFiles.isNotEmpty) {
       await Future.forEach<XFile>(imageFiles, (element) async {
         int i = imageFiles.indexOf(element);
         log('${SaveBookingAttachment.bookingAttachment + i.toString()}');
-        multiPartRequest.files.add(await MultipartFile.fromPath('${SaveBookingAttachment.bookingAttachment + i.toString()}', element.path));
+        multiPartRequest.files.add(await MultipartFile.fromPath(
+            '${SaveBookingAttachment.bookingAttachment + i.toString()}',
+            element.path));
       });
     }
     if (imageFiles.isEmpty) {
       return toast(languages.lblChooseOneImage);
     }
 
-    if (imageFiles.isNotEmpty) multiPartRequest.fields[AddServiceKey.attachmentCount] = imageFiles.length.toString();
+    if (imageFiles.isNotEmpty)
+      multiPartRequest.fields[AddServiceKey.attachmentCount] =
+          imageFiles.length.toString();
 
     log('multiPartRequest.fields : ${multiPartRequest.fields}');
 
@@ -149,8 +172,10 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
     finish(context);
     GetMultipleImage(path: (xFiles) async {
       log('Path camera : ${xFiles.length.toString()}');
-      final existingNames = imageFiles.map((file) => file.name.trim().toLowerCase()).toSet();
-      imageFiles.addAll(xFiles.where((file) => !existingNames.contains(file.name.trim().toLowerCase())));
+      final existingNames =
+          imageFiles.map((file) => file.name.trim().toLowerCase()).toSet();
+      imageFiles.addAll(xFiles.where(
+          (file) => !existingNames.contains(file.name.trim().toLowerCase())));
       setState(() {});
     });
   }
@@ -188,12 +213,14 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Before Job Image Section
-                  if (_beforeJobImagePath != null && _beforeJobImagePath!.isNotEmpty)
+                  if (_beforeJobImagePath != null &&
+                      _beforeJobImagePath!.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(languages.lblBeforeJobImage, style: boldTextStyle()),
-                          12.height,
+                        Text(languages.lblBeforeJobImage,
+                            style: boldTextStyle()),
+                        12.height,
                         Container(
                           width: context.width(),
                           height: 200,
@@ -203,6 +230,7 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
                               ? CachedImageWidget(
                                   url: _beforeJobImagePath!,
                                   height: 200,
+                                  width: context.width(),
                                   fit: BoxFit.cover,
                                 )
                               : Image.file(
@@ -211,7 +239,8 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
                                       color: context.cardColor,
-                                      child: Icon(Icons.broken_image, size: 50, color: context.iconColor),
+                                      child: Icon(Icons.broken_image,
+                                          size: 50, color: context.iconColor),
                                     ).center();
                                   },
                                 ),
@@ -219,7 +248,7 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
                         16.height,
                       ],
                     ),
-                  
+
                   Row(
                     children: [
                       Text(languages.hintServiceName, style: boldTextStyle()),
@@ -248,64 +277,73 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
                     controller: titleCont,
                     nextFocus: compliantFocus,
                     isValidationRequired: true,
-                    decoration: inputDecoration(context, hint: languages.lblTitle, showLabel: false),
+                    decoration: inputDecoration(context,
+                        hint: languages.lblTitle, showLabel: false),
                   ),
                   16.height,
                   Row(
                     children: [
-                      Text(languages.lblAfterJobDescription, style: boldTextStyle()),
+                      Text(languages.lblAfterJobDescription,
+                          style: boldTextStyle()),
                       2.width,
                       Text('*', style: boldTextStyle(color: pending)),
                     ],
                   ),
                   12.height,
-               
+
                   AppTextField(
                     textFieldType: TextFieldType.MULTILINE,
                     controller: compliantCont,
                     minLines: 5,
                     isValidationRequired: true,
                     enableChatGPT: appConfigurationStore.chatGPTStatus,
-                    promptFieldInputDecorationChatGPT: inputDecoration(context).copyWith(
+                    promptFieldInputDecorationChatGPT:
+                        inputDecoration(context).copyWith(
                       hintText: languages.writeHere,
                       fillColor: context.scaffoldBackgroundColor,
                       filled: true,
                     ),
                     testWithoutKeyChatGPT: appConfigurationStore.testWithoutKey,
                     loaderWidgetForChatGPT: const ChatGPTLoadingWidget(),
-                    decoration: inputDecoration(context, hint: languages.hintDescription, showLabel: false),
+                    decoration: inputDecoration(context,
+                        hint: languages.hintDescription, showLabel: false),
                   ),
                   16.height,
-                   Row(
+                  Row(
                     children: [
                       Text(languages.lblAfterJobImage, style: boldTextStyle()),
                       2.width,
                       Text('*', style: boldTextStyle(color: pending)),
                     ],
                   ),
-                   12.height,
+                  12.height,
                   SizedBox(
                     width: context.width(),
                     child: Column(
                       children: [
                         DottedBorderWidget(
-                          color: primaryColor.withValues(alpha:0.6),
+                          color: primaryColor.withValues(alpha: 0.6),
                           strokeWidth: 1,
                           padding: EdgeInsets.all(16),
                           radius: defaultRadius,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.file_upload_outlined, size: 30, color: context.iconColor),
+                              Icon(Icons.file_upload_outlined,
+                                  size: 30, color: context.iconColor),
                               8.height,
-                              Text(languages.uploadMedia, style: boldTextStyle()),
+                              Text(languages.uploadMedia,
+                                  style: boldTextStyle()),
                             ],
                           ).center().onTap(() async {
                             _showImgPickBottomSheet(context);
-                          }, highlightColor: Colors.transparent, splashColor: Colors.transparent),
+                          },
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.transparent),
                         ),
                         16.height,
-                        Text(languages.serviceProofMediaUploadNote, style: secondaryTextStyle()),
+                        Text(languages.serviceProofMediaUploadNote,
+                            style: secondaryTextStyle()),
                       ],
                     ),
                   ),
@@ -317,9 +355,13 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
                         return Stack(
                           alignment: Alignment.topRight,
                           children: [
-                            Image.file(File(imageFiles[i].path), width: 90, height: 90, fit: BoxFit.cover).cornerRadiusWithClipRRect(defaultRadius),
+                            Image.file(File(imageFiles[i].path),
+                                    width: 90, height: 90, fit: BoxFit.cover)
+                                .cornerRadiusWithClipRRect(defaultRadius),
                             Container(
-                              decoration: boxDecorationWithRoundedCorners(boxShape: BoxShape.circle, backgroundColor: primaryColor),
+                              decoration: boxDecorationWithRoundedCorners(
+                                  boxShape: BoxShape.circle,
+                                  backgroundColor: primaryColor),
                               margin: EdgeInsets.only(right: 8, top: 8),
                               padding: EdgeInsets.all(4),
                               child: Icon(Icons.close, size: 16, color: white),
