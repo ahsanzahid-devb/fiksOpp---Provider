@@ -1,0 +1,5 @@
+Locale: no
+Base keys (total): 858
+Overridden in language_no: 871
+Missing in language_no: 0
+

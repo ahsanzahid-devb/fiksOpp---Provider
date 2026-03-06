@@ -130,19 +130,22 @@ class SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 226, 226, 226),
       body: Stack(
         fit: StackFit.expand,
+        clipBehavior: Clip.none,
         children: [
-          // Image.asset(
-          //   appStore.isDarkMode ? splash_background : splash_light_background,
-          //   height: context.height(),
-          //   width: context.width(),
-          //   fit: BoxFit.cover,
-          // ),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(Assets.logo, height: 120, width: 120),
+              SizedBox(
+                height: 120,
+                width: 120,
+                child: Image.asset(
+                  Assets.logo,
+                  fit: BoxFit.contain,
+                ),
+              ),
               32.height,
               Text(
                 APP_NAME,
