@@ -89,7 +89,6 @@ class _SignInScreenState extends State<SignInScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: AppBar().preferredSize.height),
-                      // Hello again with Welcome text
                       _buildHelloAgainWithWelcomeText(),
 
                       AutofillGroup(

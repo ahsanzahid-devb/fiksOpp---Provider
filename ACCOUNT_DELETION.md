@@ -13,13 +13,25 @@ Flow: user taps **Delete account** → confirmation dialog (“Your account will
 
 ---
 
-## Backend: you need a deletion API
+## Backend: account deletion API
 
-The app calls:
+The app calls the same API as in your API client (e.g. Postman):
 
-- **Endpoint:** `POST /api/delete-account`
-- **Headers:** same as other authenticated requests (e.g. `Authorization: Bearer <token>`).
+- **Method:** `POST`
+- **Endpoint path:** `delete-account` (app builds URL as `BASE_URL` + `delete-account`).
+- **Query params:** none.
+- **Headers:** same as other authenticated requests (e.g. `Authorization: Bearer <token>`); the app sends these via `buildHeaderTokens()`.
 - **Body:** empty `{}` (user is identified by the auth token).
+
+### Cross-check: exact URL the app calls
+
+- In code: `lib/utils/configs.dart` has `BASE_URL = "$DOMAIN_URL/api/"` and `DOMAIN_URL = "https://fiksopp.inoor.buzz"`.
+- So the app sends **POST** to:
+  - **Full URL:** `https://fiksopp.inoor.buzz/api/delete-account`
+- In your API client (Postman etc.):
+  - Set base URL / `{{live}}` to **`https://fiksopp.inoor.buzz/api`** (include `/api`).
+  - Request: **POST** `{{live}}/delete-account` → `https://fiksopp.inoor.buzz/api/delete-account`.
+- If your backend is served at a different domain or path, either change `DOMAIN_URL` / `BASE_URL` in `lib/utils/configs.dart` or ensure the server handles `POST /api/delete-account` at the same base URL.
 
 **Backend must:**
 
