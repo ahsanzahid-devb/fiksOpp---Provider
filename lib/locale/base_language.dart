@@ -190,6 +190,8 @@ abstract class Languages {
 
   String get lblProfile;
 
+  String get lblAccount;
+
   String get lblAllHandyman;
 
   String get lblTime;

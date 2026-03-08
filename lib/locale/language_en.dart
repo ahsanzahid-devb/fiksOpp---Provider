@@ -281,6 +281,9 @@ class LanguageEn extends Languages {
   String get lblProfile => 'Profile';
 
   @override
+  String get lblAccount => 'Account';
+
+  @override
   String get lblAllHandyman => "Handyman List";
 
   @override

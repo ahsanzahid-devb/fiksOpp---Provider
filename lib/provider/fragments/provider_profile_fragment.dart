@@ -243,6 +243,43 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
               ),
               16.height,
             ],
+            if (appStore.isLoggedIn)
+              SettingSection(
+                title: Text(languages.lblAccount,
+                    style: boldTextStyle(color: primaryColor)),
+                headingDecoration: BoxDecoration(
+                  color: context.primaryColor.withValues(alpha: 0.1),
+                  borderRadius:
+                      BorderRadiusDirectional.vertical(top: Radius.circular(16)),
+                ),
+                divider: Offstage(),
+                items: [
+                  16.height,
+                  SettingItemWidget(
+                    decoration: BoxDecoration(
+                      color: context.cardColor,
+                      borderRadius: BorderRadiusDirectional.vertical(
+                          bottom: Radius.circular(16)),
+                    ),
+                    leading: ic_delete.iconImage(
+                        size: 16,
+                        color: appStore.isDarkMode
+                            ? white
+                            : appTextSecondaryColor),
+                    title: languages.lblDeleteAccount,
+                    titleTextStyle: boldTextStyle(size: 12),
+                    padding:
+                        EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 16),
+                    trailing: Icon(Icons.chevron_right,
+                        color: appStore.isDarkMode
+                            ? white
+                            : gray.withValues(alpha: 0.8),
+                        size: 18),
+                    onTap: () => _showDeleteAccountConfirmation(context),
+                  ),
+                ],
+              ).paddingSymmetric(horizontal: 16),
+            if (appStore.isLoggedIn) 16.height,
             SettingSection(
               title: Text(languages.general,
                   style: boldTextStyle(color: primaryColor)),

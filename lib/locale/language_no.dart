@@ -122,6 +122,8 @@ class LanguageNo extends LanguageEn {
   @override
   String get lblProfile => 'Profil';
   @override
+  String get lblAccount => 'Konto';
+  @override
   String get afterLogoutTxt =>
       'Vil du logge ut? Du kan alltid logge inn igjen.';
   @override
