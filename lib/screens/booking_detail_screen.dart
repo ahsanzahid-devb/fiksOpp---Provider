@@ -1354,7 +1354,7 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
 
       // START BUTTON - Provider can start service when status is on_going
       return AppButton(
-        text: "Start Job",
+        text: languages.lblStartJob,
         textColor: Colors.white,
         color: context.primaryColor,
         onTap: () {

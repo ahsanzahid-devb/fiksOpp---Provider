@@ -108,6 +108,8 @@ abstract class Languages {
 
   String get pleaseContactAdmin;
 
+  String get cannotChatWithYourself;
+
   String get lblOk;
 
   String get paymentStatus;
@@ -286,6 +288,10 @@ abstract class Languages {
 
   String get lblDate;
 
+  String get lblEstimatedTime;
+
+  String get lblNotProvided;
+
   String get lblAboutHandyman;
 
   String get lblAboutCustomer;
@@ -442,6 +448,8 @@ abstract class Languages {
 
   String get lblSelectSubCategory;
 
+  String get lblCategory;
+
   String get lblServiceProof;
 
   String get lblTitle;
@@ -579,6 +587,10 @@ abstract class Languages {
   String get noHandymanSubTitle;
 
   String get noServiceFound;
+
+  String get serviceDetailNotAvailableTxt;
+
+  String get postJobDataNotFound;
 
   String get noServiceSubTitle;
 
@@ -904,6 +916,8 @@ abstract class Languages {
 
   String get home;
 
+  String get lblJobs;
+
   String get selectPlanSubTitle;
 
   String get userRole;
@@ -1111,6 +1125,8 @@ abstract class Languages {
   String get lblStart;
 
   String get lblHold;
+
+  String get lblStartJob;
 
   String get lblResume;
 

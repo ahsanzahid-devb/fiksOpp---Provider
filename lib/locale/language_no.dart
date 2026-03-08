@@ -194,6 +194,8 @@ class LanguageNo extends LanguageEn {
   @override
   String get pleaseContactAdmin => 'Vennligst kontakt administrator';
   @override
+  String get cannotChatWithYourself => 'Du kan ikke chatte med deg selv';
+  @override
   String get selectCountry => 'Velg land';
   @override
   String get selectState => 'Velg region';
@@ -299,6 +301,10 @@ class LanguageNo extends LanguageEn {
   String get lblUnAuthorized => 'Demobruker kan ikke utføre denne handlingen';
   @override
   String get lblDate => 'Dato';
+  @override
+  String get lblEstimatedTime => 'Estimert tid';
+  @override
+  String get lblNotProvided => 'Ikke oppgitt';
   @override
   String get lblStatus => 'Status';
   @override
@@ -558,6 +564,8 @@ class LanguageNo extends LanguageEn {
   String get lblEnterMinute => 'Skriv inn minutter (opptil 60)';
   @override
   String get lblSelectSubCategory => 'Velg underkategori';
+  @override
+  String get lblCategory => 'Kategori';
   @override
   String get lblServiceProof => 'Tjenestebevis';
   @override
@@ -1051,6 +1059,8 @@ class LanguageNo extends LanguageEn {
   @override
   String get home => 'Hjem';
   @override
+  String get lblJobs => 'Jobber';
+  @override
   String get hour => 'time';
   @override
   String get iFSCCode => 'IFSC-kode';
@@ -1147,6 +1157,8 @@ class LanguageNo extends LanguageEn {
   String get lblFeatureBlog => 'Dette er en utvalgt blogg';
   @override
   String get lblHold => 'Pause';
+  @override
+  String get lblStartJob => 'Start jobb';
   @override
   String get lblImage => 'Bilde';
   @override
@@ -1282,6 +1294,11 @@ class LanguageNo extends LanguageEn {
   String get noServiceAddressTitle => 'Ingen tjenesteadresse';
   @override
   String get noServiceFound => 'Ingen tjeneste funnet';
+  @override
+  String get serviceDetailNotAvailableTxt =>
+      'Denne tjenestedetaljen er ikke tilgjengelig. Tjenesten kan ha blitt fjernet, eller du har kanskje ikke tilgang til å se den.';
+  @override
+  String get postJobDataNotFound => 'Innleggsdata for jobben ble ikke funnet.';
   @override
   String get noServiceSubTitle =>
       'Legg til tjenester for å få flere bestillinger.';

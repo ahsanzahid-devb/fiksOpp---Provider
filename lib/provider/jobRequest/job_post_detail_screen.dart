@@ -253,14 +253,14 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
 
                   /// 🕒 Updated label and value for Estimated Time
                   Text(
-                    'Estimated Time',
+                    languages.lblEstimatedTime,
                     style: secondaryTextStyle(),
                   ),
                   4.height,
                   Text(
                     postJobData.price != null
                         ? postJobData.price.toString()
-                        : 'Not Provided',
+                        : languages.lblNotProvided,
                     style: boldTextStyle(size: 14),
                   ),
 
@@ -270,7 +270,7 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
                       children: [
                         8.height,
                         Text(
-                          'Category: ${postJobData.service!.first.categoryName.validate()}',
+                          '${languages.lblCategory}: ${postJobData.service!.first.categoryName.validate()}',
                           style: secondaryTextStyle(size: 13),
                         ),
                       ],

@@ -41,7 +41,7 @@ class _UserItemWidgetState extends State<UserItemWidget> {
                 log("Current User ID: ${appStore.uid.validate()}");
                 log("Receiver User ID: ${data.uid.validate()}");
                 log("Receiver Email: ${data.email.validate()}");
-                toast("Cannot chat with yourself");
+                toast(languages.cannotChatWithYourself);
                 return;
               }
               UserChatScreen(receiverUser: data).launch(context, pageRouteAnimation: PageRouteAnimation.Fade, duration: 300.milliseconds);

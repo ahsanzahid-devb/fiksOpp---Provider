@@ -260,7 +260,7 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
                       log("Current User ID: ${appStore.uid.validate()}");
                       log("Receiver User ID: ${user.uid.validate()}");
                       log("Receiver Email: ${user.email.validate()}");
-                      toast("Cannot chat with yourself");
+                      toast(languages.cannotChatWithYourself);
                       return;
                     }
                     

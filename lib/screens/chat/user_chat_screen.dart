@@ -84,7 +84,7 @@ class _UserChatScreenState extends State<UserChatScreen> with WidgetsBindingObse
       log("1. User clicking on their own profile/contact");
       log("2. Data inconsistency (receiver email matches current user email)");
       log("3. Incorrect user data being passed to UserChatScreen");
-      toast("Cannot chat with yourself");
+      toast(languages.cannotChatWithYourself);
       // Optionally, you can prevent navigation or show a message
       // finish(context);
       // return;

@@ -158,6 +158,9 @@ class LanguageEn extends Languages {
   String get pleaseContactAdmin => 'Please contact with Admin';
 
   @override
+  String get cannotChatWithYourself => 'Cannot chat with yourself';
+
+  @override
   String get lblOk => 'Ok';
 
   @override
@@ -425,6 +428,12 @@ class LanguageEn extends Languages {
   String get lblDate => "Date";
 
   @override
+  String get lblEstimatedTime => "Estimated Time";
+
+  @override
+  String get lblNotProvided => "Not Provided";
+
+  @override
   String get lblAboutHandyman => "About Handyman";
 
   @override
@@ -659,6 +668,9 @@ class LanguageEn extends Languages {
   String get lblSelectSubCategory => "Select SubCategory";
 
   @override
+  String get lblCategory => "Category";
+
+  @override
   String get lblServiceProof => "Service Proof";
 
   @override
@@ -864,6 +876,12 @@ class LanguageEn extends Languages {
 
   @override
   String get noServiceFound => "No Service Found";
+
+  @override
+  String get serviceDetailNotAvailableTxt => "This service detail is not available. The service may have been removed, or you may not have permission to view it.";
+
+  @override
+  String get postJobDataNotFound => "Post job data not found.";
 
   @override
   String get noServiceSubTitle => "Hurry Up! Add services for customer and expand your work";
@@ -1352,6 +1370,9 @@ class LanguageEn extends Languages {
   String get home => 'Home';
 
   @override
+  String get lblJobs => 'Jobs';
+
+  @override
   String get selectPlanSubTitle => 'Choose a plan tailored to your needs';
 
   @override
@@ -1663,6 +1684,9 @@ class LanguageEn extends Languages {
 
   @override
   String get lblHold => 'Hold';
+
+  @override
+  String get lblStartJob => 'Start Job';
 
   @override
   String get lblResume => 'Resume';

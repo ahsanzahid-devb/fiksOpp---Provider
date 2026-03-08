@@ -303,7 +303,7 @@ class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                       icon:
                           ic_briefcase.iconImage(color: appTextSecondaryColor),
                       selectedIcon: ic_briefcase.iconImage(color: primaryColor),
-                      label: 'Jobs',
+                      label: languages.lblJobs,
                     ),
                     NavigationDestination(
                       icon:

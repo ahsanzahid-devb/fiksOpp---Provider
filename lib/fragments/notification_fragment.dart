@@ -48,7 +48,8 @@ class NotificationScreenState extends State<NotificationFragment> {
     );
   }
 
-  Future<void> readNotificationGeneric({required String type, String? id}) async {
+  Future<void> readNotificationGeneric(
+      {required String type, String? id}) async {
     //TODO: check for booking_id
     // Map request = {CommonKeys.bookingId: id};
     Map request = {CommonKeys.serviceId: id};
@@ -120,36 +121,44 @@ class NotificationScreenState extends State<NotificationFragment> {
               return GestureDetector(
                 onTap: () async {
                   if (isUserTypeHandyman) {
-                    if (data.data!.notificationType.validate().contains(BOOKING)) {
-                      readNotificationGeneric(type: 'booking', id: data.data!.id.toString());
-                      BookingDetailScreen(bookingId: data.data!.id).launch(context);
+                    if (data.data!.notificationType
+                        .validate()
+                        .contains(BOOKING)) {
+                      readNotificationGeneric(
+                          type: 'booking', id: data.data!.id.toString());
+                      BookingDetailScreen(bookingId: data.data!.id)
+                          .launch(context);
                     } else {
                       //
                     }
                   } else if (isUserTypeProvider) {
-                    if (data.data!.notificationType.validate().contains(WALLET) || data.data!.notificationType.validate().contains(PAYOUT)) {
+                    if (data.data!.notificationType
+                            .validate()
+                            .contains(WALLET) ||
+                        data.data!.notificationType
+                            .validate()
+                            .contains(PAYOUT)) {
                       WalletHistoryScreen().launch(context);
-                    } else if (data.data!.notificationType.validate().contains(BOOKING) || data.data!.notificationType.validate().contains(PAYMENT_MESSAGE_STATUS)) {
-                      readNotificationGeneric(type: 'booking', id: data.data!.id.toString());
-                      BookingDetailScreen(bookingId: data.data!.id).launch(context);
-                    }
-
-                    ///handle post job detail on notification click
-                    /*else if (data.data!.notificationType.validate().contains(POSTJOB)) {
-                      readNotification(id: data.data!.id.toString());
-                      getPostJobDetail({PostJob.postRequestId: data.data!.id}).then((response) {
-                        if (response.postRequestDetail != null) {
-                          JobPostDetailScreen(postJobData: response.postRequestDetail!).launch(context);
-                        } else {
-                          toast("Post job data not found.");
-                        }
-                      }).catchError((e) {
-                        toast(e.toString());
-                      });
-                    }*/
-                    else if (data.data!.notificationType.validate().contains(SERVICE_REQUEST_APPROVE) || data.data!.notificationType.validate().contains(SERVICE_REQUEST_REJECT)) {
-                      readNotificationGeneric(type: 'service', id: data.data!.id.toString());
-                      ServiceDetailScreen(serviceId: data.data!.id).launch(context);
+                    } else if (data.data!.notificationType
+                            .validate()
+                            .contains(BOOKING) ||
+                        data.data!.notificationType
+                            .validate()
+                            .contains(PAYMENT_MESSAGE_STATUS)) {
+                      readNotificationGeneric(
+                          type: 'booking', id: data.data!.id.toString());
+                      BookingDetailScreen(bookingId: data.data!.id)
+                          .launch(context);
+                    } else if (data.data!.notificationType
+                            .validate()
+                            .contains(SERVICE_REQUEST_APPROVE) ||
+                        data.data!.notificationType
+                            .validate()
+                            .contains(SERVICE_REQUEST_REJECT)) {
+                      readNotificationGeneric(
+                          type: 'service', id: data.data!.id.toString());
+                      ServiceDetailScreen(serviceId: data.data!.id)
+                          .launch(context);
                     } else {
                       //
                     }
