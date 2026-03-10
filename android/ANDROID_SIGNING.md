@@ -1,11 +1,26 @@
 # Android App Bundle signing (Play Console "wrong key" error)
 
+## What to do now
+
+1. **Find the keystore** that was used for the **first** FiksOpp Provider upload to Play. Its SHA1 must be:  
+   `6C:4E:7E:7B:EA:5B:AA:BB:6F:08:95:10:A6:C1:57:41:1C:81:F2:20`  
+   Check any `.jks` / `.keystore` files with:  
+   `keytool -list -v -keystore /path/to/keystore.jks`
+2. **Create `android/key.properties`** (see format in `key.properties.example`) pointing to that keystore, with correct `storePassword`, `keyPassword`, `keyAlias`, and `storeFile`.
+3. **Build and upload:**  
+   `flutter clean && flutter build appbundle`  
+   Upload the new `build/app/outputs/bundle/release/app-release.aab`.
+
+If you no longer have that keystore, you must request an **upload key reset** in Play Console (Setup → App signing → Request upload key reset) and then use the new key. See the rest of this file and `HOW_TO_RESET_UPLOAD_KEY.md` for details.
+
+---
+
 ## Why you see this error
 
 Play Console expects your app bundle to be signed with a **specific certificate** (upload key):
 
-- **Expected SHA1:** `30:C8:A9:63:E5:76:86:B4:17:CC:82:F6:13:BE:77:F4:C1:39:40:EE`
-- **Current upload SHA1:** `B3:DB:69:75:8B:A3:66:BA:D0:5C:77:2D:67:67:B0:26:AA:BE:40:26`
+- **Expected SHA1 (FiksOpp Provider):** `6C:4E:7E:7B:EA:5B:AA:BB:6F:08:95:10:A6:C1:57:41:1C:81:F2:20`
+- **Wrong SHA1 (e.g. debug or other key):** `D2:62:F2:83:...` or `B3:DB:69:75:...` — upload will be rejected.
 
 In this project, **release builds use the release keystore only if `key.properties` exists**. If `key.properties` is missing, the build uses the **debug** keystore, which has the second SHA1. So the bundle you uploaded was signed with the debug key instead of the key Play has on file.
 
@@ -17,7 +32,7 @@ In this project, **release builds use the release keystore only if `key.properti
 
 You need the **keystore file** (`.jks` or `.keystore`) that was used when the app was first uploaded to Play. Its SHA1 must be:
 
-**Expected:** `30:C8:A9:63:E5:76:86:B4:17:CC:82:F6:13:BE:77:F4:C1:39:40:EE`
+**Expected (from Play Console):** `6C:4E:7E:7B:EA:5B:AA:BB:6F:08:95:10:A6:C1:57:41:1C:81:F2:20`
 
 **Keystores found on your Mac** (check each with the command below to see its SHA1):
 
@@ -39,7 +54,7 @@ To check FiksOpp keystores only (you’ll be asked for password for each):
 keytool -list -v -keystore /Users/mac/fiksOpp---User/android/app/keystore_new.jks
 ```
 
-In the output, find **SHA1:**. If it is `30:C8:A9:63:E5:76:86:B4:17:CC:82:F6:13:BE:77:F4:C1:39:40:EE`, use that keystore in `key.properties`. Note the **Alias name** from the output; you’ll need it for `keyAlias`.
+In the output, find **SHA1:**. If it is `6C:4E:7E:7B:EA:5B:AA:BB:6F:08:95:10:A6:C1:57:41:1C:81:F2:20`, use that keystore in `key.properties`. Note the **Alias name** from the output; you’ll need it for `keyAlias`.
 
 **Optional:** From the project root you can run `bash android/list_keystore_sha1.sh` to list SHA1 for the keystores above (you’ll be prompted for passwords for non-debug keys).
 

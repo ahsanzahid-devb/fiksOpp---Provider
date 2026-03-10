@@ -1,0 +1,12 @@
+# Copy this file to key.properties and fill in your values.
+# key.properties is gitignored; do not commit it.
+#
+# Your keystore MUST have this SHA1 for Google Play (FiksOpp Provider):
+# 6C:4E:7E:7B:EA:5B:AA:BB:6F:08:95:10:A6:C1:57:41:1C:81:F2:20
+#
+# Check with: keytool -list -v -keystore /path/to/your.keystore.jks
+
+storePassword=your_keystore_password
+keyPassword=your_key_password
+keyAlias=your_key_alias
+storeFile=../upload-keystore.jks
