@@ -30,10 +30,6 @@ class _BookingFilterScreenState extends State<BookingFilterScreen> {
     CUSTOMER,
     SERVICE_FILTER,
     DATE_RANGE,
-    // if (appStore.userType != USER_TYPE_HANDYMAN) PROVIDER.toLowerCase(),
-    // if (appStore.userType != USER_TYPE_HANDYMAN ||
-    //     appStore.userType != USER_TYPE_PROVIDER)
-    //   HANDYMAN.toLowerCase(),
     BOOKING_STATUS,
     PAYMENT_TYPE,
     PAYMENT_STATUS,
@@ -104,19 +100,10 @@ class _BookingFilterScreenState extends State<BookingFilterScreen> {
 
   void computeFilteredSectionList() {
     setState(() {
-      filteredSectionList = [CUSTOMER];
+      // Explicitly remove Provider/Handyman tabs (even if they get added later).
       filteredSectionList = sectionList.where((section) {
-        if (section.toLowerCase() == HANDYMAN.toLowerCase() &&
-            appStore.userType == 'handyman') {
-          return false;
-        } else if (section.toLowerCase() == PROVIDER.toLowerCase() &&
-            appStore.userType == 'handyman') {
-          return false;
-        } else if (section.toLowerCase() == PROVIDER.toLowerCase() &&
-            appStore.userType == 'provider') {
-          return false;
-        }
-        return true;
+        final temp = section.toLowerCase();
+        return temp != PROVIDER.toLowerCase() && temp != HANDYMAN.toLowerCase();
       }).toList();
     });
   }
@@ -213,17 +200,9 @@ class _BookingFilterScreenState extends State<BookingFilterScreen> {
                       return FilterCustomerListComponent();
                     } else if (e == DATE_RANGE) {
                       return FilterDateRangeComponent();
-                    }
-                    //  else if (e == SERVICE_FILTER) {
-                    //   return FilterServiceListComponent();
-                    // }
-                    else if (e == PROVIDER.toLowerCase()) {
+                    } else if (e == SERVICE_FILTER) {
                       return FilterServiceListComponent();
-                    }
-                    // else if (e == HANDYMAN.toLowerCase()) {
-                    //   return FilterHandymanListComponent();
-                    // }
-                    else if (e == BOOKING_STATUS) {
+                    } else if (e == BOOKING_STATUS) {
                       return FilterBookingStatusComponent(
                           bookingStatusList: bookingStatusList);
                     } else if (e == PAYMENT_TYPE) {

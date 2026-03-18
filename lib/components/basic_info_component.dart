@@ -30,7 +30,13 @@ class BasicInfoComponent extends StatefulWidget {
   final int flag;
   final BookingData? bookingDetail;
 
-  BasicInfoComponent(this.flag, {this.customerData, this.handymanData, this.providerData, this.service, this.bookingDetail, this.bookingInfo});
+  BasicInfoComponent(this.flag,
+      {this.customerData,
+      this.handymanData,
+      this.providerData,
+      this.service,
+      this.bookingDetail,
+      this.bookingInfo});
 
   @override
   BasicInfoComponentState createState() => BasicInfoComponentState();
@@ -75,14 +81,19 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
       address = widget.customerData!.address.validate();
 
       userData = widget.customerData!;
-      await userService.getUser(email: widget.customerData!.email.validate()).then((value) {
+      await userService
+          .getUser(email: widget.customerData!.email.validate())
+          .then((value) {
         widget.customerData!.uid = value.uid;
       }).catchError((e) {
         log(e.toString());
       });
-      showContactWidgets = widget.bookingDetail!.status != BookingStatusKeys.complete && widget.bookingDetail!.status != BookingStatusKeys.cancelled;
+      showContactWidgets =
+          widget.bookingDetail!.status != BookingStatusKeys.complete &&
+              widget.bookingDetail!.status != BookingStatusKeys.cancelled;
       showChat = true;
-      showVerifiedBadge = widget.customerData!.isVerifiedAccount.validate().getBoolInt();
+      showVerifiedBadge =
+          widget.customerData!.isVerifiedAccount.validate().getBoolInt();
     } else if (widget.flag == 1) {
       profileId = widget.handymanData!.id.validate();
       name = widget.handymanData!.displayName.validate();
@@ -91,14 +102,20 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
       address = widget.handymanData!.address.validate();
 
       userData = widget.handymanData!;
-      await userService.getUser(email: widget.handymanData!.email.validate()).then((value) {
+      await userService
+          .getUser(email: widget.handymanData!.email.validate())
+          .then((value) {
         widget.handymanData!.uid = value.uid;
       }).catchError((e) {
         log(e.toString());
       });
-      showContactWidgets = widget.bookingInfo != null && widget.bookingInfo!.providerData!.id.validate() != widget.handymanData!.id.validate();
-      showVerifiedBadge = widget.handymanData!.isVerifiedAccount.validate().getBoolInt();
-      showChat = widget.bookingDetail!.status != BookingStatusKeys.complete && widget.bookingDetail!.status != BookingStatusKeys.cancelled;
+      showContactWidgets = widget.bookingInfo != null &&
+          widget.bookingInfo!.providerData!.id.validate() !=
+              widget.handymanData!.id.validate();
+      showVerifiedBadge =
+          widget.handymanData!.isVerifiedAccount.validate().getBoolInt();
+      showChat = widget.bookingDetail!.status != BookingStatusKeys.complete &&
+          widget.bookingDetail!.status != BookingStatusKeys.cancelled;
     } else {
       profileId = widget.providerData!.id.validate();
       name = widget.providerData!.displayName.validate();
@@ -106,7 +123,8 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
       contactNumber = widget.providerData!.contactNumber.validate();
       address = widget.providerData!.address.validate();
       provider = widget.providerData!;
-      showVerifiedBadge = widget.providerData!.isVerifiedAccount.validate().getBoolInt();
+      showVerifiedBadge =
+          widget.providerData!.isVerifiedAccount.validate().getBoolInt();
     }
     setState(() {});
   }
@@ -123,7 +141,8 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
       children: [
         Row(
           children: [
-            if (profileUrl.validate().isNotEmpty) ImageBorder(src: profileUrl.validate(), height: 45),
+            if (profileUrl.validate().isNotEmpty)
+              ImageBorder(src: profileUrl.validate(), height: 45),
             16.width,
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,12 +156,14 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
                     ).flexible(),
                   ],
                 ),
-                if (widget.flag == 1 && userData.handymanRating.validate().toDouble() > 0)
+                if (widget.flag == 1 &&
+                    userData.handymanRating.validate().toDouble() > 0)
                   Row(
                     children: [
                       Icon(Icons.star, color: rattingColor, size: 16),
                       2.width,
-                      Text('${userData.handymanRating.validate().toDouble()}', style: secondaryTextStyle(weight: FontWeight.bold)),
+                      Text('${userData.handymanRating.validate().toDouble()}',
+                          style: secondaryTextStyle(weight: FontWeight.bold)),
                     ],
                   ),
               ],
@@ -174,14 +195,22 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
                   children: [
                     Text(
                       languages.email,
-                      style: boldTextStyle(size: 12, color: appStore.isDarkMode ? textSecondaryColor : textPrimaryColor),
+                      style: boldTextStyle(
+                          size: 12,
+                          color: appStore.isDarkMode
+                              ? textSecondaryColor
+                              : textPrimaryColor),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ).expand(),
                     8.width,
                     Text(
                       userData.email.validate(),
-                      style: boldTextStyle(size: 12, color: appStore.isDarkMode ? white : textSecondaryColor, weight: FontWeight.w400),
+                      style: boldTextStyle(
+                          size: 12,
+                          color:
+                              appStore.isDarkMode ? white : textSecondaryColor,
+                          weight: FontWeight.w400),
                       textAlign: TextAlign.left,
                     ).expand(flex: 4),
                   ],
@@ -195,23 +224,40 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
                   children: [
                     Text(
                       '${languages.lblAddress}:',
-                      style: boldTextStyle(size: 12, color: appStore.isDarkMode ? textSecondaryColor : textPrimaryColor),
+                      style: boldTextStyle(
+                          size: 12,
+                          color: appStore.isDarkMode
+                              ? textSecondaryColor
+                              : textPrimaryColor),
                     ).expand(),
                     8.width,
                     Text(
                       widget.bookingDetail!.address.validate(),
-                      style: boldTextStyle(size: 12, color: appStore.isDarkMode ? white : textSecondaryColor, weight: FontWeight.w400),
+                      style: boldTextStyle(
+                          size: 12,
+                          color:
+                              appStore.isDarkMode ? white : textSecondaryColor,
+                          weight: FontWeight.w400),
                       textAlign: TextAlign.left,
                     ).expand(flex: 4),
                   ],
-                ).visible(widget.bookingDetail!.address.validate().isNotEmpty).onTap(() {
-                  commonLaunchUrl('$GOOGLE_MAP_PREFIX${Uri.encodeFull(widget.bookingDetail!.address.validate())}', launchMode: LaunchMode.externalApplication);
+                )
+                    .visible(
+                        widget.bookingDetail!.address.validate().isNotEmpty)
+                    .onTap(() {
+                  commonLaunchUrl(
+                      '$GOOGLE_MAP_PREFIX${Uri.encodeFull(widget.bookingDetail!.address.validate())}',
+                      launchMode: LaunchMode.externalApplication);
                 }),
                 8.height,
               ],
             ],
           ).paddingSymmetric(horizontal: 4),
-        if (contactNumber.validate().isNotEmpty) ...[
+        // Chat should be available when the booking allows customer contact.
+        // It must not depend on having a phone number, since chat uses user IDs.
+        if (widget.bookingDetail!.canCustomerContact &&
+            widget.flag == 0 &&
+            showChat) ...[
           16.height,
           Row(
             children: [
@@ -239,23 +285,28 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(chat, color: Colors.white, height: 18, width: 18),
+                    Image.asset(chat,
+                        color: Colors.white, height: 18, width: 18),
                     16.width,
-                    Text(languages.lblChat, style: boldTextStyle(color: Colors.white)),
+                    Text(languages.lblChat,
+                        style: boldTextStyle(color: Colors.white)),
                   ],
                 ),
-                width: context.width(), // Always full width since Call button is commented out
+                width: context
+                    .width(), // Always full width since Call button is commented out
                 elevation: 0,
                 color: primaryColor,
                 onTap: () async {
                   //ChatScreen(chatUser: ChatUserModel(id: userData.uid!, email: userData.email!, name: userData.firstName!)).launch(context);
                   toast(languages.pleaseWaitWhileWeLoadChatDetails);
-                  UserData? user = await userService.getUserNull(email: userData.email.validate());
+                  UserData? user = await userService.getUserNull(
+                      email: userData.email.validate());
                   if (user != null) {
                     Fluttertoast.cancel();
-                    
+
                     // Check if trying to chat with yourself
-                    if (user.uid.validate() == appStore.uid.validate() && user.uid.validate().isNotEmpty) {
+                    if (user.uid.validate() == appStore.uid.validate() &&
+                        user.uid.validate().isNotEmpty) {
                       log("⚠️ Self-chat prevented: User trying to chat with themselves");
                       log("Current User ID: ${appStore.uid.validate()}");
                       log("Receiver User ID: ${user.uid.validate()}");
@@ -263,14 +314,21 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
                       toast(languages.cannotChatWithYourself);
                       return;
                     }
-                    
+
                     if (widget.bookingDetail != null) {
-                      isChattingAllow = widget.bookingDetail!.status == BookingStatusKeys.complete || widget.bookingDetail!.status == BookingStatusKeys.cancelled;
+                      isChattingAllow = widget.bookingDetail!.status ==
+                              BookingStatusKeys.complete ||
+                          widget.bookingDetail!.status ==
+                              BookingStatusKeys.cancelled;
                     }
-                    UserChatScreen(receiverUser: user, isChattingAllow: isChattingAllow).launch(context);
+                    UserChatScreen(
+                            receiverUser: user,
+                            isChattingAllow: isChattingAllow)
+                        .launch(context);
                   } else {
                     Fluttertoast.cancel();
-                    toast("${userData.firstName} ${languages.isNotAvailableForChat}");
+                    toast(
+                        "${userData.firstName} ${languages.isNotAvailableForChat}");
                   }
                 },
               ).expand(),

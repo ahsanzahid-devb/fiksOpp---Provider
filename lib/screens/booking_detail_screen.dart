@@ -2018,7 +2018,7 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
 
                   /// About Handyman Card
                   if (res.data!.handymanData!.isNotEmpty &&
-                      appStore.userType != USER_TYPE_HANDYMAN)
+                      appStore.userType == USER_TYPE_HANDYMAN)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -2047,13 +2047,11 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
                                               .canCustomerContact &&
                                           e.id != appStore.userId)
                                       .onTap(() {
-                                    {
-                                      HandymanInfoScreen(
-                                              handymanId: e.id,
-                                              service: res.data!.service)
-                                          .launch(context)
-                                          .then((value) => null);
-                                    }
+                                    HandymanInfoScreen(
+                                            handymanId: e.id,
+                                            service: res.data!.service)
+                                        .launch(context)
+                                        .then((value) => null);
                                   });
                                 },
                               ).toList(),
@@ -2061,34 +2059,6 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
                           ],
                         ),
                         16.height,
-                        Container(
-                          decoration:
-                              boxDecorationDefault(color: context.cardColor),
-                          padding: EdgeInsets.all(16),
-                          child: Column(
-                            children: res.data!.handymanData!.map(
-                              (e) {
-                                return BasicInfoComponent(
-                                  1,
-                                  handymanData: e,
-                                  service: res.data!.service,
-                                  bookingDetail: res.data!.bookingDetail!,
-                                  bookingInfo: res.data!,
-                                ).onTap(() {
-                                  if (res.data!.bookingDetail!
-                                          .canCustomerContact &&
-                                      e.id != appStore.userId) {
-                                    HandymanInfoScreen(
-                                            handymanId: e.id,
-                                            service: res.data!.service)
-                                        .launch(context)
-                                        .then((value) => null);
-                                  }
-                                });
-                              },
-                            ).toList(),
-                          ),
-                        ),
                       ],
                     ).paddingOnly(left: 16, right: 16),
 
