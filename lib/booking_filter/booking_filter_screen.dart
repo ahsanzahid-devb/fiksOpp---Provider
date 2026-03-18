@@ -13,6 +13,8 @@ import '../utils/constant.dart';
 import 'components/filter_booking_status_component.dart';
 import 'components/filter_customer_list_component.dart';
 import 'components/filter_date_range_component.dart';
+import 'components/filter_handyman_list_component.dart';
+import 'components/filter_provider_list_component.dart';
 import 'components/filter_payment_status_component.dart';
 import 'components/filter_payment_type_component.dart';
 import 'components/filter_service_list_component.dart';
@@ -28,6 +30,7 @@ class _BookingFilterScreenState extends State<BookingFilterScreen> {
 
   List<String> sectionList = [
     CUSTOMER,
+    PROVIDER.toLowerCase(),
     SERVICE_FILTER,
     DATE_RANGE,
     BOOKING_STATUS,
@@ -100,10 +103,19 @@ class _BookingFilterScreenState extends State<BookingFilterScreen> {
 
   void computeFilteredSectionList() {
     setState(() {
-      // Explicitly remove Provider/Handyman tabs (even if they get added later).
+      filteredSectionList = [CUSTOMER];
       filteredSectionList = sectionList.where((section) {
-        final temp = section.toLowerCase();
-        return temp != PROVIDER.toLowerCase() && temp != HANDYMAN.toLowerCase();
+        final lower = section.toLowerCase();
+        // Only show the tab that matches the current app role.
+        // If user is a provider app, hide the handyman tab (and vice-versa).
+        if (lower == HANDYMAN.toLowerCase() &&
+            appStore.userType != USER_TYPE_HANDYMAN) {
+          return false;
+        } else if (lower == PROVIDER.toLowerCase() &&
+            appStore.userType != USER_TYPE_PROVIDER) {
+          return false;
+        }
+        return true;
       }).toList();
     });
   }
@@ -202,6 +214,8 @@ class _BookingFilterScreenState extends State<BookingFilterScreen> {
                       return FilterDateRangeComponent();
                     } else if (e == SERVICE_FILTER) {
                       return FilterServiceListComponent();
+                    } else if (e == PROVIDER.toLowerCase()) {
+                      return FilterProviderListComponent();
                     } else if (e == BOOKING_STATUS) {
                       return FilterBookingStatusComponent(
                           bookingStatusList: bookingStatusList);
@@ -261,7 +275,7 @@ class _BookingFilterScreenState extends State<BookingFilterScreen> {
                     });
                     finish(context, true);
                   },
-                ).visible(filterStore.isAnyFilterApplied),
+                ),
               ),
             ),
           ),
