@@ -1134,22 +1134,22 @@ mixin _$AppStore on _AppStore, Store {
   }
 
   @override
-  void setTotalHandyman(int val) {
+  void setUserWalletAmountFromValue(num value) {
     final _$actionInfo = _$_AppStoreActionController.startAction(
-        name: '_AppStore.setTotalHandyman');
+        name: '_AppStore.setUserWalletAmountFromValue');
     try {
-      return super.setTotalHandyman(val);
+      return super.setUserWalletAmountFromValue(value);
     } finally {
       _$_AppStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void setUserWalletAmountFromValue(num value) {
+  void setTotalHandyman(int val) {
     final _$actionInfo = _$_AppStoreActionController.startAction(
-        name: '_AppStore.setUserWalletAmountFromValue');
+        name: '_AppStore.setTotalHandyman');
     try {
-      return super.setUserWalletAmountFromValue(value);
+      return super.setTotalHandyman(val);
     } finally {
       _$_AppStoreActionController.endAction(_$actionInfo);
     }

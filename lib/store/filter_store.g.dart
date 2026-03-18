@@ -9,22 +9,6 @@ part of 'filter_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$FilterStore on FilterStoreBase, Store {
-  late final _$serviceIdAtom =
-      Atom(name: 'FilterStoreBase.serviceId', context: context);
-
-  @override
-  List<int> get serviceId {
-    _$serviceIdAtom.reportRead();
-    return super.serviceId;
-  }
-
-  @override
-  set serviceId(List<int> value) {
-    _$serviceIdAtom.reportWrite(value, super.serviceId, () {
-      super.serviceId = value;
-    });
-  }
-
   late final _$customerIdAtom =
       Atom(name: 'FilterStoreBase.customerId', context: context);
 
@@ -38,6 +22,22 @@ mixin _$FilterStore on FilterStoreBase, Store {
   set customerId(List<int> value) {
     _$customerIdAtom.reportWrite(value, super.customerId, () {
       super.customerId = value;
+    });
+  }
+
+  late final _$serviceIdAtom =
+      Atom(name: 'FilterStoreBase.serviceId', context: context);
+
+  @override
+  List<int> get serviceId {
+    _$serviceIdAtom.reportRead();
+    return super.serviceId;
+  }
+
+  @override
+  set serviceId(List<int> value) {
+    _$serviceIdAtom.reportWrite(value, super.serviceId, () {
+      super.serviceId = value;
     });
   }
 
@@ -169,6 +169,15 @@ mixin _$FilterStore on FilterStoreBase, Store {
     });
   }
 
+  late final _$addToCustomerListAsyncAction =
+      AsyncAction('FilterStoreBase.addToCustomerList', context: context);
+
+  @override
+  Future<void> addToCustomerList({required int cusId}) {
+    return _$addToCustomerListAsyncAction
+        .run(() => super.addToCustomerList(cusId: cusId));
+  }
+
   late final _$addToServiceListAsyncAction =
       AsyncAction('FilterStoreBase.addToServiceList', context: context);
 
@@ -185,15 +194,6 @@ mixin _$FilterStore on FilterStoreBase, Store {
   Future<void> removeFromServiceList({required int serId}) {
     return _$removeFromServiceListAsyncAction
         .run(() => super.removeFromServiceList(serId: serId));
-  }
-
-  late final _$addToCustomerListAsyncAction =
-      AsyncAction('FilterStoreBase.addToCustomerList', context: context);
-
-  @override
-  Future<void> addToCustomerList({required int cusId}) {
-    return _$addToCustomerListAsyncAction
-        .run(() => super.addToCustomerList(cusId: cusId));
   }
 
   late final _$removeFromCustomerListAsyncAction =
@@ -347,8 +347,8 @@ mixin _$FilterStore on FilterStoreBase, Store {
   @override
   String toString() {
     return '''
-serviceId: ${serviceId},
 customerId: ${customerId},
+serviceId: ${serviceId},
 providerId: ${providerId},
 handymanId: ${handymanId},
 bookingStatus: ${bookingStatus},

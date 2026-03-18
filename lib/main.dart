@@ -28,6 +28,7 @@ import 'package:handyman_provider_flutter/store/roles_and_permission_store.dart'
 import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/configs.dart';
 import 'package:handyman_provider_flutter/utils/constant.dart';
+import 'package:handyman_provider_flutter/utils/deep_link_service.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'app_theme.dart';
 import 'helpDesk/model/help_desk_response.dart';
@@ -142,6 +143,9 @@ class _MyAppState extends State<MyApp> {
 
   void init() async {
     afterBuildCreated(() {
+      // Handle app routing from deep links (e.g., email verification link).
+      DeepLinkService.instance.init();
+
       int val = getIntAsync(THEME_MODE_INDEX, defaultValue: THEME_MODE_SYSTEM);
 
       if (val == THEME_MODE_LIGHT) {

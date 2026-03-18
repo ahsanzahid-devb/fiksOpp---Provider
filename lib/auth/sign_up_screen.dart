@@ -119,7 +119,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     await getZoneList(services: []).then((value) async {
       zoneList = value; // zoneList will now have data
-      setState(() {});
+      if (mounted) setState(() {});
       _valueNotifier.notifyListeners();
     }).catchError((e) {
       toast('$e', print: true);
@@ -606,6 +606,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
             saveUser();
           },
         ),
+        16.height,
+        _buildTcAcceptWidget(),
         20.height,
         AppButton(
           text: languages.lblNext,
@@ -629,7 +631,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (user != null) {
       selectedProvider = user;
       selectedProviderId = user.id.validate();
-      setState(() {});
+      if (mounted) setState(() {});
 
       commissionTypeList.clear();
       selectedUserCommissionType = null;
@@ -649,7 +651,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-  // Termas of service and Provacy policy text
+  // Terms of service and Privacy policy text
   Widget _buildTcAcceptWidget() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -672,20 +674,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
               text: languages.lblTermsOfService,
               style: boldTextStyle(color: primaryColor),
               recognizer: TapGestureRecognizer()
-                ..onTap = () {
-                  checkIfLink(context, appConfigurationStore.termConditions,
-                      title: languages.lblTermsAndConditions);
-                },
+                ..onTap = () => openTermsInExternalBrowser(),
             ),
             TextSpan(text: ' & ', style: secondaryTextStyle()),
             TextSpan(
               text: languages.lblPrivacyPolicy,
               style: boldTextStyle(color: primaryColor),
               recognizer: TapGestureRecognizer()
-                ..onTap = () {
-                  checkIfLink(context, appConfigurationStore.privacyPolicy,
-                      title: languages.lblPrivacyPolicy);
-                },
+                ..onTap = () => openPrivacyInExternalBrowser(),
             ),
           ],
         ).flexible(flex: 2),

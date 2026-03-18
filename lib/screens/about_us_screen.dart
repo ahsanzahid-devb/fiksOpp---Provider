@@ -12,7 +12,6 @@ import '../utils/app_configuration.dart';
 import '../utils/constant.dart';
 
 class AboutUsScreen extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     List<AboutModel> aboutList = getAboutDataModel(context: context);
@@ -25,9 +24,9 @@ class AboutUsScreen extends StatelessWidget {
         itemCount: aboutList.length,
         listAnimationType: ListAnimationType.FadeIn,
         fadeInConfiguration: FadeInConfiguration(duration: 2.seconds),
-        scaleConfiguration: ScaleConfiguration(duration: 400.milliseconds, delay: 50.milliseconds),
+        scaleConfiguration: ScaleConfiguration(
+            duration: 400.milliseconds, delay: 50.milliseconds),
         itemBuilder: (context, index) {
-
           return Container(
             width: context.width() * 0.5 - 26,
             padding: EdgeInsets.all(16),
@@ -39,9 +38,11 @@ class AboutUsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(aboutList[index].image.toString(), height: 22, width: 22, color: context.iconColor),
+                Image.asset(aboutList[index].image.toString(),
+                    height: 22, width: 22, color: context.iconColor),
                 8.height,
-                Text(aboutList[index].title.toString(), style: primaryTextStyle(size: LABEL_TEXT_SIZE)),
+                Text(aboutList[index].title.toString(),
+                    style: primaryTextStyle(size: LABEL_TEXT_SIZE)),
               ],
             ),
           ).onTap(
@@ -49,30 +50,39 @@ class AboutUsScreen extends StatelessWidget {
               final title = aboutList[index].title;
 
               if (title == languages.lblTermsAndConditions) {
-                checkIfLink(context, appConfigurationStore.termConditions, title: languages.lblTermsAndConditions);
+                openTermsInExternalBrowser();
               } else if (title == languages.lblPrivacyPolicy) {
-                checkIfLink(context, appConfigurationStore.privacyPolicy, title: languages.lblPrivacyPolicy);
-              } else if (title ==  languages.lblHelpAndSupport) {
-                if(appConfigurationStore.helpAndSupport.isNotEmpty){
-                  checkIfLink(context, appConfigurationStore.helpAndSupport, title: languages.lblHelpAndSupport);
-                }else{
-                checkIfLink(context, appConfigurationStore.inquiryEmail, title: languages.lblHelpAndSupport);
+                openPrivacyInExternalBrowser();
+              } else if (title == languages.lblHelpAndSupport) {
+                if (appConfigurationStore.helpAndSupport.isNotEmpty) {
+                  checkIfLink(context, appConfigurationStore.helpAndSupport,
+                      title: languages.lblHelpAndSupport);
+                } else {
+                  checkIfLink(context, appConfigurationStore.inquiryEmail,
+                      title: languages.lblHelpAndSupport);
                 }
               } else if (title == languages.lblHelpLineNum) {
-                checkIfLink(context, appConfigurationStore.helplineNumber, title: languages.lblHelpLineNum);
-              } else if (title == 'Rate us') { //Todo:
+                checkIfLink(context, appConfigurationStore.helplineNumber,
+                    title: languages.lblHelpLineNum);
+              } else if (title == 'Rate us') {
+                //Todo:
                 {
                   if (isAndroid) {
                     if (getStringAsync(PROVIDER_PLAY_STORE_URL).isNotEmpty) {
-                      commonLaunchUrl(getStringAsync(PROVIDER_PLAY_STORE_URL), launchMode: LaunchMode.externalApplication);
+                      commonLaunchUrl(getStringAsync(PROVIDER_PLAY_STORE_URL),
+                          launchMode: LaunchMode.externalApplication);
                     } else {
-                      commonLaunchUrl('${getSocialMediaLink(LinkProvider.PLAY_STORE)}${await getPackageName()}', launchMode: LaunchMode.externalApplication);
+                      commonLaunchUrl(
+                          '${getSocialMediaLink(LinkProvider.PLAY_STORE)}${await getPackageName()}',
+                          launchMode: LaunchMode.externalApplication);
                     }
                   } else if (isIOS) {
                     if (getStringAsync(PROVIDER_APPSTORE_URL).isNotEmpty) {
-                      commonLaunchUrl(getStringAsync(PROVIDER_APPSTORE_URL), launchMode: LaunchMode.externalApplication);
+                      commonLaunchUrl(getStringAsync(PROVIDER_APPSTORE_URL),
+                          launchMode: LaunchMode.externalApplication);
                     } else {
-                      commonLaunchUrl(IOS_LINK_FOR_PARTNER, launchMode: LaunchMode.externalApplication);
+                      commonLaunchUrl(IOS_LINK_FOR_PARTNER,
+                          launchMode: LaunchMode.externalApplication);
                     }
                   }
                 }

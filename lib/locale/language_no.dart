@@ -403,6 +403,8 @@ class LanguageNo extends LanguageEn {
   @override
   String get lblLoginSubtitle => 'Velkommen tilbake!';
   @override
+  String get lblBySigningInYouAgree => 'Ved innlogging godtar du våre ';
+  @override
   String get lblSignupTitle => 'Hei!';
   @override
   String get lblSignupSubtitle => 'Opprett konto for bedre opplevelse';

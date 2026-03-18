@@ -382,6 +382,22 @@ void launchMap(String? url) {
   }
 }
 
+/// Opens Terms and Conditions in the external system browser.
+void openTermsInExternalBrowser() {
+  if (TERMS_CONDITION_URL.validate().isNotEmpty) {
+    commonLaunchUrl(TERMS_CONDITION_URL,
+        launchMode: LaunchMode.externalApplication);
+  }
+}
+
+/// Opens Privacy Policy in the external system browser.
+void openPrivacyInExternalBrowser() {
+  if (PRIVACY_POLICY_URL.validate().isNotEmpty) {
+    commonLaunchUrl(PRIVACY_POLICY_URL,
+        launchMode: LaunchMode.externalApplication);
+  }
+}
+
 void launchUrlCustomTab(String? url) {
   if (url.validate().isNotEmpty) {
     custom_tabs.launchUrl(

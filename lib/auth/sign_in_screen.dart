@@ -1,6 +1,8 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'dart:developer' as developer;
 import 'package:handyman_provider_flutter/auth/forgot_password_dialog.dart';
 import 'package:handyman_provider_flutter/auth/sign_up_screen.dart';
 import 'package:handyman_provider_flutter/components/app_widgets.dart';
@@ -19,13 +21,15 @@ import 'package:nb_utils/nb_utils.dart';
 import '../networks/rest_apis.dart';
 
 class SignInScreen extends StatefulWidget {
+  final String? initialEmail;
+
+  SignInScreen({Key? key, this.initialEmail}) : super(key: key);
+
   @override
   _SignInScreenState createState() => _SignInScreenState();
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  //-------------------------------- Variables -------------------------------//
-
   /// TextEditing controller
   TextEditingController emailCont = TextEditingController();
   TextEditingController passwordCont = TextEditingController();
@@ -58,6 +62,23 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   void init() async {
+    final linkEmail =
+        widget.initialEmail != null && widget.initialEmail!.trim().isNotEmpty
+            ? widget.initialEmail!.trim()
+            : null;
+
+    if (linkEmail != null) {
+      developer.log(
+        'SignInScreen init from deep link',
+        name: 'SignInScreen',
+        error:
+            'initialEmailProvided=true initialEmailLength=${linkEmail.trim().length}',
+      );
+      emailCont.text = linkEmail;
+      setState(() {});
+      return;
+    }
+
     if (await isIqonicProduct) {
       emailCont.text = getStringAsync(USER_EMAIL);
       passwordCont.text = getStringAsync(USER_PASSWORD);
@@ -280,6 +301,28 @@ class _SignInScreenState extends State<SignInScreen> {
             )
           ],
         ),
+        12.height,
+        RichTextWidget(
+          list: [
+            TextSpan(
+              text: languages.lblBySigningInYouAgree,
+              style: secondaryTextStyle(size: 12),
+            ),
+            TextSpan(
+              text: languages.lblTermsOfService,
+              style: boldTextStyle(size: 12, color: primaryColor),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => openTermsInExternalBrowser(),
+            ),
+            TextSpan(text: ' & ', style: secondaryTextStyle(size: 12)),
+            TextSpan(
+              text: languages.lblPrivacyPolicy,
+              style: boldTextStyle(size: 12, color: primaryColor),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => openPrivacyInExternalBrowser(),
+            ),
+          ],
+        ).center(),
       ],
     );
   }

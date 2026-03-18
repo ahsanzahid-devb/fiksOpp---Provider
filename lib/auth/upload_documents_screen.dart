@@ -109,7 +109,7 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
     });
   }
 
-  // Termas of service and Provacy policy text
+  // Terms of service and Privacy policy text
   Widget _buildTcAcceptWidget() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,20 +132,14 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
               text: languages.lblTermsOfService,
               style: boldTextStyle(color: primaryColor),
               recognizer: TapGestureRecognizer()
-                ..onTap = () {
-                  checkIfLink(context, appConfigurationStore.termConditions,
-                      title: languages.lblTermsAndConditions);
-                },
+                ..onTap = () => openTermsInExternalBrowser(),
             ),
             TextSpan(text: ' & ', style: secondaryTextStyle()),
             TextSpan(
               text: languages.lblPrivacyPolicy,
               style: boldTextStyle(color: primaryColor),
               recognizer: TapGestureRecognizer()
-                ..onTap = () {
-                  checkIfLink(context, appConfigurationStore.privacyPolicy,
-                      title: languages.lblPrivacyPolicy);
-                },
+                ..onTap = () => openPrivacyInExternalBrowser(),
             ),
           ],
         ).flexible(flex: 2),

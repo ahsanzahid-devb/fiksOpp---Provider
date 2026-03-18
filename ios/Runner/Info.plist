@@ -85,5 +85,18 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleURLName</key>
+			<string>fiksopp</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fiksopp</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

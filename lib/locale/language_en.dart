@@ -404,6 +404,9 @@ class LanguageEn extends Languages {
   String get lblLoginSubtitle => "Welcome Back, You Have Been Missed For A Long Time";
 
   @override
+  String get lblBySigningInYouAgree => "By signing in you agree to our ";
+
+  @override
   String get lblSignupTitle => "Hello User !";
 
   @override

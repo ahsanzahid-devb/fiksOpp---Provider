@@ -272,6 +272,8 @@ abstract class Languages {
 
   String get lblLoginSubtitle;
 
+  String get lblBySigningInYouAgree;
+
   String get lblSignupTitle;
 
   String get lblSignupSubtitle;

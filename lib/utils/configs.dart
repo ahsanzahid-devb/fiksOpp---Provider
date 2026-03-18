@@ -13,8 +13,8 @@ const BASE_URL = "$DOMAIN_URL/api/";
 
 /// You can specify in Admin Panel, These will be used if you don't specify in Admin Panel
 const IOS_LINK_FOR_PARTNER = "";
-const TERMS_CONDITION_URL = '';
-const PRIVACY_POLICY_URL = '';
+const TERMS_CONDITION_URL = 'https://fiksopp.com/brukeravtale-for-fiksopp/';
+const PRIVACY_POLICY_URL = 'https://fiksopp.com/personvernerklaering-for-fiksopp/';
 const HELP_AND_SUPPORT_URL = '';
 const REFUND_POLICY_URL = '';
 const INQUIRY_SUPPORT_EMAIL = '';
