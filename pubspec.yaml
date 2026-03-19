@@ -85,7 +85,7 @@ dependencies:
   permission_handler: ^12.0.1
   share_plus: ^11.0.0
   syncfusion_flutter_pdfviewer: ^30.1.42
-  flutter_uni_links: ^0.5.1+fix2
+  app_links: ^6.3.2
 
 dev_dependencies:
   flutter_test:

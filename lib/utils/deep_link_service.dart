@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'dart:developer' as developer;
+import 'package:app_links/app_links.dart';
 import 'package:handyman_provider_flutter/auth/sign_in_screen.dart';
 import 'package:nb_utils/nb_utils.dart';
-import 'package:flutter_uni_links/uni_links.dart';
 
 class DeepLinkService {
   DeepLinkService._();
 
   static final DeepLinkService instance = DeepLinkService._();
+  final AppLinks _appLinks = AppLinks();
 
-  StreamSubscription? _sub;
+  StreamSubscription<Uri>? _sub;
   Uri? _pendingInitialUri;
 
   /// Call this once (after app is built is safe).
@@ -17,7 +18,7 @@ class DeepLinkService {
     _sub?.cancel();
 
     try {
-      _pendingInitialUri = await getInitialUri();
+      _pendingInitialUri = await _appLinks.getInitialLink();
     } catch (_) {
       _pendingInitialUri = null;
     }
@@ -30,8 +31,7 @@ class DeepLinkService {
           : 'initialUri detected: scheme=${_pendingInitialUri!.scheme}',
     );
 
-    _sub = uriLinkStream.listen((Uri? uri) {
-      if (uri == null) return;
+    _sub = _appLinks.uriLinkStream.listen((Uri uri) {
       _handleUri(uri);
     }, onError: (Object error) {
       log('DeepLinkService uriLinkStream error: $error');
