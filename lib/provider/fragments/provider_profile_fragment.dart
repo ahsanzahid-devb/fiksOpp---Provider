@@ -22,6 +22,7 @@ import 'package:handyman_provider_flutter/provider/taxes/taxes_screen.dart';
 import 'package:handyman_provider_flutter/provider/timeSlots/my_time_slots_screen.dart';
 import 'package:handyman_provider_flutter/provider/wallet/wallet_history_screen.dart';
 import 'package:handyman_provider_flutter/screens/languages_screen.dart';
+import 'package:handyman_provider_flutter/screens/about_us_screen.dart';
 import 'package:handyman_provider_flutter/screens/verify_provider_screen.dart';
 import 'package:handyman_provider_flutter/utils/colors.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
@@ -791,19 +792,28 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
                         size: 18),
                     onTap: () => _showDeleteAccountConfirmation(context),
                   ),
-                // SettingItemWidget(
-                //   decoration: BoxDecoration(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(16))),
-                //   leading: Image.asset(about, height: 16, width: 16, color: appStore.isDarkMode ? white : appTextSecondaryColor),
-                //   title: languages.lblAbout,
-                //   titleTextStyle: boldTextStyle(size: 12),
-                //   trailing: Icon(Icons.chevron_right, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8), size: 18),
-                //   highlightColor: Colors.transparent,
-                //   splashColor: Colors.transparent,
-                //   padding: EdgeInsets.only(bottom: 16, right: 16, left: 16, top: 20),
-                //   onTap: () {
-                //     AboutUsScreen().launch(context);
-                //   },
-                // ),
+                SettingItemWidget(
+                  decoration: BoxDecoration(color: context.cardColor),
+                  leading: Image.asset(about,
+                      height: 16,
+                      width: 16,
+                      color:
+                          appStore.isDarkMode ? white : appTextSecondaryColor),
+                  title: languages.lblAbout,
+                  titleTextStyle: boldTextStyle(size: 12),
+                  trailing: Icon(Icons.chevron_right,
+                      color: appStore.isDarkMode
+                          ? white
+                          : gray.withValues(alpha: 0.8),
+                      size: 18),
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  padding:
+                      EdgeInsets.only(bottom: 16, right: 16, left: 16, top: 20),
+                  onTap: () {
+                    AboutUsScreen().launch(context);
+                  },
+                ),
               ],
             ).paddingSymmetric(horizontal: 16),
             16.height,

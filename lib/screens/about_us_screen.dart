@@ -12,6 +12,37 @@ import '../utils/app_configuration.dart';
 import '../utils/constant.dart';
 
 class AboutUsScreen extends StatelessWidget {
+  Future<void> _openRateUsLink() async {
+    bool isValidStoreLink(String url) {
+      final uri = Uri.tryParse(url);
+      if (uri == null) return false;
+      final host = uri.host.toLowerCase();
+      return host.contains('play.google.com') || host.contains('apps.apple.com');
+    }
+
+    if (isAndroid) {
+      final configured = getStringAsync(PROVIDER_PLAY_STORE_URL);
+      if (configured.isNotEmpty && isValidStoreLink(configured)) {
+        await commonLaunchUrl(configured,
+            launchMode: LaunchMode.externalApplication);
+      } else {
+        await commonLaunchUrl(
+          '${getSocialMediaLink(LinkProvider.PLAY_STORE)}${await getPackageName()}',
+          launchMode: LaunchMode.externalApplication,
+        );
+      }
+    } else if (isIOS) {
+      final configured = getStringAsync(PROVIDER_APPSTORE_URL);
+      if (configured.isNotEmpty && isValidStoreLink(configured)) {
+        await commonLaunchUrl(configured,
+            launchMode: LaunchMode.externalApplication);
+      } else {
+        await commonLaunchUrl(IOS_LINK_FOR_PARTNER,
+            launchMode: LaunchMode.externalApplication);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     List<AboutModel> aboutList = getAboutDataModel(context: context);
@@ -62,30 +93,14 @@ class AboutUsScreen extends StatelessWidget {
                       title: languages.lblHelpAndSupport);
                 }
               } else if (title == languages.lblHelpLineNum) {
-                checkIfLink(context, appConfigurationStore.helplineNumber,
-                    title: languages.lblHelpLineNum);
-              } else if (title == 'Rate us') {
-                //Todo:
-                {
-                  if (isAndroid) {
-                    if (getStringAsync(PROVIDER_PLAY_STORE_URL).isNotEmpty) {
-                      commonLaunchUrl(getStringAsync(PROVIDER_PLAY_STORE_URL),
-                          launchMode: LaunchMode.externalApplication);
-                    } else {
-                      commonLaunchUrl(
-                          '${getSocialMediaLink(LinkProvider.PLAY_STORE)}${await getPackageName()}',
-                          launchMode: LaunchMode.externalApplication);
-                    }
-                  } else if (isIOS) {
-                    if (getStringAsync(PROVIDER_APPSTORE_URL).isNotEmpty) {
-                      commonLaunchUrl(getStringAsync(PROVIDER_APPSTORE_URL),
-                          launchMode: LaunchMode.externalApplication);
-                    } else {
-                      commonLaunchUrl(IOS_LINK_FOR_PARTNER,
-                          launchMode: LaunchMode.externalApplication);
-                    }
-                  }
+                final phone = appConfigurationStore.helplineNumber.validate();
+                if (phone.isNotEmpty) {
+                  launchCall(phone);
+                } else {
+                  toast(languages.noDataFound);
                 }
+              } else if (title == 'Rate us') {
+                _openRateUsLink();
               }
             },
             borderRadius: radius(),

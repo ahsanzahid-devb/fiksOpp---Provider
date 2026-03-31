@@ -72,6 +72,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Country selectedCountry = defaultCountry();
 
   ValueNotifier _valueNotifier = ValueNotifier(true);
+  bool isVerifyingEmail = false;
+  String _lastVerifiedEmail = '';
 
   UserData? selectedProvider;
 
@@ -262,6 +264,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           decoration:
               inputDecoration(context, hint: languages.hintEmailAddressTxt),
           suffix: ic_message.iconImage(size: 10).paddingAll(14),
+          onFieldSubmitted: (value) async {
+            await _verifySignupEmail(showSuccessToast: false);
+            FocusScope.of(context).requestFocus(mobileFocus);
+          },
         ),
         16.height,
         Row(
@@ -752,6 +758,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void saveUser() async {
     if (formKey.currentState!.validate()) {
+      if (!isAcceptedTc) {
+        return toast(languages.lblTermCondition);
+      }
+      try {
+        await _verifySignupEmail(showSuccessToast: false);
+      } catch (e) {
+        return toast(e.toString());
+      }
       if (selectedUserCommissionType == null ||
           selectedUserCommissionType!.id == -1) {
         return toast(languages.pleaseSelectCommission);
@@ -804,6 +818,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
           appStore.setLoading(false);
         });
       }
+    }
+  }
+
+  Future<void> _verifySignupEmail({bool showSuccessToast = false}) async {
+    if (isVerifyingEmail) return;
+    final email = emailCont.text.trim();
+    if (email.isEmpty) return;
+    if (_lastVerifiedEmail == email) return;
+
+    isVerifyingEmail = true;
+    appStore.setLoading(true);
+    try {
+      final verifyRes = await verifyUserEmail(email);
+      if (verifyRes.status == false) {
+        throw verifyRes.message.validate().isNotEmpty
+            ? verifyRes.message.validate()
+            : languages.hintEmailAddressTxt;
+      }
+      _lastVerifiedEmail = email;
+      if (showSuccessToast && verifyRes.message.validate().isNotEmpty) {
+        toast(verifyRes.message.validate());
+      }
+    } finally {
+      isVerifyingEmail = false;
+      appStore.setLoading(false);
     }
   }
 }

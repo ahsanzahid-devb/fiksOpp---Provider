@@ -33,6 +33,7 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
   ValueNotifier _valueNotifier = ValueNotifier(true);
   Future<DocumentListResponse>? future;
   File? imageFile;
+  final TextEditingController passportNumberCont = TextEditingController();
   List<Documents> uploadDocResp = [];
 
   @override
@@ -48,28 +49,59 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
   }
 
   void getMultipleFile({int? updateId, Function(String)? setImage}) async {
-    final XFile? pickedFile = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 85,
-    );
-
-    if (pickedFile != null) {
-      showConfirmDialogCustom(
-        context,
-        title: languages.confirmationUpload,
-        onAccept: (BuildContext context) {
-          ifNotTester(context, () {
-            setState(() {
-              imageFile = File(pickedFile.path);
-              setImage?.call(imageFile!.path);
-            });
-          });
-        },
-        positiveText: languages.lblYes,
-        negativeText: languages.lblNo,
-        primaryColor: primaryColor,
+    Future<void> pickFrom(ImageSource source) async {
+      final XFile? pickedFile = await ImagePicker().pickImage(
+        source: source,
+        imageQuality: 85,
       );
-    } else {}
+
+      if (pickedFile != null) {
+        showConfirmDialogCustom(
+          context,
+          title: languages.confirmationUpload,
+          onAccept: (BuildContext context) {
+            ifNotTester(context, () {
+              setState(() {
+                imageFile = File(pickedFile.path);
+                setImage?.call(imageFile!.path);
+              });
+            });
+          },
+          positiveText: languages.lblYes,
+          negativeText: languages.lblNo,
+          primaryColor: primaryColor,
+        );
+      }
+    }
+
+    await showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: Text(languages.lblGallery),
+                onTap: () {
+                  finish(context);
+                  pickFrom(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt_outlined),
+                title: Text(languages.camera),
+                onTap: () {
+                  finish(context);
+                  pickFrom(ImageSource.camera);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   //Register API Fun
@@ -91,9 +123,25 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
     List<Documents> list = uploadDocResp
         .where((element) => element.filePath?.isNotEmpty ?? false)
         .toList();
+
+    if (passportNumberCont.text.trim().isEmpty) {
+      toast('Passport number is required');
+      return;
+    }
+
+    final selectedPaths = list
+        .map((e) => e.filePath.validate().trim())
+        .where((p) => p.isNotEmpty)
+        .toList();
+    if (selectedPaths.toSet().length != selectedPaths.length) {
+      toast('Duplicate document images are not allowed');
+      return;
+    }
+
     for (int i = 0; i < list.length; i++) {
       widget.formRequest['document_id[$i]'] = list[i].id;
     }
+    widget.formRequest['passport_number'] = passportNumberCont.text.trim();
     log("Request ---> ${widget.formRequest}");
     await registerUser(widget.formRequest, imageFile: list).then((value) {
       appStore.setLoading(false);
@@ -149,6 +197,7 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
   @override
   void dispose() {
     uploadDocResp.clear();
+    passportNumberCont.dispose();
     super.dispose();
   }
 
@@ -168,6 +217,16 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
                   children: [
                     Text(languages.uploadRequiredDocuments,
                         style: boldTextStyle(size: 14)),
+                    16.height,
+                    AppTextField(
+                      textFieldType: TextFieldType.NAME,
+                      controller: passportNumberCont,
+                      errorThisFieldRequired: languages.hintRequired,
+                      decoration: inputDecoration(
+                        context,
+                        hint: 'Passport number *',
+                      ),
+                    ),
                     8.height,
                     RichText(
                       text: TextSpan(

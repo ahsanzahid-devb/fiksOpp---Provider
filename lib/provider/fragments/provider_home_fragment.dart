@@ -148,17 +148,20 @@ class _ProviderHomeFragmentState extends State<ProviderHomeFragment> {
                     UpcomingBookingComponent(
                         bookingData: snap.data!.upcomingBookings ?? []),
                     // JobListComponent(list: snap.data!.myPostJobData ?? []).paddingOnly(left: 16, right: 16, top: 8).visible(rolesAndPermissionStore.postJobList),
-                    ServiceListComponent(list: snap.data!.service ?? [])
-                        .visible(rolesAndPermissionStore.serviceList),
+                    ServiceListComponent(
+                      list: snap.data!.service ?? [],
+                      showWhenEmpty: snap.data!.totalService.validate() > 0 || rolesAndPermissionStore.serviceList,
+                    )
+                        .visible((snap.data!.service ?? []).isNotEmpty ||
+                            snap.data!.totalService.validate() > 0 ||
+                            rolesAndPermissionStore.serviceList),
                   ],
                   onSwipeRefresh: () async {
                     page = 1;
                     appStore.setLoading(true);
 
                     init(forceSyncAppConfigurations: true);
-                    setState(() {});
-
-                    return await 2.seconds.delay;
+                    return;
                   },
                 );
               }

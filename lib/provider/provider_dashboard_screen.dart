@@ -138,7 +138,7 @@ class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
         window.onPlatformBrightnessChanged = () async {
           if (getIntAsync(THEME_MODE_INDEX) == THEME_MODE_SYSTEM) {
             appStore
-                .setDarkMode(context.platformBrightness() == Brightness.light);
+                .setDarkMode(context.platformBrightness() == Brightness.dark);
           }
         };
       },

@@ -9,13 +9,14 @@ import 'package:nb_utils/nb_utils.dart';
 
 class ServiceListComponent extends StatelessWidget {
   final List<ServiceData> list;
+  final bool showWhenEmpty;
   final bool changeList = false;
 
-  ServiceListComponent({required this.list});
+  ServiceListComponent({required this.list, this.showWhenEmpty = false});
 
   @override
   Widget build(BuildContext context) {
-    if (list.isEmpty) return Offstage();
+    if (list.isEmpty && !showWhenEmpty) return Offstage();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,19 +28,21 @@ class ServiceListComponent extends StatelessWidget {
             ServiceListScreen().launch(context);
           },
         ),
-        16.height,
-        Wrap(
-          spacing: 16.0,
-          runSpacing: 16.0,
-          children: List.generate(
-            list.take(4).length,
-            (index) {
-              return ServiceComponent(data: list[index], width: context.width() * 0.5 - 24, changeList: changeList).onTap(() async {
-                await ServiceDetailScreen(serviceId: list[index].id.validate()).launch(context);
-              }, borderRadius: radius());
-            },
+        if (list.isNotEmpty) ...[
+          16.height,
+          Wrap(
+            spacing: 16.0,
+            runSpacing: 16.0,
+            children: List.generate(
+              list.take(4).length,
+              (index) {
+                return ServiceComponent(data: list[index], width: context.width() * 0.5 - 24, changeList: changeList).onTap(() async {
+                  await ServiceDetailScreen(serviceId: list[index].id.validate()).launch(context);
+                }, borderRadius: radius());
+              },
+            ),
           ),
-        )
+        ],
       ],
     ).paddingSymmetric(horizontal: 16, vertical: 16);
   }

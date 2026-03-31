@@ -159,6 +159,59 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
     );
   }
 
+  String _getJobLocation(PostJobData data) {
+    if (data.service.validate().isNotEmpty) {
+      final service = data.service!.first;
+      if (service.address.validate().isNotEmpty) return service.address.validate();
+      if (service.cityId != null && service.cityId! > 0) {
+        return 'City ID: ${service.cityId}';
+      }
+    }
+    return '';
+  }
+
+  Widget locationWidget(PostJobData data) {
+    final location = _getJobLocation(data);
+    if (location.isEmpty) {
+      return Container(
+        width: context.width(),
+        margin: EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.all(12),
+        decoration: boxDecorationWithRoundedCorners(
+          backgroundColor: Colors.orange.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          'Location is required for this request.',
+          style: secondaryTextStyle(color: Colors.orange.shade900),
+        ),
+      );
+    }
+
+    return Container(
+      width: context.width(),
+      margin: EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.all(12),
+      decoration: boxDecorationWithRoundedCorners(
+        backgroundColor: context.cardColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.location_on_outlined, size: 18, color: context.primaryColor),
+          8.width,
+          Expanded(
+            child: Text(
+              location,
+              style: primaryTextStyle(size: 13),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget providerWidget(List<BidderData> bidderList) {
     try {
       if (bidderList.any((element) => element.providerId == appStore.userId)) {
@@ -337,6 +390,8 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
                         children: [
                           postJobDetailWidget(data: data.postRequestDetail!)
                               .paddingAll(16),
+                          locationWidget(data.postRequestDetail!),
+                          8.height,
                           customerWidget(data.postRequestDetail!),
                           providerWidget(data.bidderData.validate()),
                           postJobServiceWidget(
@@ -358,6 +413,10 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
                         color: context.primaryColor,
                         width: context.width(),
                         onTap: () async {
+                          if (_getJobLocation(data.postRequestDetail!).isEmpty) {
+                            toast('Please add location before placing a bid');
+                            return;
+                          }
                           bool? res = await showInDialog(
                             context,
                             contentPadding: EdgeInsets.zero,

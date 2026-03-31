@@ -14,6 +14,7 @@ class JobItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (data == null) return Offstage();
+    final String location = data!.service.validate().isNotEmpty ? data!.service!.first.address.validate() : '';
 
     return Container(
       width: context.width(),
@@ -59,6 +60,15 @@ class JobItemWidget extends StatelessWidget {
                     : '',
                 style: boldTextStyle(size: 14),
               ),
+              if (location.isNotEmpty) ...[
+                2.height,
+                Text(
+                  location,
+                  style: secondaryTextStyle(size: 12),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
               2.height,
               Text(formatDate(data!.createdAt.validate()),
                   style: secondaryTextStyle(),

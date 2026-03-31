@@ -25,26 +25,42 @@ class _JobListScreenState extends State<JobListScreen> {
 
   int page = 1;
   bool isLastPage = false;
+  bool isFetching = false;
 
   @override
   void initState() {
     super.initState();
     LiveStream().on(LIVESTREAM_UPDATE_BOOKINGS, (p0) {
-      page = 1;
-      init();
+      init(resetPage: true);
     });
-    init();
+    init(resetPage: true);
   }
 
-  Future<void> init() async {
-    future = getPostJobList(
+  Future<void> init({bool resetPage = false}) async {
+    if (isFetching) return;
+
+    if (resetPage) {
+      page = 1;
+      isLastPage = false;
+      myPostJobList.clear();
+    }
+
+    isFetching = true;
+    final request = getPostJobList(
       page,
       postJobList: myPostJobList,
       lastPageCallback: (val) => isLastPage = val,
       serviceIds:
           filterStore.serviceId.isNotEmpty ? filterStore.serviceId : null,
     );
+    future = request;
     setState(() {});
+    try {
+      await request;
+    } finally {
+      isFetching = false;
+      appStore.setLoading(false);
+    }
   }
 
   @override
@@ -108,8 +124,7 @@ class _JobListScreenState extends State<JobListScreen> {
                       finish(context);
                       AddServices().launch(context).then((value) {
                         if (value == true) {
-                          init();
-                          setState(() {});
+                          init(resetPage: true);
                         }
                       });
                     },
@@ -121,10 +136,7 @@ class _JobListScreenState extends State<JobListScreen> {
                     color: context.primaryColor,
                     onTap: () {
                       finish(context);
-                      // Apply filter and refresh list
-                      page = 1;
-                      init();
-                      setState(() {});
+                      init(resetPage: true);
                     },
                   ).expand(),
                 ],
@@ -166,21 +178,15 @@ class _JobListScreenState extends State<JobListScreen> {
                 ),
                 itemBuilder: (_, i) => JobItemWidget(data: data[i]),
                 onNextPage: () {
-                  if (!isLastPage) {
+                  if (!isLastPage && !isFetching) {
                     page++;
                     appStore.setLoading(true);
 
                     init();
-                    setState(() {});
                   }
                 },
                 onSwipeRefresh: () async {
-                  page = 1;
-
-                  init();
-                  setState(() {});
-
-                  return await 2.seconds.delay;
+                  await init(resetPage: true);
                 },
               );
             },
@@ -190,11 +196,8 @@ class _JobListScreenState extends State<JobListScreen> {
                 imageWidget: ErrorStateWidget(),
                 retryText: languages.reload,
                 onRetry: () {
-                  page = 1;
                   appStore.setLoading(true);
-
-                  init();
-                  setState(() {});
+                  init(resetPage: true);
                 },
               );
             },

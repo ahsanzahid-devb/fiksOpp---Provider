@@ -54,7 +54,7 @@ class BookingItemComponentState extends State<BookingItemComponent> {
     return formatDate(getSlotWithDate(date: bookingDetail.date.validate(), slotTime: bookingDetail.bookingSlot.validate()), isTime: true);
   }
 
-  Future<void> updateBooking(BookingData booking, String updatedStatus, int index) async {
+  Future<void> updateBooking(BookingData booking, String updatedStatus, int? index) async {
     appStore.setLoading(true);
     Map request = {
       CommonKeys.id: booking.id,
@@ -69,7 +69,7 @@ class BookingItemComponentState extends State<BookingItemComponent> {
     });
   }
 
-  Future<void> confirmationRequestDialog(BuildContext context, int index, String status) async {
+  Future<void> confirmationRequestDialog(BuildContext context, int? index, String status) async {
     showConfirmDialogCustom(
       context,
       title: languages.confirmationRequestTxt,
@@ -560,9 +560,9 @@ class BookingItemComponentState extends State<BookingItemComponent> {
                   color: appStore.isDarkMode ? context.scaffoldBackgroundColor : white,
                   onTap: () {
                     if (isUserTypeProvider) {
-                      confirmationRequestDialog(context, widget.index!, BookingStatusKeys.rejected);
+                      confirmationRequestDialog(context, widget.index, BookingStatusKeys.rejected);
                     } else {
-                      confirmationRequestDialog(context, widget.index!, BookingStatusKeys.pending);
+                      confirmationRequestDialog(context, widget.index, BookingStatusKeys.pending);
                     }
                   },
                 ).expand(),
