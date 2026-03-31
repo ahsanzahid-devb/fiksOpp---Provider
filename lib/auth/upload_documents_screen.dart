@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:handyman_provider_flutter/components/base_scaffold_widget.dart';
 import 'package:handyman_provider_flutter/components/selected_item_widget.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../components/app_widgets.dart';
@@ -32,7 +32,6 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
   bool isAcceptedTc = false;
   ValueNotifier _valueNotifier = ValueNotifier(true);
   Future<DocumentListResponse>? future;
-  FilePickerResult? filePickerResult;
   File? imageFile;
   List<Documents> uploadDocResp = [];
 
@@ -49,19 +48,19 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
   }
 
   void getMultipleFile({int? updateId, Function(String)? setImage}) async {
-    filePickerResult = await FilePicker.platform.pickFiles(
-        allowMultiple: false,
-        type: FileType.custom,
-        allowedExtensions: ['jpg', 'png', 'jpeg', 'pdf']);
+    final XFile? pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
 
-    if (filePickerResult != null) {
+    if (pickedFile != null) {
       showConfirmDialogCustom(
         context,
         title: languages.confirmationUpload,
         onAccept: (BuildContext context) {
           ifNotTester(context, () {
             setState(() {
-              imageFile = File(filePickerResult!.paths.first!);
+              imageFile = File(pickedFile.path);
               setImage?.call(imageFile!.path);
             });
           });

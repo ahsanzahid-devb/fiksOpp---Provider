@@ -1151,13 +1151,22 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
                   positiveText: languages.lblYes,
                   negativeText: languages.lblCancel,
                   onAccept: (c) async {
-                    var request = {
+                    var assignRequest = {
                       CommonKeys.id: widget.bookingId.validate(),
                       CommonKeys.handymanId: [appStore.userId.validate()],
                     };
+                    var updateRequest = {
+                      CommonKeys.id: widget.bookingId.validate(),
+                      BookingUpdateKeys.status: BookingStatusKeys.accept,
+                      BookingUpdateKeys.paymentStatus:
+                          res.bookingDetail!.isAdvancePaymentDone
+                              ? SERVICE_PAYMENT_STATUS_ADVANCE_PAID
+                              : res.bookingDetail!.paymentStatus.validate(),
+                    };
                     appStore.setLoading(true);
 
-                    await assignBooking(request).then((res) async {
+                    await bookingUpdate(updateRequest);
+                    await assignBooking(assignRequest).then((res) async {
                       LiveStream().emit(LIVESTREAM_UPDATE_BOOKINGS);
                       init(flag: true);
                     }).catchError((e) {

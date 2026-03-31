@@ -46,14 +46,32 @@ Future<void> initFirebaseMessaging() async {
 Future<void> registerNotificationListeners() async {
   FirebaseMessaging.instance.setAutoInitEnabled(true).then((value) {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (message.notification != null &&
-          message.notification!.title.validate().isNotEmpty &&
-          message.notification!.body.validate().isNotEmpty) {
+      final String title = message.notification?.title.validate().isNotEmpty ==
+              true
+          ? message.notification!.title.validate()
+          : (message.data['title']?.toString().validate().isNotEmpty == true
+              ? message.data['title'].toString().validate()
+              : message.data['subject']?.toString().validate() ?? '');
+
+      final String body = message.notification?.body.validate().isNotEmpty ==
+              true
+          ? message.notification!.body.validate()
+          : (message.data['body']?.toString().validate().isNotEmpty == true
+              ? message.data['body'].toString().validate()
+              : message.data['message']?.toString().validate() ?? '');
+
+      final String finalTitle = title.isNotEmpty ? title : 'FiksOpp';
+      final String finalBody = body.isNotEmpty
+          ? body
+          : 'You have a new notification';
+
+      if (message.notification != null || message.data.isNotEmpty) {
         showNotification(
-            currentTimeStamp(),
-            message.notification!.title.validate(),
-            parseHtmlString(message.notification!.body.validate()),
-            message);
+          currentTimeStamp(),
+          finalTitle,
+          parseHtmlString(finalBody),
+          message,
+        );
       }
     }, onError: (e) {
       log("setAutoInitEnabled error $e");
@@ -168,7 +186,7 @@ void handleNotificationClick(RemoteMessage message) {
 
 void showNotification(
     int id, String title, String message, RemoteMessage remoteMessage) async {
-  log('Notification : ${remoteMessage.notification!.toMap()}');
+  log('Notification : ${remoteMessage.notification?.toMap()}');
   log('Message Data : ${remoteMessage.data}');
   log("Provider Message Image Url : ${remoteMessage.data["image_url"]} ");
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -254,7 +272,7 @@ void showNotification(
 
   flutterLocalNotificationsPlugin.show(
       id,
-      remoteMessage.notification!.title.validate(),
-      remoteMessage.notification!.body.validate(),
+      title.validate(),
+      message.validate(),
       platformChannelSpecifics);
 }

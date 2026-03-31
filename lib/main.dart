@@ -51,7 +51,32 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   log('Message Data : ${message.data}');
-  Firebase.initializeApp();
+  await Firebase.initializeApp();
+
+  final String title = message.notification?.title.validate().isNotEmpty == true
+      ? message.notification!.title.validate()
+      : (message.data['title']?.toString().validate().isNotEmpty == true
+          ? message.data['title'].toString().validate()
+          : message.data['subject']?.toString().validate() ?? '');
+
+  final String body = message.notification?.body.validate().isNotEmpty == true
+      ? message.notification!.body.validate()
+      : (message.data['body']?.toString().validate().isNotEmpty == true
+          ? message.data['body'].toString().validate()
+          : message.data['message']?.toString().validate() ?? '');
+
+  final String finalTitle = title.isNotEmpty ? title : 'FiksOpp';
+  final String finalBody =
+      body.isNotEmpty ? body : 'You have a new notification';
+
+  if (message.notification != null || message.data.isNotEmpty) {
+    showNotification(
+      currentTimeStamp(),
+      finalTitle,
+      parseHtmlString(finalBody),
+      message,
+    );
+  }
 }
 //endregion
 

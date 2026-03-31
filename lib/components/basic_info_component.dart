@@ -89,8 +89,7 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
         log(e.toString());
       });
       showContactWidgets =
-          widget.bookingDetail!.status != BookingStatusKeys.complete &&
-              widget.bookingDetail!.status != BookingStatusKeys.cancelled;
+          widget.bookingDetail!.status != BookingStatusKeys.cancelled;
       showChat = true;
       showVerifiedBadge =
           widget.customerData!.isVerifiedAccount.validate().getBoolInt();
@@ -114,8 +113,7 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
               widget.handymanData!.id.validate();
       showVerifiedBadge =
           widget.handymanData!.isVerifiedAccount.validate().getBoolInt();
-      showChat = widget.bookingDetail!.status != BookingStatusKeys.complete &&
-          widget.bookingDetail!.status != BookingStatusKeys.cancelled;
+      showChat = widget.bookingDetail!.status != BookingStatusKeys.cancelled;
     } else {
       profileId = widget.providerData!.id.validate();
       name = widget.providerData!.displayName.validate();
@@ -317,9 +315,7 @@ class BasicInfoComponentState extends State<BasicInfoComponent> {
 
                     if (widget.bookingDetail != null) {
                       isChattingAllow = widget.bookingDetail!.status ==
-                              BookingStatusKeys.complete ||
-                          widget.bookingDetail!.status ==
-                              BookingStatusKeys.cancelled;
+                          BookingStatusKeys.cancelled;
                     }
                     UserChatScreen(
                             receiverUser: user,

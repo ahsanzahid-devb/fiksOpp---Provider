@@ -44,13 +44,13 @@ class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-       barrierColor:  Colors.transparent,
-
+      barrierColor: Colors.transparent,
       builder: (context) => Container(
         height: context.height() * 0.8,
         decoration: boxDecorationWithRoundedCorners(
           backgroundColor: context.scaffoldBackgroundColor,
-          borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
+          borderRadius:
+              radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
         ),
         child: Column(
           children: [
@@ -58,11 +58,13 @@ class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
               padding: EdgeInsets.all(16),
               decoration: boxDecorationWithRoundedCorners(
                 backgroundColor: context.cardColor,
-                borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
+                borderRadius:
+                    radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
               ),
               child: Row(
                 children: [
-                  Text(languages.selectService, style: boldTextStyle(size: 18)).expand(),
+                  Text(languages.selectService, style: boldTextStyle(size: 18))
+                      .expand(),
                   IconButton(
                     icon: Icon(Icons.close),
                     onPressed: () => finish(context),
@@ -122,6 +124,11 @@ class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
   }
 
   Future<void> init() async {
+    final initialIndex = widget.index ?? 0;
+    currentIndex = initialIndex >= 0 && initialIndex < getFragments().length
+        ? initialIndex
+        : 0;
+
     afterBuildCreated(
       () async {
         if (getIntAsync(THEME_MODE_INDEX) == THEME_MODE_SYSTEM) {
@@ -138,7 +145,10 @@ class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
     );
 
     LiveStream().on(LIVESTREAM_PROVIDER_ALL_BOOKING, (index) {
-      currentIndex = index as int;
+      final tabIndex = index as int;
+      if (tabIndex >= 0 && tabIndex < getFragments().length) {
+        currentIndex = tabIndex;
+      }
       setState(() {});
     });
 
@@ -275,7 +285,6 @@ class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                       );
                     },
                   ),
-                
               ],
             ),
             body: fragmentList[currentIndex],

@@ -1543,12 +1543,22 @@ Future<List<PostJobData>> getPostJobList(int page,
     required List<PostJobData> postJobList,
     Function(bool)? lastPageCallback,
     List<int>? serviceIds}) async {
+  void appendUniqueById(List<PostJobData> incoming) {
+    final existingIds = postJobList.map((e) => e.id).toSet();
+    for (final item in incoming) {
+      if (!existingIds.contains(item.id)) {
+        postJobList.add(item);
+        existingIds.add(item.id);
+      }
+    }
+  }
+
   final cacheKey = '${page}_${serviceIds?.join(',') ?? 'all'}';
   final now = DateTime.now();
   final cached = _postJobListCache[cacheKey];
   if (cached != null && cached.until.isAfter(now)) {
     if (page == 1) postJobList.clear();
-    postJobList.addAll(cached.data);
+    appendUniqueById(cached.data);
     lastPageCallback?.call(cached.isLastPage);
     appStore.setLoading(false);
     return postJobList;
@@ -1567,9 +1577,9 @@ Future<List<PostJobData>> getPostJobList(int page,
     }
 
     final list = res.postJobData.validate();
-    final isLastPage = list.length != PER_PAGE_ITEM;
+    final isLastPage = list.length != perPage;
     lastPageCallback?.call(isLastPage);
-    postJobList.addAll(list);
+    appendUniqueById(list);
 
     _postJobListCache[cacheKey] = (
       until: now.add(_postJobListCacheDuration),

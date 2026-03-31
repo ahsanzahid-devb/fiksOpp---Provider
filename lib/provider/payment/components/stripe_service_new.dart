@@ -49,17 +49,21 @@ class StripeServiceNew {
     Stripe.merchantIdentifier = 'merchant.flutter.stripe.test';
     Stripe.publishableKey = stripePaymentPublishKey;
 
-    Stripe.instance.applySettings().catchError((e) {
+    await Stripe.instance.applySettings().catchError((e) {
       toast(e.toString(), print: true);
-
       throw e.toString();
     });
 
     Request request = http.Request(HttpMethodType.POST.name, Uri.parse(stripeURL));
+    final String currencyCode = ((await isIqonicProduct
+                ? STRIPE_CURRENCY_CODE
+                : appConfigurationStore.currencyCode)
+            .validate())
+        .toLowerCase();
 
     request.bodyFields = {
       'amount': '${(totalAmount * 100).toInt()}',
-      'currency': await isIqonicProduct ? STRIPE_CURRENCY_CODE : '${appConfigurationStore.currencyCode}',
+      'currency': currencyCode,
       'description': 'Name: ${appStore.userFullName} - Email: ${appStore.userEmail}',
     };
 
@@ -70,53 +74,41 @@ class StripeServiceNew {
     log('Request: ${request.bodyFields}');
 
     appStore.setLoading(true);
-    await request.send().then((value) {
-      http.Response.fromStream(value).then((response) async {
-        appStore.setLoading(false);
-        if (response.statusCode.isSuccessful()) {
-          StripePayModel res = StripePayModel.fromJson(jsonDecode(response.body));
+    await request.send().then((value) async {
+      final response = await http.Response.fromStream(value);
+      appStore.setLoading(false);
+      if (response.statusCode.isSuccessful()) {
+        StripePayModel res = StripePayModel.fromJson(jsonDecode(response.body));
 
-          SetupPaymentSheetParameters setupPaymentSheetParameters = SetupPaymentSheetParameters(
-            paymentIntentClientSecret: res.clientSecret.validate(),
-            style: appThemeMode,
-            appearance: PaymentSheetAppearance(
-              colors: PaymentSheetAppearanceColors(primary: primaryColor),
-            ),
-            applePay: PaymentSheetApplePay(merchantCountryCode: STRIPE_MERCHANT_COUNTRY_CODE),
-            googlePay: PaymentSheetGooglePay(
-              merchantCountryCode: STRIPE_MERCHANT_COUNTRY_CODE,
-              testEnv: paymentSetting.isTest == 1,
-            ),
-            merchantDisplayName: APP_NAME,
-            billingDetails: BillingDetails(
-              name: appStore.userFullName,
-              email: appStore.userEmail,
-            ),
-          );
+        SetupPaymentSheetParameters setupPaymentSheetParameters = SetupPaymentSheetParameters(
+          paymentIntentClientSecret: res.clientSecret.validate(),
+          style: appThemeMode,
+          appearance: PaymentSheetAppearance(
+            colors: PaymentSheetAppearanceColors(primary: primaryColor),
+          ),
+          applePay: PaymentSheetApplePay(merchantCountryCode: STRIPE_MERCHANT_COUNTRY_CODE),
+          googlePay: PaymentSheetGooglePay(
+            merchantCountryCode: STRIPE_MERCHANT_COUNTRY_CODE,
+            testEnv: paymentSetting.isTest == 1,
+          ),
+          merchantDisplayName: APP_NAME,
+          billingDetails: BillingDetails(
+            name: appStore.userFullName,
+            email: appStore.userEmail,
+          ),
+        );
 
-
-          await Stripe.instance.initPaymentSheet(paymentSheetParameters: setupPaymentSheetParameters).then((value) async {
-            await Stripe.instance.presentPaymentSheet().then((value) async {
-              onComplete.call({'transaction_id': res.id});
-            }).catchError((e, s) {
-              log('Stripe PaymentSheet Error: $e');
-              appStore.setLoading(false);
-              throw 'Payment failed. Try again.';
-            });
-          }).catchError((e, s) {
-            log('Stripe InitPaymentSheet Error: $e');
-            appStore.setLoading(false);
-            throw 'Unable to initiate payment. Try again.';
-          });
-
-        } else if (response.statusCode == 400) {
-          appStore.setLoading(false);
-          throw errorSomethingWentWrong;
+        await Stripe.instance.initPaymentSheet(paymentSheetParameters: setupPaymentSheetParameters);
+        await Stripe.instance.presentPaymentSheet();
+        onComplete.call({'transaction_id': res.id});
+      } else {
+        String message = errorSomethingWentWrong;
+        if (response.body.isJson()) {
+          final body = jsonDecode(response.body);
+          message = (body['error']?['message'] ?? body['message'] ?? errorSomethingWentWrong).toString();
         }
-      }).catchError((e) {
-        appStore.setLoading(false);
-        throw errorSomethingWentWrong;
-      });
+        throw message;
+      }
     }).catchError((e) {
       appStore.setLoading(false);
       toast(e.toString(), print: true);

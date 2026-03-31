@@ -36,6 +36,10 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
   @override
   void initState() {
     super.initState();
+    LiveStream().on(LIVESTREAM_UPDATE_BOOKINGS, (p0) {
+      init();
+      setState(() {});
+    });
     init();
   }
 
@@ -288,6 +292,12 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
   @override
   void setState(fn) {
     if (mounted) super.setState(fn);
+  }
+
+  @override
+  void dispose() {
+    LiveStream().dispose(LIVESTREAM_UPDATE_BOOKINGS);
+    super.dispose();
   }
 
   @override

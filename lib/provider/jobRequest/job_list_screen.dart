@@ -5,6 +5,7 @@ import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/shimmer/job_request_shimmer.dart';
 import 'package:handyman_provider_flutter/provider/services/add_services.dart';
+import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../../components/base_scaffold_widget.dart';
@@ -28,6 +29,10 @@ class _JobListScreenState extends State<JobListScreen> {
   @override
   void initState() {
     super.initState();
+    LiveStream().on(LIVESTREAM_UPDATE_BOOKINGS, (p0) {
+      page = 1;
+      init();
+    });
     init();
   }
 
@@ -45,6 +50,12 @@ class _JobListScreenState extends State<JobListScreen> {
   @override
   void setState(fn) {
     if (mounted) super.setState(fn);
+  }
+
+  @override
+  void dispose() {
+    LiveStream().dispose(LIVESTREAM_UPDATE_BOOKINGS);
+    super.dispose();
   }
 
   void _showServiceFilterBottomSheet() {
