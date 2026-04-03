@@ -37,6 +37,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<List<PaymentSetting>>? future;
 
   PaymentSetting? selectedPaymentSetting;
+  DateTime? _lastProceedTapAt;
 
   @override
   void initState() {
@@ -50,6 +51,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   void _handleClick() async {
     if (appStore.isLoading) return;
+    final now = DateTime.now();
+    if (_lastProceedTapAt != null &&
+        now.difference(_lastProceedTapAt!).inMilliseconds < 1500) {
+      toast(languages.pleaseWaitWhileWeChangeTheStatus);
+      return;
+    }
+    _lastProceedTapAt = now;
 
     if (selectedPaymentSetting!.type == PAYMENT_METHOD_STRIPE) {
       StripeServiceNew stripeServiceNew = StripeServiceNew(
@@ -294,7 +302,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     itemCount: paymentList.length,
                     shrinkWrap: true,
                     listAnimationType: ListAnimationType.FadeIn,
-                    fadeInConfiguration: FadeInConfiguration(duration: 2.seconds),
+                    fadeInConfiguration:
+                        FadeInConfiguration(duration: Duration(milliseconds: 350)),
                     itemBuilder: (context, index) {
                       PaymentSetting value = paymentList[index];
 
@@ -315,6 +324,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   Spacer(),
                   AppButton(
                     onTap: () {
+                      if (appStore.isLoading) return;
                       if (selectedPaymentSetting == null) return toast(languages.chooseAnyOnePayment);
 
                       _handleClick();

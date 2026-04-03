@@ -168,7 +168,8 @@ class _JobListScreenState extends State<JobListScreen> {
               return AnimatedListView(
                 physics: AlwaysScrollableScrollPhysics(),
                 listAnimationType: ListAnimationType.FadeIn,
-                fadeInConfiguration: FadeInConfiguration(duration: 2.seconds),
+                fadeInConfiguration:
+                    FadeInConfiguration(duration: Duration(milliseconds: 350)),
                 padding: EdgeInsets.all(16),
                 itemCount: data.validate().length,
                 shrinkWrap: true,

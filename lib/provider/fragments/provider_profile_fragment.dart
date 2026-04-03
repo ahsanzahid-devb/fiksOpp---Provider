@@ -399,7 +399,7 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
                       HandymanListScreen().launch(context);
                     },
                   ),
-                if (appStore.isLoggedIn && rolesAndPermissionStore.helpDeskList)
+                if (appStore.isLoggedIn)
                   SettingItemWidget(
                     decoration: BoxDecoration(color: context.cardColor),
                     leading: ic_help_desk.iconImage(size: 16),

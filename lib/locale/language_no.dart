@@ -1863,6 +1863,16 @@ class LanguageNo extends LanguageEn {
   String get youHavePermanentlyDenied =>
       'Du har nektet posisjonstilgang permanent.';
   @override
+  String get lblLocationNeededForBidTitle => 'Posisjonstilgang';
+
+  @override
+  String get lblLocationNeededForBidMessage =>
+      'For å legge inn et bud trenger appen tilgang til enheten din. Trykk Tillat for å fortsette med systemmeldingen.';
+
+  @override
+  String get lblAllowLocation => 'Tillat';
+
+  @override
   String get youWillGetTheseServicesWithThisPackage =>
       'Disse tjenestene er inkludert i pakken';
   @override

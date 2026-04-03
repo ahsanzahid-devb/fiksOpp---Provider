@@ -5,6 +5,7 @@ import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/constant.dart';
+import 'package:handyman_provider_flutter/utils/permissions.dart';
 import 'package:handyman_provider_flutter/utils/extensions/context_ext.dart';
 import 'package:handyman_provider_flutter/utils/model_keys.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -36,6 +37,15 @@ class _BidPriceDialogState extends State<BidPriceDialog> {
 
   void _handleSubmitClick() async {
     hideKeyboard(context);
+    if (!await Permissions.ensureLocationForBid(context)) {
+      return;
+    }
+    final hasLocation = widget.data.service.validate().isNotEmpty &&
+        widget.data.service!.first.address.validate().isNotEmpty;
+    if (!hasLocation) {
+      toast('Location is required before placing a bid');
+      return;
+    }
 
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();

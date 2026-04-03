@@ -8,6 +8,7 @@ import 'package:handyman_provider_flutter/provider/provider_dashboard_screen.dar
 import 'package:handyman_provider_flutter/screens/maintenance_mode_screen.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/configs.dart';
+import 'package:handyman_provider_flutter/utils/colors.dart';
 import 'package:nb_utils/nb_utils.dart';
 import '../components/app_widgets.dart';
 import '../networks/rest_apis.dart';
@@ -49,6 +50,8 @@ class SplashScreenState extends State<SplashScreen> {
       log(e.toString());
     });
 
+    if (!mounted) return;
+
     appStore.setLoading(false);
 
     /// If app configuration failed
@@ -77,6 +80,7 @@ class SplashScreenState extends State<SplashScreen> {
 
     /// Maintenance mode check
     if (appConfigurationStore.maintenanceModeStatus) {
+      if (!mounted) return;
       MaintenanceModeScreen().launch(
         context,
         pageRouteAnimation: PageRouteAnimation.Fade,
@@ -89,6 +93,8 @@ class SplashScreenState extends State<SplashScreen> {
       await clearPreferences();
     }
 
+    if (!mounted) return;
+
     /// Handle navigation
     if (!appStore.isLoggedIn) {
       SignInScreen().launch(
@@ -98,6 +104,8 @@ class SplashScreenState extends State<SplashScreen> {
       );
     } else {
       await updateProfilePhoto();
+
+      if (!mounted) return;
 
       if (isUserTypeProvider) {
         setStatusBarColor(primaryColor);
@@ -121,7 +129,10 @@ class SplashScreenState extends State<SplashScreen> {
 
   Future<void> updateProfilePhoto() async {
     await getUserDetail(appStore.userId).then((value) async {
-      await appStore.setUserProfile(value.data!.profileImage.validate());
+      final data = value.data;
+      if (data != null) {
+        await appStore.setUserProfile(data.profileImage.validate());
+      }
     }).catchError((e) {
       log('Error updating profile photo: $e');
     });
@@ -129,8 +140,12 @@ class SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isSystemDark =
+        MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final bgColor = isSystemDark ? scaffoldColorDark : Colors.white;
+
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 226, 226, 226),
+      backgroundColor: bgColor,
       body: Stack(
         fit: StackFit.expand,
         clipBehavior: Clip.none,
@@ -138,24 +153,12 @@ class SplashScreenState extends State<SplashScreen> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                height: 120,
-                width: 120,
-                child: Image.asset(
-                  Assets.logo,
-                  fit: BoxFit.contain,
-                ),
+              Image.asset(
+                Assets.image,
+                height: 150,
+                width: 150,
+                fit: BoxFit.contain,
               ),
-              32.height,
-              Text(
-                APP_NAME,
-                style: boldTextStyle(
-                  size: 26,
-                  color: appStore.isDarkMode ? Colors.white : Colors.black,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              16.height,
               if (appNotSynced)
                 Observer(
                   builder: (_) {

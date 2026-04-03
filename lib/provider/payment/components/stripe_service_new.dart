@@ -1,10 +1,9 @@
 import 'dart:convert';
-
+import 'dart:async';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:nb_utils/nb_utils.dart';
-
 import '../../../main.dart';
 import '../../../models/stripe_pay_model.dart';
 import '../../../networks/network_utils.dart';
@@ -94,8 +93,9 @@ class StripeServiceNew {
     log('Request: ${request.bodyFields}');
 
     appStore.setLoading(true);
-    await request.send().then((value) async {
-      final response = await http.Response.fromStream(value);
+    await request.send().timeout(Duration(seconds: 25)).then((value) async {
+      final response =
+          await http.Response.fromStream(value).timeout(Duration(seconds: 25));
       appStore.setLoading(false);
       if (response.statusCode.isSuccessful()) {
         StripePayModel res = StripePayModel.fromJson(jsonDecode(response.body));
@@ -120,9 +120,13 @@ class StripeServiceNew {
           ),
         );
 
-        await Stripe.instance.initPaymentSheet(
-            paymentSheetParameters: setupPaymentSheetParameters);
-        await Stripe.instance.presentPaymentSheet();
+        await Stripe.instance
+            .initPaymentSheet(paymentSheetParameters: setupPaymentSheetParameters)
+            .timeout(Duration(seconds: 20));
+        await Stripe.instance.presentPaymentSheet().timeout(
+          Duration(seconds: 60),
+          onTimeout: () => throw 'Payment sheet took too long to respond. Please try again.',
+        );
         onComplete.call({'transaction_id': res.id});
       } else {
         String message = errorSomethingWentWrong;
@@ -137,6 +141,9 @@ class StripeServiceNew {
       }
     }).catchError((e) {
       appStore.setLoading(false);
+      if (e is TimeoutException) {
+        throw 'Payment request timed out. Please check your internet and try again.';
+      }
       throw _friendlyStripeError(e);
     });
   }

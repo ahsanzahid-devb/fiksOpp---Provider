@@ -2217,6 +2217,16 @@ class LanguageEn extends Languages {
   String get youHavePermanentlyDenied => 'You have permanently denied location permission please allow for live location tracking from your settings';
 
   @override
+  String get lblLocationNeededForBidTitle => 'Location permission';
+
+  @override
+  String get lblLocationNeededForBidMessage =>
+      'To place a bid, this app needs access to your device location. Tap Allow to continue with the system prompt.';
+
+  @override
+  String get lblAllowLocation => 'Allow';
+
+  @override
   String get open => 'OPEN';
 
   @override

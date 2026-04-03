@@ -16,6 +16,18 @@ class PostJobData {
   List<ServiceData>? service;
   String? customerProfile;
 
+  /// True when post has enough location data to bid (matches job detail UI / TC-07).
+  bool get hasUsableLocationForBid {
+    final list = service;
+    if (list == null || list.isEmpty) return false;
+    final s = list.first;
+    final addr = s.address?.trim() ?? '';
+    if (addr.isNotEmpty) return true;
+    final cid = s.cityId;
+    if (cid != null && cid > 0) return true;
+    return false;
+  }
+
   PostJobData({
     this.id,
     this.title,

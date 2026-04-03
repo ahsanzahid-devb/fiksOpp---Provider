@@ -298,8 +298,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             10.width,
             // Mobile number text field...
             AppTextField(
-              textFieldType:
-                  isAndroid ? TextFieldType.PHONE : TextFieldType.NAME,
+              textFieldType: TextFieldType.PHONE,
               controller: mobileCont,
               focus: mobileFocus,
               errorThisFieldRequired: languages.hintRequired,
@@ -311,6 +310,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 hintStyle: secondaryTextStyle(),
               ),
               maxLength: 15,
+              validator: (value) {
+                final phone = value.validate().trim();
+                if (phone.isEmpty) return languages.hintRequired;
+                if (!RegExp(r'^[0-9]+$').hasMatch(phone)) {
+                  return 'Invalid contact number';
+                }
+                if (phone.length < 6 || phone.length > 15) {
+                  return 'Invalid contact number';
+                }
+                return null;
+              },
               suffix: calling.iconImage(size: 10).paddingAll(14),
             ).expand(),
           ],

@@ -1480,6 +1480,12 @@ abstract class Languages {
 
   String get youHavePermanentlyDenied;
 
+  String get lblLocationNeededForBidTitle;
+
+  String get lblLocationNeededForBidMessage;
+
+  String get lblAllowLocation;
+
   String get open;
 
   String get closed;

@@ -12,6 +12,8 @@ class Assets {
   static const String flagIcIndia = 'assets/flag/ic_india.png';
 
   static const String logo = 'assets/icons/logo.png';
+  static const String image = 'assets/image.png';
+
   static const String flagIcUs = 'assets/flag/ic_us.png';
 
   static const String iconsAirtelLogo = 'assets/icons/airtel_logo.png';
@@ -120,8 +122,7 @@ class Assets {
   static const String imagesLogoutLogo = 'assets/images/logout_logo.png';
 
   static const String imagesMoney = 'assets/icons/money.png';
-  static const String imagesSplashBackground =
-      'assets/images/splash_background.jpg';
+
   static const String imagesSplashLightBackground =
       'assets/images/splash_light_background.png';
   static const String lottieEmptyLottie = 'assets/lottie/empty_lottie.json';

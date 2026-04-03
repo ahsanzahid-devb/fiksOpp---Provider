@@ -129,7 +129,8 @@ class _ProviderHomeFragmentState extends State<ProviderHomeFragment> {
                   physics: AlwaysScrollableScrollPhysics(),
                   crossAxisAlignment: CrossAxisAlignment.start,
                   listAnimationType: ListAnimationType.FadeIn,
-                  fadeInConfiguration: FadeInConfiguration(duration: 2.seconds),
+                  fadeInConfiguration:
+                      FadeInConfiguration(duration: Duration(milliseconds: 350)),
                   children: [
                     if (appStore.earningTypeSubscription)
                       planBanner(snap.data!),

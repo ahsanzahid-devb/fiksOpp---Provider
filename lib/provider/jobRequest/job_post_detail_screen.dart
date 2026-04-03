@@ -12,6 +12,7 @@ import 'package:handyman_provider_flutter/provider/jobRequest/models/post_job_de
 import 'package:handyman_provider_flutter/provider/services/service_detail_screen.dart';
 import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:handyman_provider_flutter/utils/model_keys.dart';
+import 'package:handyman_provider_flutter/utils/permissions.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../../components/base_scaffold_widget.dart';
@@ -374,8 +375,9 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
                     padding: EdgeInsets.only(bottom: 60),
                     physics: AlwaysScrollableScrollPhysics(),
                     listAnimationType: ListAnimationType.FadeIn,
-                    fadeInConfiguration:
-                        FadeInConfiguration(duration: 2.seconds),
+                      fadeInConfiguration: FadeInConfiguration(
+                        duration: Duration(milliseconds: 350),
+                      ),
                     onSwipeRefresh: () async {
                       page = 1;
 
@@ -415,6 +417,9 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
                         onTap: () async {
                           if (_getJobLocation(data.postRequestDetail!).isEmpty) {
                             toast('Please add location before placing a bid');
+                            return;
+                          }
+                          if (!await Permissions.ensureLocationForBid(context)) {
                             return;
                           }
                           bool? res = await showInDialog(
