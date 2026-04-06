@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:handyman_provider_flutter/utils/adaptive_switch_layout.dart';
 import 'package:handyman_provider_flutter/utils/extensions/string_extension.dart';
 import 'package:nb_utils/nb_utils.dart';
 
@@ -49,7 +50,7 @@ class _SwitchPushNotificationSubscriptionComponentState
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
       trailing: Transform.scale(
-        scale: isProvider ? 0.6 : 0.7,
+        scale: adaptiveProfileSwitchScale(isProvider ? 0.6 : 0.7),
         child: Switch.adaptive(
           value: FirebaseAuth.instance.currentUser != null &&
               getBoolAsync(IS_SUBSCRIBED_NOTIFICATION, defaultValue: true),
@@ -67,7 +68,8 @@ class _SwitchPushNotificationSubscriptionComponentState
             appStore.setLoading(false);
             setState(() {});
           },
-        ).withHeight(isProvider ? 18 : 24),
+        ).withHeight(
+            adaptiveProfileSwitchHeight(isProvider ? 18 : 24)),
       ),
     );
   }

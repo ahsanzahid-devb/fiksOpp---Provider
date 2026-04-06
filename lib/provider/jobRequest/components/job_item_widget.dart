@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/extensions/color_extension.dart';
 import 'package:handyman_provider_flutter/utils/extensions/string_extension.dart';
@@ -75,7 +76,9 @@ class JobItemWidget extends StatelessWidget {
                   4.width,
                   Expanded(
                     child: Text(
-                      location.isNotEmpty ? location : 'Location not available',
+                      location.isNotEmpty
+                          ? location
+                          : languages.lblJobMissingServiceLocation,
                       style: secondaryTextStyle(
                         size: 12,
                         color:

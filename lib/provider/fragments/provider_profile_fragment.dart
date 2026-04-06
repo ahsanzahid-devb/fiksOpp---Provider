@@ -27,6 +27,7 @@ import 'package:handyman_provider_flutter/screens/verify_provider_screen.dart';
 import 'package:handyman_provider_flutter/utils/colors.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/configs.dart';
+import 'package:handyman_provider_flutter/utils/adaptive_switch_layout.dart';
 import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:handyman_provider_flutter/utils/extensions/num_extenstions.dart';
 import 'package:handyman_provider_flutter/utils/extensions/string_extension.dart';
@@ -649,7 +650,7 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
                         highlightColor: Colors.transparent,
                         splashColor: Colors.transparent,
                         trailing: Transform.scale(
-                          scale: 0.6,
+                          scale: adaptiveProfileSwitchScale(0.6),
                           child: Switch.adaptive(
                             value:
                                 getBoolAsync(UPDATE_NOTIFY, defaultValue: true),
@@ -657,7 +658,7 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
                               setValue(UPDATE_NOTIFY, v);
                               setState(() {});
                             },
-                          ).withHeight(16),
+                          ).withHeight(adaptiveProfileSwitchHeight(16)),
                         ),
                       ),
                     ],

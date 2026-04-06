@@ -108,16 +108,22 @@ class PostJobData {
         _nonEmptyString(json['long']);
     cityId = _numFromJson(json['city_id']);
 
+    void parseServiceList(dynamic raw) {
+      if (raw is! List) return;
+      service = [];
+      for (final v in raw) {
+        if (v is Map<String, dynamic>) {
+          service!.add(ServiceData.fromJson(v));
+        } else if (v is Map) {
+          service!.add(ServiceData.fromJson(Map<String, dynamic>.from(v)));
+        }
+      }
+    }
+
     if (json['service'] != null) {
-      service = [];
-      for (final v in json['service'] as List) {
-        service!.add(ServiceData.fromJson(Map<String, dynamic>.from(v as Map)));
-      }
+      parseServiceList(json['service']);
     } else if (json['services'] != null) {
-      service = [];
-      for (final v in json['services'] as List) {
-        service!.add(ServiceData.fromJson(Map<String, dynamic>.from(v as Map)));
-      }
+      parseServiceList(json['services']);
     }
   }
 
