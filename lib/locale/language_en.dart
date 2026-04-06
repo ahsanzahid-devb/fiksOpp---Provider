@@ -2224,6 +2224,10 @@ class LanguageEn extends Languages {
       'To place a bid, this app needs access to your device location. Tap Allow to continue with the system prompt.';
 
   @override
+  String get lblJobMissingServiceLocation =>
+      'No service address on this job yet. The customer must add a location to the request. This is separate from your phone\'s location permission.';
+
+  @override
   String get lblAllowLocation => 'Allow';
 
   @override

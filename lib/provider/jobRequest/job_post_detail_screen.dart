@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:handyman_provider_flutter/components/app_widgets.dart';
@@ -13,6 +14,7 @@ import 'package:handyman_provider_flutter/provider/services/service_detail_scree
 import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:handyman_provider_flutter/utils/model_keys.dart';
 import 'package:handyman_provider_flutter/utils/permissions.dart';
+import 'package:handyman_provider_flutter/utils/post_job_bid_diagnostics.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../../components/base_scaffold_widget.dart';
@@ -33,6 +35,9 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
   late Future<PostJobDetailResponse> future;
 
   int page = 1;
+
+  /// Avoid spamming [logPostJobBidLocation] if [SnapHelperWidget] rebuilds often.
+  num? _bidDiagnosticsLoggedForPostId;
 
   @override
   void initState() {
@@ -160,16 +165,7 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
     );
   }
 
-  String _getJobLocation(PostJobData data) {
-    if (data.service.validate().isNotEmpty) {
-      final service = data.service!.first;
-      if (service.address.validate().isNotEmpty) return service.address.validate();
-      if (service.cityId != null && service.cityId! > 0) {
-        return 'City ID: ${service.cityId}';
-      }
-    }
-    return '';
-  }
+  String _getJobLocation(PostJobData data) => data.displayJobLocationLabel;
 
   Widget locationWidget(PostJobData data) {
     final location = _getJobLocation(data);
@@ -179,11 +175,11 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
         margin: EdgeInsets.symmetric(horizontal: 16),
         padding: EdgeInsets.all(12),
         decoration: boxDecorationWithRoundedCorners(
-          backgroundColor: Colors.orange.withOpacity(0.1),
+          backgroundColor: Colors.orange.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
-          'Location is required for this request.',
+          languages.lblJobMissingServiceLocation,
           style: secondaryTextStyle(color: Colors.orange.shade900),
         ),
       );
@@ -369,6 +365,11 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
                     orElse: () => null)
                 ?.$2,
             onSuccess: (data) {
+              final detail = data.postRequestDetail!;
+              if (kDebugMode && _bidDiagnosticsLoggedForPostId != detail.id) {
+                _bidDiagnosticsLoggedForPostId = detail.id;
+                logPostJobBidLocation('detail_loaded', detail);
+              }
               return Stack(
                 children: [
                   AnimatedScrollView(
@@ -392,6 +393,11 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
                         children: [
                           postJobDetailWidget(data: data.postRequestDetail!)
                               .paddingAll(16),
+                          Text(languages.lblAddress,
+                                  style:
+                                      boldTextStyle(size: LABEL_TEXT_SIZE))
+                              .paddingOnly(left: 16, right: 16),
+                          8.height,
                           locationWidget(data.postRequestDetail!),
                           8.height,
                           customerWidget(data.postRequestDetail!),
@@ -416,9 +422,15 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
                         width: context.width(),
                         onTap: () async {
                           if (_getJobLocation(data.postRequestDetail!).isEmpty) {
-                            toast('Please add location before placing a bid');
+                            logPostJobBidLocation(
+                                'bid_tap_blocked_no_job_address',
+                                data.postRequestDetail!);
+                            toast(languages.lblJobMissingServiceLocation);
                             return;
                           }
+                          logPostJobBidLocation(
+                              'bid_tap_job_address_ok_checking_device_gps',
+                              data.postRequestDetail!);
                           if (!await Permissions.ensureLocationForBid(context)) {
                             return;
                           }
@@ -427,8 +439,8 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
                             contentPadding: EdgeInsets.zero,
                             hideSoftKeyboard: true,
                             backgroundColor: context.cardColor,
-                            builder: (_) =>
-                                BidPriceDialog(data: widget.postJobData),
+                            builder: (_) => BidPriceDialog(
+                                data: data.postRequestDetail!),
                           );
 
                           if (res ?? false) {

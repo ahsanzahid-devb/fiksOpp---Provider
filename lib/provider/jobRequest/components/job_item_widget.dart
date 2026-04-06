@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/extensions/color_extension.dart';
 import 'package:handyman_provider_flutter/utils/extensions/string_extension.dart';
@@ -6,6 +7,7 @@ import 'package:nb_utils/nb_utils.dart';
 import '../../../components/cached_image_widget.dart';
 import '../job_post_detail_screen.dart';
 import '../models/post_job_data.dart';
+
 class JobItemWidget extends StatelessWidget {
   final PostJobData? data;
 
@@ -14,7 +16,7 @@ class JobItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (data == null) return Offstage();
-    final String location = data!.service.validate().isNotEmpty ? data!.service!.first.address.validate() : '';
+    final String location = data!.displayJobLocationLabel;
 
     return Container(
       width: context.width(),
@@ -60,15 +62,32 @@ class JobItemWidget extends StatelessWidget {
                     : '',
                 style: boldTextStyle(size: 14),
               ),
-              if (location.isNotEmpty) ...[
-                2.height,
-                Text(
-                  location,
-                  style: secondaryTextStyle(size: 12),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+              2.height,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.place_outlined,
+                    size: 14,
+                    color: location.isNotEmpty
+                        ? context.primaryColor
+                        : Colors.orange.shade700,
+                  ),
+                  4.width,
+                  Expanded(
+                    child: Text(
+                      location.isNotEmpty ? location : 'Location not available',
+                      style: secondaryTextStyle(
+                        size: 12,
+                        color:
+                            location.isNotEmpty ? null : Colors.orange.shade800,
+                      ),
+                      maxLines: location.isNotEmpty ? 2 : 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
               2.height,
               Text(formatDate(data!.createdAt.validate()),
                   style: secondaryTextStyle(),

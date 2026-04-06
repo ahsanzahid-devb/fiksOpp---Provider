@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -30,7 +29,8 @@ import '../../../provider/wallet/wallet_history_screen.dart';
 
 class HandymanProfileFragment extends StatefulWidget {
   @override
-  _HandymanProfileFragmentState createState() => _HandymanProfileFragmentState();
+  _HandymanProfileFragmentState createState() =>
+      _HandymanProfileFragmentState();
 }
 
 class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
@@ -55,7 +55,8 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
   }
 
   void calculateYearsOfExp() async {
-    Duration duration = DateTime.now().difference(DateTime.parse(appStore.createdAt));
+    Duration duration =
+        DateTime.now().difference(DateTime.parse(appStore.createdAt));
 
     if (duration.inDays < 365) {
       yearsOfExp = languages.lblDay;
@@ -88,7 +89,8 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
             appStore.setLoading(false);
             await clearPreferences();
             toast(value.message);
-            push(SignInScreen(), isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
+            push(SignInScreen(),
+                isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
           }).catchError((e) {
             appStore.setLoading(false);
             toast(e.toString());
@@ -115,7 +117,8 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
             crossAxisAlignment: CrossAxisAlignment.start,
             listAnimationType: ListAnimationType.FadeIn,
             physics: AlwaysScrollableScrollPhysics(),
-            fadeInConfiguration: FadeInConfiguration(duration: 200.milliseconds),
+            fadeInConfiguration:
+                FadeInConfiguration(duration: 200.milliseconds),
             onSwipeRefresh: () async {
               init();
               setState(() {});
@@ -128,33 +131,45 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                     return AnimatedContainer(
                       margin: EdgeInsets.all(16),
                       decoration: boxDecorationWithRoundedCorners(
-                        backgroundColor: (appStore.handymanAvailability == 1 ? Colors.green : Colors.red).withValues(alpha: 0.1),
+                        backgroundColor: (appStore.handymanAvailability == 1
+                                ? Colors.green
+                                : Colors.red)
+                            .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(defaultRadius),
                       ),
                       duration: 300.milliseconds,
                       child: SettingItemWidget(
-                        padding: EdgeInsets.only(top: 8, bottom: 8, left: 16, right: 16),
+                        padding: EdgeInsets.only(
+                            top: 8, bottom: 8, left: 16, right: 16),
                         title: languages.lblAvailableStatus,
-                        subTitle: '${languages.lblYouAre} ${appStore.handymanAvailability == 1 ? ONLINE : OFFLINE}',
-                        subTitleTextColor: appStore.handymanAvailability == 1 ? Colors.green : Colors.red,
+                        subTitle:
+                            '${languages.lblYouAre} ${appStore.handymanAvailability == 1 ? ONLINE : OFFLINE}',
+                        subTitleTextColor: appStore.handymanAvailability == 1
+                            ? Colors.green
+                            : Colors.red,
                         trailing: Transform.scale(
                           scale: 0.8,
                           child: Switch.adaptive(
-                            value: appStore.handymanAvailability == 1 ? true : false,
+                            value: appStore.handymanAvailability == 1
+                                ? true
+                                : false,
                             activeColor: Colors.green,
                             onChanged: (v) {
                               ifNotTester(context, () {
                                 isAvailable = v;
                                 setState(() {});
-                                appStore.setHandymanAvailability(isAvailable ? 1 : 0);
+                                appStore.setHandymanAvailability(
+                                    isAvailable ? 1 : 0);
                                 Map request = {
                                   "is_available": isAvailable ? 1 : 0,
                                   "id": appStore.userId,
                                 };
-                                updateHandymanAvailabilityApi(request: request).then((value) {
+                                updateHandymanAvailabilityApi(request: request)
+                                    .then((value) {
                                   toast(value.message);
                                 }).catchError((e) {
-                                  appStore.setHandymanAvailability(isAvailable ? 0 : 1);
+                                  appStore.setHandymanAvailability(
+                                      isAvailable ? 0 : 1);
                                   toast(e.toString());
                                 });
                               });
@@ -170,7 +185,9 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                 padding: EdgeInsets.all(12),
                 decoration: boxDecorationWithRoundedCorners(
                   borderRadius: radius(),
-                  backgroundColor: appStore.isDarkMode ? context.cardColor : lightPrimaryColor,
+                  backgroundColor: appStore.isDarkMode
+                      ? context.cardColor
+                      : lightPrimaryColor,
                 ),
                 child: Row(
                   children: [
@@ -216,8 +233,12 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                     ),
                   ],
                 ),
-              ).paddingOnly(left: 16, right: 16, bottom: 16).visible(appStore.isLoggedIn).onTap(() {
-                EditProfileScreen().launch(context, pageRouteAnimation: PageRouteAnimation.Fade);
+              )
+                  .paddingOnly(left: 16, right: 16, bottom: 16)
+                  .visible(appStore.isLoggedIn)
+                  .onTap(() {
+                EditProfileScreen().launch(context,
+                    pageRouteAnimation: PageRouteAnimation.Fade);
               }),
 
               Container(
@@ -246,7 +267,8 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                             )
                           ],
                         ),
-                        Text("${appStore.completedBooking.validate().toString()}")
+                        Text(
+                            "${appStore.completedBooking.validate().toString()}")
                       ],
                     ),
                     8.height,
@@ -256,7 +278,12 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Image.asset(ic_briefcase, height: 16, width: 16, color: appStore.isDarkMode ? white : appTextSecondaryColor),
+                            Image.asset(ic_briefcase,
+                                height: 16,
+                                width: 16,
+                                color: appStore.isDarkMode
+                                    ? white
+                                    : appTextSecondaryColor),
                             10.width,
                             Text(
                               "${languages.lblExperience}:",
@@ -271,44 +298,33 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                 ),
               ).paddingOnly(bottom: 16),
 
-              if (getStringAsync(DASHBOARD_COMMISSION).validate().isNotEmpty) ...[
-                HandymanCommissionComponent(commission: Commission.fromJson(jsonDecode(getStringAsync(DASHBOARD_COMMISSION)))),
+              if (getStringAsync(DASHBOARD_COMMISSION)
+                  .validate()
+                  .isNotEmpty) ...[
+                HandymanCommissionComponent(
+                    commission: Commission.fromJson(
+                        jsonDecode(getStringAsync(DASHBOARD_COMMISSION)))),
                 8.height,
               ],
 
               16.height,
-              if (appStore.isLoggedIn)
-                SettingSection(
-                  title: Text(languages.lblAccount, style: boldTextStyle(color: primaryColor)),
-                  headingDecoration: BoxDecoration(
-                    color: context.primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadiusDirectional.vertical(top: Radius.circular(16)),
-                  ),
-                  divider: Offstage(),
-                  items: [
-                    16.height,
-                    SettingItemWidget(
-                      decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(16))),
-                      leading: ic_delete.iconImage(size: 16),
-                      title: languages.lblDeleteAccount,
-                      titleTextStyle: boldTextStyle(size: 12),
-                      trailing: Icon(Icons.chevron_right, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8), size: 24),
-                      onTap: () => _showDeleteAccountConfirmation(context),
-                    ),
-                  ],
-                ).paddingSymmetric(horizontal: 16),
               if (appStore.isLoggedIn) 16.height,
               SettingSection(
-                title: Text("${languages.general}", style: boldTextStyle(color: primaryColor)),
+                title: Text("${languages.general}",
+                    style: boldTextStyle(color: primaryColor)),
                 headingDecoration: BoxDecoration(
                   color: context.primaryColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadiusDirectional.vertical(top: Radius.circular(16)),
+                  borderRadius: BorderRadiusDirectional.vertical(
+                      top: Radius.circular(16)),
                 ),
                 divider: Offstage(),
                 items: [
                   16.height,
                   SettingItemWidget(
-                    decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(0))),
+                    decoration: boxDecorationDefault(
+                        color: context.cardColor,
+                        borderRadius: BorderRadiusDirectional.vertical(
+                            bottom: Radius.circular(0))),
                     leading: ic_un_fill_wallet.iconImage(size: 16),
                     title: languages.walletBalance,
                     titleTextStyle: boldTextStyle(size: 12),
@@ -322,13 +338,21 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                       style: boldTextStyle(color: Colors.green),
                     ),
                   ),
-                  if (appStore.isLoggedIn && rolesAndPermissionStore.helpDeskList)
+                  if (appStore.isLoggedIn &&
+                      rolesAndPermissionStore.helpDeskList)
                     SettingItemWidget(
-                      decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(16))),
+                      decoration: boxDecorationDefault(
+                          color: context.cardColor,
+                          borderRadius: BorderRadiusDirectional.vertical(
+                              bottom: Radius.circular(16))),
                       leading: ic_help_desk.iconImage(size: 18),
                       title: languages.helpDesk,
                       titleTextStyle: boldTextStyle(size: 12),
-                      trailing: Icon(Icons.chevron_right, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8), size: 24),
+                      trailing: Icon(Icons.chevron_right,
+                          color: appStore.isDarkMode
+                              ? white
+                              : gray.withValues(alpha: 0.8),
+                          size: 24),
                       onTap: () {
                         HelpDeskListScreen().launch(context);
                       },
@@ -339,20 +363,33 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
 
               /// setting module
               SettingSection(
-                title: Text("${languages.setting}", style: boldTextStyle(color: primaryColor)),
+                title: Text("${languages.setting}",
+                    style: boldTextStyle(color: primaryColor)),
                 headingDecoration: BoxDecoration(
                   color: context.primaryColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadiusDirectional.vertical(top: Radius.circular(16)),
+                  borderRadius: BorderRadiusDirectional.vertical(
+                      top: Radius.circular(16)),
                 ),
                 divider: Offstage(),
                 items: [
                   16.height,
                   SettingItemWidget(
-                    decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(0))),
-                    leading: Image.asset(ic_theme, width: 16, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8)),
+                    decoration: boxDecorationDefault(
+                        color: context.cardColor,
+                        borderRadius: BorderRadiusDirectional.vertical(
+                            bottom: Radius.circular(0))),
+                    leading: Image.asset(ic_theme,
+                        width: 16,
+                        color: appStore.isDarkMode
+                            ? white
+                            : gray.withValues(alpha: 0.8)),
                     title: languages.appTheme,
                     titleTextStyle: boldTextStyle(size: 12),
-                    trailing: Icon(Icons.chevron_right, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8), size: 24),
+                    trailing: Icon(Icons.chevron_right,
+                        color: appStore.isDarkMode
+                            ? white
+                            : gray.withValues(alpha: 0.8),
+                        size: 24),
                     onTap: () async {
                       await showInDialog(
                         context,
@@ -362,11 +399,19 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                     },
                   ),
                   SettingItemWidget(
-                    decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(0))),
-                    leading: Image.asset(language, width: 16, color: context.iconColor),
+                    decoration: boxDecorationDefault(
+                        color: context.cardColor,
+                        borderRadius: BorderRadiusDirectional.vertical(
+                            bottom: Radius.circular(0))),
+                    leading: Image.asset(language,
+                        width: 16, color: context.iconColor),
                     title: languages.language,
                     titleTextStyle: boldTextStyle(size: 12),
-                    trailing: Icon(Icons.chevron_right, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8), size: 24),
+                    trailing: Icon(Icons.chevron_right,
+                        color: appStore.isDarkMode
+                            ? white
+                            : gray.withValues(alpha: 0.8),
+                        size: 24),
                     onTap: () {
                       LanguagesScreen().launch(context).then((value) {
                         keyForExperienceWidget = UniqueKey();
@@ -374,47 +419,86 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                     },
                   ),
                   SettingItemWidget(
-                    decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(0))),
-                    leading: Image.asset(changePassword, width: 16, color: context.iconColor),
+                    decoration: boxDecorationDefault(
+                        color: context.cardColor,
+                        borderRadius: BorderRadiusDirectional.vertical(
+                            bottom: Radius.circular(0))),
+                    leading: Image.asset(changePassword,
+                        width: 16, color: context.iconColor),
                     title: languages.changePassword,
                     titleTextStyle: boldTextStyle(size: 12),
-                    trailing: Icon(Icons.chevron_right, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8), size: 24),
+                    trailing: Icon(Icons.chevron_right,
+                        color: appStore.isDarkMode
+                            ? white
+                            : gray.withValues(alpha: 0.8),
+                        size: 24),
                     onTap: () {
                       ChangePasswordScreen().launch(context);
                     },
                   ),
                   if (appStore.isLoggedIn)
                     SettingItemWidget(
-                      decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(0))),
+                      decoration: boxDecorationDefault(
+                          color: context.cardColor,
+                          borderRadius: BorderRadiusDirectional.vertical(
+                              bottom: Radius.circular(0))),
                       leading: ic_delete.iconImage(size: 16),
                       title: languages.lblDeleteAccount,
                       titleTextStyle: boldTextStyle(size: 12),
-                      trailing: Icon(Icons.chevron_right, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8), size: 24),
+                      trailing: Icon(Icons.chevron_right,
+                          color: appStore.isDarkMode
+                              ? white
+                              : gray.withValues(alpha: 0.8),
+                          size: 24),
                       onTap: () => _showDeleteAccountConfirmation(context),
                     ),
                   SettingItemWidget(
-                    decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(0))),
-                    leading: Image.asset(about, width: 16, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8)),
+                    decoration: boxDecorationDefault(
+                        color: context.cardColor,
+                        borderRadius: BorderRadiusDirectional.vertical(
+                            bottom: Radius.circular(0))),
+                    leading: Image.asset(about,
+                        width: 16,
+                        color: appStore.isDarkMode
+                            ? white
+                            : gray.withValues(alpha: 0.8)),
                     title: languages.lblAbout,
                     titleTextStyle: boldTextStyle(size: 12),
-                    trailing: Icon(Icons.chevron_right, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8), size: 24),
+                    trailing: Icon(Icons.chevron_right,
+                        color: appStore.isDarkMode
+                            ? white
+                            : gray.withValues(alpha: 0.8),
+                        size: 24),
                     onTap: () {
                       AboutUsScreen().launch(context);
                     },
                   ),
                   if (appStore.isLoggedIn)
                     SettingItemWidget(
-                      decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(0))),
-                      leading: ic_notification.iconImage(size: appStore.userType == USER_TYPE_PROVIDER ? 16 : 18),
+                      decoration: boxDecorationDefault(
+                          color: context.cardColor,
+                          borderRadius: BorderRadiusDirectional.vertical(
+                              bottom: Radius.circular(0))),
+                      leading: ic_notification.iconImage(
+                          size: appStore.userType == USER_TYPE_PROVIDER
+                              ? 16
+                              : 18),
                       title: languages.pushNotification,
-                      titleTextStyle: appStore.userType == USER_TYPE_PROVIDER ? boldTextStyle(size: 12) : boldTextStyle(size: 12),
-                      padding: appStore.userType == USER_TYPE_PROVIDER ? null : EdgeInsets.all(16),
+                      titleTextStyle: appStore.userType == USER_TYPE_PROVIDER
+                          ? boldTextStyle(size: 12)
+                          : boldTextStyle(size: 12),
+                      padding: appStore.userType == USER_TYPE_PROVIDER
+                          ? null
+                          : EdgeInsets.all(16),
                       //   decoration: appStore.userType == USER_TYPE_PROVIDER ? boxDecorationDefault(color: context.cardColor, borderRadius: radius(0)) : null,
                       trailing: Transform.scale(
-                        scale: appStore.userType == USER_TYPE_PROVIDER ? 0.6 : 0.7,
+                        scale:
+                            appStore.userType == USER_TYPE_PROVIDER ? 0.6 : 0.7,
                         child: Observer(builder: (context) {
                           return Switch.adaptive(
-                            value: FirebaseAuth.instance.currentUser != null && getBoolAsync("IS_SUBSCRIBED_NOTIFICATION", defaultValue: true),
+                            value: FirebaseAuth.instance.currentUser != null &&
+                                getBoolAsync("IS_SUBSCRIBED_NOTIFICATION",
+                                    defaultValue: true),
                             onChanged: (v) async {
                               await setValue("IS_SUBSCRIBED_NOTIFICATION", v);
                               if (appStore.isLoading) return;
@@ -433,8 +517,15 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                       ),
                     ),
                   SettingItemWidget(
-                    decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(16))),
-                    leading: Image.asset(ic_check_update, width: 16, color: appStore.isDarkMode ? white : gray.withValues(alpha: 0.8)),
+                    decoration: boxDecorationDefault(
+                        color: context.cardColor,
+                        borderRadius: BorderRadiusDirectional.vertical(
+                            bottom: Radius.circular(16))),
+                    leading: Image.asset(ic_check_update,
+                        width: 16,
+                        color: appStore.isDarkMode
+                            ? white
+                            : gray.withValues(alpha: 0.8)),
                     title: languages.lblOptionalUpdateNotify,
                     titleTextStyle: boldTextStyle(size: 12),
                     trailing: Transform.scale(
@@ -454,16 +545,21 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
 
               ///Danger zone
               SettingSection(
-                title: Text("${languages.lblDangerZone.toUpperCase()}", style: boldTextStyle(color: redColor)),
+                title: Text("${languages.lblDangerZone.toUpperCase()}",
+                    style: boldTextStyle(color: redColor)),
                 headingDecoration: BoxDecoration(
                   color: redColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadiusDirectional.vertical(top: Radius.circular(16)),
+                  borderRadius: BorderRadiusDirectional.vertical(
+                      top: Radius.circular(16)),
                 ),
                 divider: Offstage(),
                 items: [
                   16.height,
                   SettingItemWidget(
-                    decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(0))),
+                    decoration: boxDecorationDefault(
+                        color: context.cardColor,
+                        borderRadius: BorderRadiusDirectional.vertical(
+                            bottom: Radius.circular(0))),
                     leading: ic_delete.iconImage(size: 16),
                     paddingBeforeTrailing: 4,
                     title: languages.lblDeleteAccount,
@@ -471,7 +567,10 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                     onTap: () => _showDeleteAccountConfirmation(context),
                   ),
                   SettingItemWidget(
-                    decoration: boxDecorationDefault(color: context.cardColor, borderRadius: BorderRadiusDirectional.vertical(bottom: Radius.circular(16))),
+                    decoration: boxDecorationDefault(
+                        color: context.cardColor,
+                        borderRadius: BorderRadiusDirectional.vertical(
+                            bottom: Radius.circular(16))),
                     leading: ic_logout.iconImage(size: 16),
                     paddingBeforeTrailing: 4,
                     title: languages.logout,

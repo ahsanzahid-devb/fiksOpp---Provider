@@ -6,6 +6,7 @@ import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:handyman_provider_flutter/utils/permissions.dart';
+import 'package:handyman_provider_flutter/utils/post_job_bid_diagnostics.dart';
 import 'package:handyman_provider_flutter/utils/extensions/context_ext.dart';
 import 'package:handyman_provider_flutter/utils/model_keys.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -40,10 +41,9 @@ class _BidPriceDialogState extends State<BidPriceDialog> {
     if (!await Permissions.ensureLocationForBid(context)) {
       return;
     }
-    final hasLocation = widget.data.service.validate().isNotEmpty &&
-        widget.data.service!.first.address.validate().isNotEmpty;
-    if (!hasLocation) {
-      toast('Location is required before placing a bid');
+    if (!widget.data.hasUsableLocationForBid) {
+      logPostJobBidLocation('submit_bid_blocked_no_job_address', widget.data);
+      toast(languages.lblJobMissingServiceLocation);
       return;
     }
 

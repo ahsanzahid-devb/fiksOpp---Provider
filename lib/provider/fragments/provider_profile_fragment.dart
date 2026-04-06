@@ -244,43 +244,6 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
               ),
               16.height,
             ],
-            if (appStore.isLoggedIn)
-              SettingSection(
-                title: Text(languages.lblAccount,
-                    style: boldTextStyle(color: primaryColor)),
-                headingDecoration: BoxDecoration(
-                  color: context.primaryColor.withValues(alpha: 0.1),
-                  borderRadius:
-                      BorderRadiusDirectional.vertical(top: Radius.circular(16)),
-                ),
-                divider: Offstage(),
-                items: [
-                  16.height,
-                  SettingItemWidget(
-                    decoration: BoxDecoration(
-                      color: context.cardColor,
-                      borderRadius: BorderRadiusDirectional.vertical(
-                          bottom: Radius.circular(16)),
-                    ),
-                    leading: ic_delete.iconImage(
-                        size: 16,
-                        color: appStore.isDarkMode
-                            ? white
-                            : appTextSecondaryColor),
-                    title: languages.lblDeleteAccount,
-                    titleTextStyle: boldTextStyle(size: 12),
-                    padding:
-                        EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 16),
-                    trailing: Icon(Icons.chevron_right,
-                        color: appStore.isDarkMode
-                            ? white
-                            : gray.withValues(alpha: 0.8),
-                        size: 18),
-                    onTap: () => _showDeleteAccountConfirmation(context),
-                  ),
-                ],
-              ).paddingSymmetric(horizontal: 16),
-            if (appStore.isLoggedIn) 16.height,
             SettingSection(
               title: Text(languages.general,
                   style: boldTextStyle(color: primaryColor)),
@@ -656,35 +619,48 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
               ),
               divider: Offstage(),
               items: [
-                8.height,
-                SwitchPushNotificationSubscriptionComponent(),
-                SettingItemWidget(
-                  decoration: BoxDecoration(
-                    color: context.cardColor,
-                    borderRadius: BorderRadiusDirectional.vertical(
-                        bottom: Radius.circular(16)),
-                  ),
-                  leading: Image.asset(
-                    ic_check_update,
-                    height: 14,
-                    width: 14,
-                    color: appStore.isDarkMode
-                        ? white
-                        : gray.withValues(alpha: 0.8),
-                  ),
-                  title: languages.lblOptionalUpdateNotify,
-                  titleTextStyle: boldTextStyle(size: 12),
-                  padding:
-                      EdgeInsets.only(bottom: 16, right: 16, left: 16, top: 16),
-                  trailing: Transform.scale(
-                    scale: 0.6,
-                    child: Switch.adaptive(
-                      value: getBoolAsync(UPDATE_NOTIFY, defaultValue: true),
-                      onChanged: (v) {
-                        setValue(UPDATE_NOTIFY, v);
-                        setState(() {});
-                      },
-                    ).withHeight(16),
+                SizedBox(
+                  width: double.infinity,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      8.height,
+                      SwitchPushNotificationSubscriptionComponent(),
+                      SettingItemWidget(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: context.cardColor,
+                          borderRadius: BorderRadiusDirectional.vertical(
+                              bottom: Radius.circular(16)),
+                        ),
+                        leading: Image.asset(
+                          ic_check_update,
+                          height: 14,
+                          width: 14,
+                          color: appStore.isDarkMode
+                              ? white
+                              : gray.withValues(alpha: 0.8),
+                        ),
+                        title: languages.lblOptionalUpdateNotify,
+                        titleTextStyle: boldTextStyle(size: 12),
+                        padding: EdgeInsets.only(
+                            bottom: 16, right: 16, left: 16, top: 16),
+                        highlightColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        trailing: Transform.scale(
+                          scale: 0.6,
+                          child: Switch.adaptive(
+                            value:
+                                getBoolAsync(UPDATE_NOTIFY, defaultValue: true),
+                            onChanged: (v) {
+                              setValue(UPDATE_NOTIFY, v);
+                              setState(() {});
+                            },
+                          ).withHeight(16),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -769,31 +745,11 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
                     ChangePasswordScreen().launch(context);
                   },
                 ),
-                if (appStore.isLoggedIn)
-                  SettingItemWidget(
-                    decoration: BoxDecoration(
-                      color: context.cardColor,
-                      borderRadius: BorderRadiusDirectional.vertical(
-                          bottom: Radius.circular(16)),
-                    ),
-                    leading: ic_delete.iconImage(
-                        size: 16,
-                        color: appStore.isDarkMode
-                            ? white
-                            : appTextSecondaryColor),
-                    title: languages.lblDeleteAccount,
-                    titleTextStyle: boldTextStyle(size: 12),
-                    padding:
-                        EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 16),
-                    trailing: Icon(Icons.chevron_right,
-                        color: appStore.isDarkMode
-                            ? white
-                            : gray.withValues(alpha: 0.8),
-                        size: 18),
-                    onTap: () => _showDeleteAccountConfirmation(context),
-                  ),
                 SettingItemWidget(
-                  decoration: BoxDecoration(color: context.cardColor),
+                  decoration: BoxDecoration(
+                      color: context.cardColor,
+                      borderRadius:
+                          BorderRadius.vertical(bottom: Radius.circular(12))),
                   leading: Image.asset(about,
                       height: 16,
                       width: 16,
@@ -857,7 +813,7 @@ class ProviderProfileFragmentState extends State<ProviderProfileFragment> {
                 ),
               ],
             ).paddingSymmetric(horizontal: 16),
-            16.height,
+            26.height,
             VersionInfoWidget(prefixText: 'v', textStyle: secondaryTextStyle())
                 .center(),
             16.height,

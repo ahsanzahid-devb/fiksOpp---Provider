@@ -1870,6 +1870,10 @@ class LanguageNo extends LanguageEn {
       'For å legge inn et bud trenger appen tilgang til enheten din. Trykk Tillat for å fortsette med systemmeldingen.';
 
   @override
+  String get lblJobMissingServiceLocation =>
+      'Forespørselen mangler tjenestested fra kunden. Be kunden legge til adresse. Dette er ikke det samme som posisjonstilgang på telefonen.';
+
+  @override
   String get lblAllowLocation => 'Tillat';
 
   @override

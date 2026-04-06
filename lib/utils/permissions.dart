@@ -1,3 +1,6 @@
+import 'dart:developer' as developer;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -24,9 +27,35 @@ class Permissions {
 
   /// In-app prompt + system request so bidding is blocked until location is allowed (TC-06).
   static Future<bool> ensureLocationForBid(BuildContext context) async {
+    if (kDebugMode) {
+      final loc = await Permission.location.status;
+      final whenInUse =
+          isIOS ? await Permission.locationWhenInUse.status : loc;
+      developer.log(
+        'ensureLocationForBid: Android/iOS device permission — '
+        'Permission.location=$loc '
+        '${isIOS ? "Permission.locationWhenInUse=$whenInUse " : ""}'
+        '(granted/limited counts as OK)',
+        name: 'PostJobBid',
+      );
+    }
+
     if (await _isLocationAccessGranted()) {
+      if (kDebugMode) {
+        developer.log(
+          'ensureLocationForBid: device location permission OK → proceed',
+          name: 'PostJobBid',
+        );
+      }
       await setValue(PERMISSION_STATUS, true);
       return true;
+    }
+
+    if (kDebugMode) {
+      developer.log(
+        'ensureLocationForBid: device location NOT granted — will prompt or open settings',
+        name: 'PostJobBid',
+      );
     }
 
     if (!context.mounted) return false;
@@ -97,8 +126,8 @@ class Permissions {
   }
 
   static Future<bool> locationPermissionsGranted() async {
-    final currentStatus = await Permission.location.status;
-    if (currentStatus == PermissionStatus.granted) {
+    // Must match _isLocationAccessGranted: iOS "approximate only" is .limited, not .granted.
+    if (await _isLocationAccessGranted()) {
       await setValue(PERMISSION_STATUS, true);
       return true;
     }
@@ -110,8 +139,8 @@ class Permissions {
         ]);
 
     final statuses = locationPermissionStatus.values.toList();
-    final hasGranted = statuses.any(
-      (element) => element == PermissionStatus.granted,
+    final hasAccess = statuses.any(
+      (element) => element.isGranted || element.isLimited,
     );
     final hasPermanentlyDenied = statuses.any(
       (element) => element == PermissionStatus.permanentlyDenied,
@@ -126,7 +155,7 @@ class Permissions {
       }
     }
 
-    await setValue(PERMISSION_STATUS, hasGranted);
-    return hasGranted;
+    await setValue(PERMISSION_STATUS, hasAccess);
+    return hasAccess;
   }
 }

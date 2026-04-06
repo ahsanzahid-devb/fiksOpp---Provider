@@ -16,9 +16,13 @@ class RemoteConfigDataModel {
   RemoteConfigDataModel.fromJson(dynamic json) {
     isForceUpdate = json['isForceUpdate'] ?? false;
     inMaintenanceMode = json['inMaintenanceMode'] ?? false;
-    changeLogs = json['changeLogs'] != null ? json['changeLogs'].cast<String>() : [];
-    android = json['android'] != null ? VersionInfo.fromJson(json['android']) : VersionInfo();
-    iOS = json['iOS'] != null ? VersionInfo.fromJson(json['iOS']) : VersionInfo();
+    changeLogs =
+        json['changeLogs'] != null ? json['changeLogs'].cast<String>() : [];
+    android = json['android'] != null
+        ? VersionInfo.fromJson(json['android'])
+        : VersionInfo();
+    iOS =
+        json['iOS'] != null ? VersionInfo.fromJson(json['iOS']) : VersionInfo();
   }
 
   Map<String, dynamic> toJson() {

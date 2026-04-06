@@ -78,6 +78,48 @@ class ServiceData {
   bool get isOnSiteService => visitType == VISIT_OPTION_ON_SITE;
   List<Zones>? zones;
 
+  /// True when the service has a usable location for post-job bidding (API may nest it under [serviceAddressMapping]).
+  bool get hasUsableServiceLocation {
+    if (address.validate().trim().isNotEmpty) return true;
+    if (cityId != null && cityId! > 0) return true;
+    for (final m in serviceAddressMapping ?? <ServiceAddressMapping>[]) {
+      final pam = m.providerAddressMapping;
+      if (pam == null) continue;
+      if (pam.address.validate().trim().isNotEmpty) return true;
+      if (pam.latitude.validate().isNotEmpty &&
+          pam.longitude.validate().isNotEmpty) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Human-readable location for job detail UI (address, coordinates fallback, or city id).
+  String get displayServiceLocationLabel {
+    final top = address?.trim();
+    if (top.validate().isNotEmpty) return top!;
+    for (final m in serviceAddressMapping ?? <ServiceAddressMapping>[]) {
+      final pam = m.providerAddressMapping;
+      if (pam == null) continue;
+      final a = pam.address?.trim();
+      if (a.validate().isNotEmpty) return a!;
+      if (pam.latitude.validate().isNotEmpty &&
+          pam.longitude.validate().isNotEmpty) {
+        return '${pam.latitude}, ${pam.longitude}';
+      }
+    }
+    if (cityId != null && cityId! > 0) return 'City ID: $cityId';
+    return '';
+  }
+
+  /// One-line audit for debug logs when bidding is blocked.
+  String get bidLocationAuditLine {
+    final addrOk = address.validate().trim().isNotEmpty;
+    final n = serviceAddressMapping?.length ?? 0;
+    return 'service.id=$id address_nonEmpty=$addrOk cityId=$cityId '
+        'service_address_mapping_count=$n hasUsableServiceLocation=$hasUsableServiceLocation';
+  }
+
   ServiceData({
     this.id,
     this.name,
@@ -148,6 +190,13 @@ class ServiceData {
     isFeatured = json['is_featured'];
     providerName = json['provider_name'];
     cityId = json['city_id'];
+    final addrRaw = json['address'] != null
+        ? json['address'].toString()
+        : (json['service_address'] != null
+            ? json['service_address'].toString()
+            : null);
+    address =
+        addrRaw != null && addrRaw.trim().isNotEmpty ? addrRaw.trim() : null;
     categoryName = json['category_name'];
     imageAttachments = json['attchments'] != null ? List<String>.from(json['attchments']) : null;
     attchments = json['attchments_array'] != null ? (json['attchments_array'] as List).map((i) => Attachments.fromJson(i)).toList() : null;
@@ -172,10 +221,13 @@ class ServiceData {
     rejectReason = json['reject_reason'] is String ? json['reject_reason'] : '';
     serviceRequestStatus = json['service_request_status'] is String ? json['service_request_status'] : '';
 
-    if (json['service_address_mapping'] != null) {
+    final mappingJson =
+        json['service_address_mapping'] ?? json['serviceAddressMapping'];
+    if (mappingJson != null) {
       serviceAddressMapping = [];
-      json['service_address_mapping'].forEach((v) {
-        serviceAddressMapping!.add(new ServiceAddressMapping.fromJson(v));
+      (mappingJson as List).forEach((v) {
+        serviceAddressMapping!
+            .add(ServiceAddressMapping.fromJson(Map<String, dynamic>.from(v as Map)));
       });
     }
     servicePackage = json['servicePackage'] != null ? (json['servicePackage'] as List).map((i) => PackageData.fromJson(i)).toList() : null;

@@ -1,3 +1,5 @@
+import 'package:nb_utils/nb_utils.dart';
+
 import '../../../models/service_model.dart';
 
 class PostJobData {
@@ -16,16 +18,47 @@ class PostJobData {
   List<ServiceData>? service;
   String? customerProfile;
 
+  String? address;
+  String? latitude;
+  String? longitude;
+  num? cityId;
+
+  static String? _nonEmptyString(dynamic v) {
+    if (v == null) return null;
+    final s = v.toString().trim();
+    return s.isEmpty ? null : s;
+  }
+
+  static num? _numFromJson(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v;
+    return num.tryParse(v.toString());
+  }
+
   /// True when post has enough location data to bid (matches job detail UI / TC-07).
   bool get hasUsableLocationForBid {
+    if (address.validate().trim().isNotEmpty) return true;
+    if (latitude.validate().isNotEmpty && longitude.validate().isNotEmpty) {
+      return true;
+    }
+    if (cityId != null && cityId! > 0) return true;
     final list = service;
     if (list == null || list.isEmpty) return false;
-    final s = list.first;
-    final addr = s.address?.trim() ?? '';
-    if (addr.isNotEmpty) return true;
-    final cid = s.cityId;
-    if (cid != null && cid > 0) return true;
-    return false;
+    return list.first.hasUsableServiceLocation;
+  }
+
+  /// Single line for list/detail: post-level fields first, then nested service mapping/address/city.
+  String get displayJobLocationLabel {
+    if (address.validate().trim().isNotEmpty) return address!.trim();
+    if (latitude.validate().isNotEmpty && longitude.validate().isNotEmpty) {
+      return '${latitude!.trim()}, ${longitude!.trim()}';
+    }
+    if (cityId != null && cityId! > 0) return 'City ID: $cityId';
+    if (service.validate().isNotEmpty) {
+      final label = service!.first.displayServiceLocationLabel;
+      if (label.isNotEmpty) return label;
+    }
+    return '';
   }
 
   PostJobData({
@@ -43,6 +76,10 @@ class PostJobData {
     this.createdAt,
     this.customerName,
     this.customerProfile,
+    this.address,
+    this.latitude,
+    this.longitude,
+    this.cityId,
   });
 
   PostJobData.fromJson(dynamic json) {
@@ -50,7 +87,7 @@ class PostJobData {
     title = json['title'];
     description = json['description'];
     reason = json['reason'];
-    price = json['price'].toString();
+    price = json['price'] != null ? json['price'].toString() : null;
     jobPrice = json['job_price'];
     providerId = json['provider_id'];
     customerId = json['customer_id'];
@@ -59,11 +96,28 @@ class PostJobData {
     customerProfile = json['customer_profile'];
     canBid = json['can_bid'];
     createdAt = json['created_at'];
+
+    address = _nonEmptyString(json['address']) ??
+        _nonEmptyString(json['job_address']) ??
+        _nonEmptyString(json['location']) ??
+        _nonEmptyString(json['service_address']);
+    latitude =
+        _nonEmptyString(json['latitude']) ?? _nonEmptyString(json['lat']);
+    longitude = _nonEmptyString(json['longitude']) ??
+        _nonEmptyString(json['lng']) ??
+        _nonEmptyString(json['long']);
+    cityId = _numFromJson(json['city_id']);
+
     if (json['service'] != null) {
       service = [];
-      json['service'].forEach((v) {
-        service?.add(ServiceData.fromJson(v));
-      });
+      for (final v in json['service'] as List) {
+        service!.add(ServiceData.fromJson(Map<String, dynamic>.from(v as Map)));
+      }
+    } else if (json['services'] != null) {
+      service = [];
+      for (final v in json['services'] as List) {
+        service!.add(ServiceData.fromJson(Map<String, dynamic>.from(v as Map)));
+      }
     }
   }
 
@@ -82,6 +136,10 @@ class PostJobData {
     map['customer_profile'] = customerProfile;
     map['can_bid'] = canBid;
     map['created_at'] = createdAt;
+    map['address'] = address;
+    map['latitude'] = latitude;
+    map['longitude'] = longitude;
+    map['city_id'] = cityId;
     if (service != null) {
       map['service'] = service?.map((v) => v.toJson()).toList();
     }

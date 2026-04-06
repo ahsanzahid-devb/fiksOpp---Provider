@@ -1484,6 +1484,8 @@ abstract class Languages {
 
   String get lblLocationNeededForBidMessage;
 
+  String get lblJobMissingServiceLocation;
+
   String get lblAllowLocation;
 
   String get open;
