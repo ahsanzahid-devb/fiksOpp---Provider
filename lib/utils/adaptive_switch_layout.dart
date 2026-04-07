@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
 
-/// [Switch.adaptive] maps to [CupertinoSwitch] on iOS. Profile rows use
-/// [Transform.scale] + fixed heights that work for Material switches on Android
-/// but often clip or hide Cupertino switches on iOS.
+/// [Switch.adaptive] uses [CupertinoSwitch] on iOS and Material switches on Android.
+/// Profile rows use [Transform.scale] + fixed heights: Android tolerates small
+/// sizes; iOS often clips or hides Cupertino switches unless scaled up slightly.
+/// On Android these helpers return [materialDesignScale] / [materialDesignHeight] unchanged.
 double adaptiveProfileSwitchScale(double materialDesignScale) {
   if (defaultTargetPlatform == TargetPlatform.iOS) {
     return (materialDesignScale * 1.22).clamp(materialDesignScale, 0.92);

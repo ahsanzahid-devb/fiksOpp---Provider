@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/bid_list_screen.dart';
@@ -10,14 +12,110 @@ import 'package:http/http.dart' as http;
 import 'package:nb_utils/nb_utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../main.dart';
 import '../provider/services/service_detail_screen.dart';
 import '../screens/booking_detail_screen.dart';
 import '../screens/chat/user_chat_list_screen.dart';
 import 'constant.dart';
 
+bool _topicRetryOnFcmTokenRefreshAttached = false;
+
+void _attachTopicRetryOnFcmTokenRefresh() {
+  if (_topicRetryOnFcmTokenRefreshAttached || Firebase.apps.isEmpty) return;
+  _topicRetryOnFcmTokenRefreshAttached = true;
+  FirebaseMessaging.instance.onTokenRefresh.listen((_) {
+    trySubscribeFirebaseTopicsWhenPossible();
+  });
+}
+
+/// Subscribes to FCM topics when safe (APNS ready on iOS). Used after token refresh.
+Future<void> trySubscribeFirebaseTopicsWhenPossible() async {
+  if (Firebase.apps.isEmpty || !appStore.isLoggedIn) return;
+  try {
+    if (Platform.isIOS) {
+      final apns = await FirebaseMessaging.instance.getAPNSToken();
+      if (apns == null || apns.isEmpty) return;
+    }
+    await _subscribeFirebaseTopicsCore();
+  } catch (e) {
+    log('trySubscribeFirebaseTopicsWhenPossible: $e');
+  }
+}
+
+DateTime? _lastIosResumeTopicTry;
+
+/// Called from [WidgetsBindingObserver.didChangeAppLifecycleState] on resume.
+/// Throttled so we do not hit Firestore/FCM on every foreground transition.
+Future<void> trySubscribeFirebaseTopicsOnIosResume() async {
+  if (!Platform.isIOS || Firebase.apps.isEmpty || !appStore.isLoggedIn) return;
+  final now = DateTime.now();
+  if (_lastIosResumeTopicTry != null &&
+      now.difference(_lastIosResumeTopicTry!) < const Duration(seconds: 20)) {
+    return;
+  }
+  _lastIosResumeTopicTry = now;
+  await trySubscribeFirebaseTopicsWhenPossible();
+}
+
+Future<String?> _pollIosApnsToken({
+  required Duration timeout,
+  Duration interval = const Duration(milliseconds: 450),
+}) async {
+  final deadline = DateTime.now().add(timeout);
+  while (DateTime.now().isBefore(deadline)) {
+    final t = await FirebaseMessaging.instance.getAPNSToken();
+    if (t != null && t.isNotEmpty) return t;
+    await Future<void>.delayed(interval);
+  }
+  return null;
+}
+
+Future<void> _deferIosTopicSubscriptionRetries() async {
+  const delays = <Duration>[
+    Duration(seconds: 2),
+    Duration(seconds: 3),
+    Duration(seconds: 5),
+    Duration(seconds: 8),
+    Duration(seconds: 10),
+    Duration(seconds: 15),
+  ];
+  for (final d in delays) {
+    await Future<void>.delayed(d);
+    if (!appStore.isLoggedIn || Firebase.apps.isEmpty) return;
+    try {
+      final apns = await FirebaseMessaging.instance.getAPNSToken();
+      if (apns != null && apns.isNotEmpty) {
+        await _subscribeFirebaseTopicsCore();
+        if (kDebugMode) {
+          log('subscribeToFirebaseTopic: topics subscribed after delayed APNS registration');
+        }
+        return;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        log('subscribeToFirebaseTopic delayed retry: $e');
+      }
+    }
+  }
+  if (kDebugMode) {
+    log('subscribeToFirebaseTopic: APNS token still unavailable (e.g. simulator or missing Push capability). Topics not subscribed.');
+  }
+}
+
+Future<void> _subscribeFirebaseTopicsCore() async {
+  await FirebaseMessaging.instance.subscribeToTopic('user_${appStore.userId}');
+  log('topic-----subscribed----> user_${appStore.userId}');
+  final topicTag = isUserTypeHandyman ? HANDYMAN_APP_TAG : PROVIDER_APP_TAG;
+  await FirebaseMessaging.instance.subscribeToTopic(topicTag);
+  log('topic-----subscribed----> $topicTag');
+  await appStore.setPushNotificationSubscriptionStatus(true);
+}
+
 Future<void> initFirebaseMessaging() async {
+  if (Firebase.apps.isEmpty) {
+    log('initFirebaseMessaging: skipped (Firebase not initialized)');
+    return;
+  }
   await FirebaseMessaging.instance
       .requestPermission(
     alert: true,
@@ -31,39 +129,39 @@ Future<void> initFirebaseMessaging() async {
         log('------Notification Listener REGISTRATION ERROR-----------');
       });
 
-      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-
       await FirebaseMessaging.instance
           .setForegroundNotificationPresentationOptions(
               alert: true, badge: true, sound: true)
           .catchError((e) {
         log('------setForegroundNotificationPresentationOptions ERROR-----------');
       });
+
+      _attachTopicRetryOnFcmTokenRefresh();
     }
   });
 }
 
 Future<void> registerNotificationListeners() async {
+  if (Firebase.apps.isEmpty) return;
   FirebaseMessaging.instance.setAutoInitEnabled(true).then((value) {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      final String title = message.notification?.title.validate().isNotEmpty ==
-              true
-          ? message.notification!.title.validate()
-          : (message.data['title']?.toString().validate().isNotEmpty == true
-              ? message.data['title'].toString().validate()
-              : message.data['subject']?.toString().validate() ?? '');
+      final String title =
+          message.notification?.title.validate().isNotEmpty == true
+              ? message.notification!.title.validate()
+              : (message.data['title']?.toString().validate().isNotEmpty == true
+                  ? message.data['title'].toString().validate()
+                  : message.data['subject']?.toString().validate() ?? '');
 
-      final String body = message.notification?.body.validate().isNotEmpty ==
-              true
-          ? message.notification!.body.validate()
-          : (message.data['body']?.toString().validate().isNotEmpty == true
-              ? message.data['body'].toString().validate()
-              : message.data['message']?.toString().validate() ?? '');
+      final String body =
+          message.notification?.body.validate().isNotEmpty == true
+              ? message.notification!.body.validate()
+              : (message.data['body']?.toString().validate().isNotEmpty == true
+                  ? message.data['body'].toString().validate()
+                  : message.data['message']?.toString().validate() ?? '');
 
       final String finalTitle = title.isNotEmpty ? title : 'FiksOpp';
-      final String finalBody = body.isNotEmpty
-          ? body
-          : 'You have a new notification';
+      final String finalBody =
+          body.isNotEmpty ? body : 'You have a new notification';
 
       if (message.notification != null || message.data.isNotEmpty) {
         showNotification(
@@ -99,37 +197,53 @@ Future<void> registerNotificationListeners() async {
 }
 
 Future<bool> subscribeToFirebaseTopic() async {
+  if (Firebase.apps.isEmpty) {
+    log('subscribeToFirebaseTopic: skipped (Firebase not initialized)');
+    return appStore.isSubscribedForPushNotification;
+  }
   bool result = appStore.isSubscribedForPushNotification;
-  await initFirebaseMessaging();
-  if (appStore.isLoggedIn) {
+  try {
+    await initFirebaseMessaging();
+    if (!appStore.isLoggedIn) return result;
+
     if (Platform.isIOS) {
-      String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
-      if (apnsToken == null) {
-        await 3.seconds.delay;
-        apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+      // Encourages native registration; may still return before APNS is ready.
+      try {
+        await FirebaseMessaging.instance.getToken();
+      } catch (_) {}
+
+      String? apnsToken = await _pollIosApnsToken(
+        timeout: const Duration(seconds: 8),
+      );
+      apnsToken ??= await FirebaseMessaging.instance.getAPNSToken();
+      if (kDebugMode) {
+        log('Apn Token=========$apnsToken');
       }
-      log('Apn Token=========${apnsToken}');
+
+      if (apnsToken == null || apnsToken.isEmpty) {
+        if (kDebugMode) {
+          log('subscribeToFirebaseTopic: APNS not ready yet; retrying in background '
+              '(expected on iOS Simulator; use a real device for push)');
+        }
+        unawaited(_deferIosTopicSubscriptionRetries());
+        return result;
+      }
     }
 
-    await FirebaseMessaging.instance
-        .subscribeToTopic('user_${appStore.userId}')
-        .then((value) {
-      result = true;
-      log("topic-----subscribed----> user_${appStore.userId}");
-    });
-    final topicTag = isUserTypeHandyman ? HANDYMAN_APP_TAG : PROVIDER_APP_TAG;
-    await FirebaseMessaging.instance.subscribeToTopic(topicTag).then((value) {
-      result = true;
-      log("topic-----subscribed----> $topicTag");
-    });
-
-    await appStore.setPushNotificationSubscriptionStatus(result);
+    await _subscribeFirebaseTopicsCore();
+    result = true;
+  } catch (e) {
+    log('subscribeToFirebaseTopic error: $e');
   }
   return result;
 }
 
 Future<bool> unsubscribeFirebaseTopic(int userId) async {
   bool result = appStore.isSubscribedForPushNotification;
+  if (Firebase.apps.isEmpty) {
+    log('unsubscribeFirebaseTopic: skipped (Firebase not initialized)');
+    return result;
+  }
   await FirebaseMessaging.instance
       .unsubscribeFromTopic('user_$userId')
       .then((_) {
@@ -271,8 +385,5 @@ void showNotification(
   );
 
   flutterLocalNotificationsPlugin.show(
-      id,
-      title.validate(),
-      message.validate(),
-      platformChannelSpecifics);
+      id, title.validate(), message.validate(), platformChannelSpecifics);
 }

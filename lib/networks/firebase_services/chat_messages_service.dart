@@ -194,6 +194,17 @@ class ChatServices extends BaseService {
 
       await getContactsDocument(userId: userId, contactId: contactId)
           .set(contactData.toJson());
+    } else {
+      final data = contactSnapshot.data();
+      if (data is Map<String, dynamic>) {
+        final u = data['uid']?.toString().trim();
+        if (u.validate().isEmpty) {
+          await getContactsDocument(userId: userId, contactId: contactId).set(
+            {'uid': contactId},
+            SetOptions(merge: true),
+          );
+        }
+      }
     }
   }
 
@@ -248,13 +259,10 @@ class ChatServices extends BaseService {
       required String senderId,
       required int status}) async {
     /// if status is 0 = Online and 1 = Offline
-    userRef!
-        .doc(senderId)
-        .collection(CONTACT_COLLECTION)
-        .doc(receiverId)
-        .update({"isOnline": status});
-    getContactsDocument(userId: senderId, contactId: receiverId)
-        .update({"isOnline": status});
+    await getContactsDocument(userId: senderId, contactId: receiverId).set({
+      'isOnline': status,
+      'uid': receiverId,
+    }, SetOptions(merge: true));
   }
 
   Stream<UserData> isReceiverOnline(

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:handyman_provider_flutter/auth/sign_in_screen.dart';
@@ -185,7 +186,9 @@ Future<void> clearPreferences() async {
   appStore.setUserWalletAmount();
 
   try {
-    FirebaseAuth.instance.signOut();
+    if (Firebase.apps.isNotEmpty) {
+      await FirebaseAuth.instance.signOut();
+    }
   } catch (e) {
     print(e);
   }
@@ -1593,6 +1596,18 @@ Future<List<PostJobData>> getPostJobList(int page,
   }
 
   return postJobList;
+}
+
+void clearPostJobListCache() {
+  _postJobListCache.clear();
+}
+
+Future<BaseResponseModel> savePostJob(Map<String, dynamic> request) async {
+  final res = BaseResponseModel.fromJson(await handleResponse(
+      await buildHttpResponse('save-post-job',
+          request: request, method: HttpMethodType.POST)));
+  clearPostJobListCache();
+  return res;
 }
 
 Future<PostJobDetailResponse> getPostJobDetail(Map request) async {

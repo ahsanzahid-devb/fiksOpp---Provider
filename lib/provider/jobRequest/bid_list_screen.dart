@@ -4,6 +4,7 @@ import 'package:handyman_provider_flutter/components/app_widgets.dart';
 import 'package:handyman_provider_flutter/components/back_widget.dart';
 import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
+import 'package:handyman_provider_flutter/utils/city_lookup_cache.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/shimmer/bid_shimmer.dart';
 import 'package:nb_utils/nb_utils.dart';
 
@@ -27,6 +28,12 @@ class _BidListScreenState extends State<BidListScreen> {
   void initState() {
     super.initState();
     init();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || appStore.stateId <= 0) return;
+      await CityLookupCache.warmForStateIfNeeded(
+          appStore.stateId, (sid) => getCityList({'state_id': sid}));
+      if (mounted) setState(() {});
+    });
   }
 
   Future<void> init() async {

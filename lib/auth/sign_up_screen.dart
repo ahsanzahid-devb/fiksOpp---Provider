@@ -273,7 +273,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Country code ...
             Container(
               height: 48.0,
               decoration: BoxDecoration(
@@ -296,7 +295,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ).onTap(() => changeCountry()),
             10.width,
-            // Mobile number text field...
             AppTextField(
               textFieldType: TextFieldType.PHONE,
               controller: mobileCont,
@@ -337,7 +335,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
           suffix: profile.iconImage(size: 10).paddingAll(14),
         ),
         16.height,
-        // User role text field...
         ValueListenableBuilder(
           valueListenable: _valueNotifier,
           builder: (context, value, child) => Column(

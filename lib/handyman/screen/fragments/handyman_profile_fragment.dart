@@ -13,6 +13,7 @@ import 'package:handyman_provider_flutter/models/handyman_dashboard_response.dar
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/screens/about_us_screen.dart';
 import 'package:handyman_provider_flutter/screens/languages_screen.dart';
+import 'package:handyman_provider_flutter/utils/adaptive_switch_layout.dart';
 import 'package:handyman_provider_flutter/utils/colors.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/configs.dart';
@@ -148,7 +149,7 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                             ? Colors.green
                             : Colors.red,
                         trailing: Transform.scale(
-                          scale: 0.8,
+                          scale: adaptiveProfileSwitchScale(0.8),
                           child: Switch.adaptive(
                             value: appStore.handymanAvailability == 1
                                 ? true
@@ -473,70 +474,89 @@ class _HandymanProfileFragmentState extends State<HandymanProfileFragment> {
                       AboutUsScreen().launch(context);
                     },
                   ),
-                  if (appStore.isLoggedIn)
-                    SettingItemWidget(
-                      decoration: boxDecorationDefault(
-                          color: context.cardColor,
-                          borderRadius: BorderRadiusDirectional.vertical(
-                              bottom: Radius.circular(0))),
-                      leading: ic_notification.iconImage(
-                          size: appStore.userType == USER_TYPE_PROVIDER
-                              ? 16
-                              : 18),
-                      title: languages.pushNotification,
-                      titleTextStyle: appStore.userType == USER_TYPE_PROVIDER
-                          ? boldTextStyle(size: 12)
-                          : boldTextStyle(size: 12),
-                      padding: appStore.userType == USER_TYPE_PROVIDER
-                          ? null
-                          : EdgeInsets.all(16),
-                      //   decoration: appStore.userType == USER_TYPE_PROVIDER ? boxDecorationDefault(color: context.cardColor, borderRadius: radius(0)) : null,
-                      trailing: Transform.scale(
-                        scale:
-                            appStore.userType == USER_TYPE_PROVIDER ? 0.6 : 0.7,
-                        child: Observer(builder: (context) {
-                          return Switch.adaptive(
-                            value: FirebaseAuth.instance.currentUser != null &&
-                                getBoolAsync("IS_SUBSCRIBED_NOTIFICATION",
-                                    defaultValue: true),
-                            onChanged: (v) async {
-                              await setValue("IS_SUBSCRIBED_NOTIFICATION", v);
-                              if (appStore.isLoading) return;
-                              appStore.setLoading(true);
+                  SizedBox(
+                    width: double.infinity,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (appStore.isLoggedIn)
+                          SettingItemWidget(
+                            width: double.infinity,
+                            decoration: boxDecorationDefault(
+                                color: context.cardColor,
+                                borderRadius:
+                                    BorderRadiusDirectional.vertical(
+                                        bottom: Radius.circular(0))),
+                            leading: ic_notification.iconImage(
+                                size: appStore.userType == USER_TYPE_PROVIDER
+                                    ? 16
+                                    : 18),
+                            title: languages.pushNotification,
+                            titleTextStyle:
+                                appStore.userType == USER_TYPE_PROVIDER
+                                    ? boldTextStyle(size: 12)
+                                    : boldTextStyle(size: 12),
+                            padding: appStore.userType == USER_TYPE_PROVIDER
+                                ? null
+                                : EdgeInsets.all(16),
+                            trailing: Transform.scale(
+                              scale: adaptiveProfileSwitchScale(
+                                  appStore.userType == USER_TYPE_PROVIDER
+                                      ? 0.6
+                                      : 0.7),
+                              child: Observer(builder: (context) {
+                                return Switch.adaptive(
+                                  value: FirebaseAuth.instance.currentUser !=
+                                          null &&
+                                      getBoolAsync(
+                                          "IS_SUBSCRIBED_NOTIFICATION",
+                                          defaultValue: true),
+                                  onChanged: (v) async {
+                                    await setValue(
+                                        "IS_SUBSCRIBED_NOTIFICATION", v);
+                                    if (appStore.isLoading) return;
+                                    appStore.setLoading(true);
 
-                              if (v) {
-                                await subscribeToFirebaseTopic();
-                              } else {
-                                await unsubscribeFirebaseTopic(appStore.userId);
-                              }
-                              appStore.setLoading(false);
-                              setState(() {});
-                            },
-                          ).withHeight(18);
-                        }),
-                      ),
-                    ),
-                  SettingItemWidget(
-                    decoration: boxDecorationDefault(
-                        color: context.cardColor,
-                        borderRadius: BorderRadiusDirectional.vertical(
-                            bottom: Radius.circular(16))),
-                    leading: Image.asset(ic_check_update,
-                        width: 16,
-                        color: appStore.isDarkMode
-                            ? white
-                            : gray.withValues(alpha: 0.8)),
-                    title: languages.lblOptionalUpdateNotify,
-                    titleTextStyle: boldTextStyle(size: 12),
-                    trailing: Transform.scale(
-                      scale: 0.7,
-                      child: Switch.adaptive(
-                        value: getBoolAsync(UPDATE_NOTIFY, defaultValue: true),
-                        onChanged: (v) {
-                          setValue(UPDATE_NOTIFY, v);
-                          setState(() {});
-                        },
-                      ).withHeight(24),
+                                    if (v) {
+                                      await subscribeToFirebaseTopic();
+                                    } else {
+                                      await unsubscribeFirebaseTopic(
+                                          appStore.userId);
+                                    }
+                                    appStore.setLoading(false);
+                                    setState(() {});
+                                  },
+                                ).withHeight(adaptiveProfileSwitchHeight(18));
+                              }),
+                            ),
+                          ),
+                        SettingItemWidget(
+                          width: double.infinity,
+                          decoration: boxDecorationDefault(
+                              color: context.cardColor,
+                              borderRadius: BorderRadiusDirectional.vertical(
+                                  bottom: Radius.circular(16))),
+                          leading: Image.asset(ic_check_update,
+                              width: 16,
+                              color: appStore.isDarkMode
+                                  ? white
+                                  : gray.withValues(alpha: 0.8)),
+                          title: languages.lblOptionalUpdateNotify,
+                          titleTextStyle: boldTextStyle(size: 12),
+                          trailing: Transform.scale(
+                            scale: adaptiveProfileSwitchScale(0.7),
+                            child: Switch.adaptive(
+                              value: getBoolAsync(UPDATE_NOTIFY,
+                                  defaultValue: true),
+                              onChanged: (v) {
+                                setValue(UPDATE_NOTIFY, v);
+                                setState(() {});
+                              },
+                            ).withHeight(adaptiveProfileSwitchHeight(24)),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

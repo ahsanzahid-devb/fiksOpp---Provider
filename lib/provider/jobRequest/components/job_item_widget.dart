@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:handyman_provider_flutter/main.dart';
+import 'package:handyman_provider_flutter/utils/city_lookup_cache.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/extensions/color_extension.dart';
 import 'package:handyman_provider_flutter/utils/extensions/string_extension.dart';
@@ -16,7 +17,16 @@ class JobItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (data == null) return Offstage();
-    final String location = data!.displayJobLocationLabel;
+    final String fromPayload = data!.displayJobLocationLabel;
+    final String? fromCityCache = CityLookupCache.nameForCityId(data!.cityId);
+    final String location =
+        fromPayload.isNotEmpty ? fromPayload : (fromCityCache ?? '');
+    final bool hasUsableLoc = PostJobLocation.hasUsableLocation(data);
+    final String locationLine = location.isNotEmpty
+        ? location
+        : (hasUsableLoc
+            ? languages.lblJobLocationCityAreaFallback
+            : languages.lblJobNoSavedLocationRepost);
 
     return Container(
       width: context.width(),
@@ -69,22 +79,21 @@ class JobItemWidget extends StatelessWidget {
                   Icon(
                     Icons.place_outlined,
                     size: 14,
-                    color: location.isNotEmpty
+                    color: location.isNotEmpty || hasUsableLoc
                         ? context.primaryColor
                         : Colors.orange.shade700,
                   ),
                   4.width,
                   Expanded(
                     child: Text(
-                      location.isNotEmpty
-                          ? location
-                          : languages.lblJobMissingServiceLocation,
+                      locationLine,
                       style: secondaryTextStyle(
                         size: 12,
-                        color:
-                            location.isNotEmpty ? null : Colors.orange.shade800,
+                        color: location.isNotEmpty || hasUsableLoc
+                            ? null
+                            : Colors.orange.shade800,
                       ),
-                      maxLines: location.isNotEmpty ? 2 : 3,
+                      maxLines: location.isNotEmpty ? 2 : 4,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),

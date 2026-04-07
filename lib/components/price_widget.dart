@@ -31,7 +31,8 @@ class PriceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextDecoration? textDecoration() => isLineThroughEnabled ? TextDecoration.lineThrough : null;
+    TextDecoration? textDecoration() =>
+        isLineThroughEnabled ? TextDecoration.lineThrough : null;
 
     TextStyle _textStyle({int? aSize}) {
       return isBoldText
@@ -64,7 +65,9 @@ class PriceWidget extends StatelessWidget {
                 price.validate().toPriceFormat(),
                 style: _textStyle(),
               ),
-            if (isHourlyService) Text('/${languages.lblHr}', style: secondaryTextStyle(color: hourlyTextColor, size: 14)),
+            if (isHourlyService)
+              Text('/${languages.lblHr}',
+                  style: secondaryTextStyle(color: hourlyTextColor, size: 14)),
           ],
         ),
       ],

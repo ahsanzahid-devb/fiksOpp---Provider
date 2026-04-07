@@ -25,12 +25,23 @@ class Permissions {
     return false;
   }
 
-  /// In-app prompt + system request so bidding is blocked until location is allowed (TC-06).
+  /// When [backendDescribesJobSite] is true (address / coordinates / city from API),
+  /// returns true immediately — no device location prompt.
+  ///
+  /// Compute the flag with `ServerJobSite` in `server_job_site.dart`.
+  static Future<bool> ensureDeviceLocationForBidIfNeeded(
+    BuildContext context, {
+    required bool backendDescribesJobSite,
+  }) async {
+    if (backendDescribesJobSite) return true;
+    return ensureLocationForBid(context);
+  }
+
+  /// Prompts for device location when the server did **not** provide a job site.
   static Future<bool> ensureLocationForBid(BuildContext context) async {
     if (kDebugMode) {
       final loc = await Permission.location.status;
-      final whenInUse =
-          isIOS ? await Permission.locationWhenInUse.status : loc;
+      final whenInUse = isIOS ? await Permission.locationWhenInUse.status : loc;
       developer.log(
         'ensureLocationForBid: Android/iOS device permission — '
         'Permission.location=$loc '
@@ -61,12 +72,10 @@ class Permissions {
     if (!context.mounted) return false;
 
     final loc = await Permission.location.status;
-    final whenInUse =
-        isIOS ? await Permission.locationWhenInUse.status : loc;
-    final permanentlyDenied = loc.isPermanentlyDenied ||
-        (isIOS && whenInUse.isPermanentlyDenied);
-    final restricted = loc.isRestricted ||
-        (isIOS && whenInUse.isRestricted);
+    final whenInUse = isIOS ? await Permission.locationWhenInUse.status : loc;
+    final permanentlyDenied =
+        loc.isPermanentlyDenied || (isIOS && whenInUse.isPermanentlyDenied);
+    final restricted = loc.isRestricted || (isIOS && whenInUse.isRestricted);
 
     if (restricted) {
       if (context.mounted) {
@@ -132,11 +141,11 @@ class Permissions {
       return true;
     }
 
-    Map<Permission, PermissionStatus> locationPermissionStatus = await _handler
-        .requestPermissions([
-          Permission.location,
-          if (isIOS) Permission.locationWhenInUse,
-        ]);
+    Map<Permission, PermissionStatus> locationPermissionStatus =
+        await _handler.requestPermissions([
+      Permission.location,
+      if (isIOS) Permission.locationWhenInUse,
+    ]);
 
     final statuses = locationPermissionStatus.values.toList();
     final hasAccess = statuses.any(

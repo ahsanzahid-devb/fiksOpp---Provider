@@ -5,12 +5,14 @@ import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/shimmer/job_request_shimmer.dart';
 import 'package:handyman_provider_flutter/provider/services/add_services.dart';
+import 'package:handyman_provider_flutter/utils/city_lookup_cache.dart';
 import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../../components/base_scaffold_widget.dart';
 import '../../components/empty_error_state_widget.dart';
 import '../../booking_filter/components/filter_service_list_component.dart';
+import 'add_post_job_screen.dart';
 import 'components/job_item_widget.dart';
 import 'models/post_job_data.dart';
 
@@ -57,6 +59,11 @@ class _JobListScreenState extends State<JobListScreen> {
     setState(() {});
     try {
       await request;
+      if (mounted && appStore.stateId > 0) {
+        await CityLookupCache.warmForStateIfNeeded(
+            appStore.stateId, (sid) => getCityList({'state_id': sid}));
+        setState(() {});
+      }
     } finally {
       isFetching = false;
       appStore.setLoading(false);
@@ -206,6 +213,34 @@ class _JobListScreenState extends State<JobListScreen> {
           ),
           Observer(
               builder: (context) => LoaderWidget().visible(appStore.isLoading)),
+          Positioned(
+            right: 16,
+            bottom: 24,
+            child: Observer(
+              builder: (_) {
+                if (!appConfigurationStore.jobRequestStatus ||
+                    !rolesAndPermissionStore.postJobList) {
+                  return const SizedBox.shrink();
+                }
+                return FloatingActionButton.extended(
+                  backgroundColor: context.primaryColor,
+                  icon: const Icon(Icons.add_location_alt_outlined,
+                      color: Colors.white),
+                  label: Text(
+                    languages.lblPostNewJobRequest,
+                    style: boldTextStyle(color: Colors.white, size: 12),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  onPressed: () {
+                    AddPostJobScreen().launch(context).then((value) {
+                      if (value ?? false) init(resetPage: true);
+                    });
+                  },
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

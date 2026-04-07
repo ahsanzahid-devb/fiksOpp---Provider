@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:nb_utils/nb_utils.dart';
 
@@ -9,6 +10,9 @@ import '../../networks/rest_apis.dart';
 
 class AuthService {
   Future<UserCredential> getFirebaseUser() async {
+    if (Firebase.apps.isEmpty) {
+      throw StateError('Firebase not initialized');
+    }
     UserCredential? userCredential;
     try {
       /// login with Firebase
@@ -31,6 +35,10 @@ class AuthService {
   }
 
   Future<void> verifyFirebaseUser() async {
+    if (Firebase.apps.isEmpty) {
+      log('verifyFirebaseUser: skipped (Firebase not initialized)');
+      return;
+    }
     try {
       UserCredential userCredential = await getFirebaseUser();
 

@@ -1486,7 +1486,42 @@ abstract class Languages {
 
   String get lblJobMissingServiceLocation;
 
+  /// Shown when bidding is blocked because the job payload has no usable location (backend contract).
+  String get lblJobNoSavedLocationRepost;
+
+  /// Short label when location is valid (e.g. service_address_mapping) but no single-line address string.
+  String get lblJobServiceLocationOnFile;
+
+  /// Job list when only [city_id] is known and city name is not in the payload (before/without city-list cache).
+  String get lblJobLocationCityAreaFallback;
+
   String get lblAllowLocation;
+
+  String get lblPostNewJobRequest;
+
+  String get lblJobRequestLocation;
+
+  String get hintJobRequestAddress;
+
+  String get lblUseMyLocation;
+
+  String get lblPostJobSave;
+
+  String get lblPostJobLocationRequired;
+
+  String get lblSelectServiceForJob;
+
+  String get lblPostJobSaved;
+
+  String get lblLocationUpdated;
+
+  String get lblLocationServicesDisabled;
+
+  String get lblLatitude;
+
+  String get lblLongitude;
+
+  String get lblLocationPermissionDeniedShort;
 
   String get open;
 

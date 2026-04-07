@@ -1874,7 +1874,61 @@ class LanguageNo extends LanguageEn {
       'Forespørselen mangler tjenestested fra kunden. Be kunden legge til adresse. Dette er ikke det samme som posisjonstilgang på telefonen.';
 
   @override
+  String get lblJobNoSavedLocationRepost =>
+      'Denne jobben har ingen lagret lokasjon. Kunden må legge inn på nytt fra kundeappen etter backend-oppdateringen.';
+
+  @override
+  String get lblJobServiceLocationOnFile => 'Tjenestested registrert';
+
+  @override
+  String get lblJobLocationCityAreaFallback =>
+      'Tjenesteområde (by)';
+
+  @override
   String get lblAllowLocation => 'Tillat';
+
+  @override
+  String get lblPostNewJobRequest => 'Legg ut ny jobbforespørsel';
+
+  @override
+  String get lblJobRequestLocation => 'Jobblokasjon';
+
+  @override
+  String get hintJobRequestAddress =>
+      'Hvor skal jobben utføres? Skriv gate, område eller stedsnavn.';
+
+  @override
+  String get lblUseMyLocation => 'Bruk min nåværende posisjon';
+
+  @override
+  String get lblPostJobSave => 'Publiser jobbforespørsel';
+
+  @override
+  String get lblPostJobLocationRequired =>
+      'Legg til sted: skriv adresse og/eller bruk nåværende posisjon.';
+
+  @override
+  String get lblSelectServiceForJob => 'Relatert tjeneste';
+
+  @override
+  String get lblPostJobSaved => 'Jobbforespørsel er publisert';
+
+  @override
+  String get lblLocationUpdated => 'Posisjon oppdatert';
+
+  @override
+  String get lblLocationServicesDisabled =>
+      'Slå på posisjonstjenester i enhetsinnstillingene.';
+
+  @override
+  String get lblLatitude => 'Breddegrad';
+
+  @override
+  String get lblLongitude => 'Lengdegrad';
+
+  @override
+  String get lblLocationPermissionDeniedShort =>
+      'Posisjonstillatelse kreves for denne handlingen.';
 
   @override
   String get youWillGetTheseServicesWithThisPackage =>

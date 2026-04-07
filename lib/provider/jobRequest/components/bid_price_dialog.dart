@@ -5,7 +5,6 @@ import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/constant.dart';
-import 'package:handyman_provider_flutter/utils/permissions.dart';
 import 'package:handyman_provider_flutter/utils/post_job_bid_diagnostics.dart';
 import 'package:handyman_provider_flutter/utils/extensions/context_ext.dart';
 import 'package:handyman_provider_flutter/utils/model_keys.dart';
@@ -38,12 +37,9 @@ class _BidPriceDialogState extends State<BidPriceDialog> {
 
   void _handleSubmitClick() async {
     hideKeyboard(context);
-    if (!await Permissions.ensureLocationForBid(context)) {
-      return;
-    }
-    if (!widget.data.hasUsableLocationForBid) {
+    if (!PostJobLocation.hasUsableLocation(widget.data)) {
       logPostJobBidLocation('submit_bid_blocked_no_job_address', widget.data);
-      toast(languages.lblJobMissingServiceLocation);
+      toast(languages.lblJobNoSavedLocationRepost);
       return;
     }
 
@@ -101,12 +97,14 @@ class _BidPriceDialogState extends State<BidPriceDialog> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    decoration: boxDecorationDefault(color: context.scaffoldBackgroundColor),
+                    decoration: boxDecorationDefault(
+                        color: context.scaffoldBackgroundColor),
                     padding: EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(languages.giveYourEstimatePriceHere, style: boldTextStyle()),
+                        Text(languages.giveYourEstimatePriceHere,
+                            style: boldTextStyle()),
                         16.height,
                         AppTextField(
                           textFieldType: TextFieldType.NUMBER,
@@ -116,13 +114,16 @@ class _BidPriceDialogState extends State<BidPriceDialog> {
                             if (value!.isEmpty) {
                               return context.translate.hintRequired;
                             }
-                            /*if (value!.isEmpty) {
-                              return languages.hintRequired;
-                            } else if (value.toInt() <= 0) {
+                            final bid = num.tryParse(value.validate());
+                            if (bid == null) {
                               return languages.pleaseEnterValidBidPrice;
-                            } else if (widget.data.price.validate() > num.parse(value.validate())) {
-                              return "${languages.yourPriceShouldNotBeLessThan} ${widget.data.price.validate()}";
-                            }*/
+                            }
+                            final floor = widget.data.displayJobBudgetAmount;
+                            if (floor != null &&
+                                floor > 0 &&
+                                bid < floor) {
+                              return '${languages.yourPriceShouldNotBeLessThan} $floor';
+                            }
                             return null;
                           },
                           decoration: inputDecoration(context).copyWith(
@@ -130,7 +131,8 @@ class _BidPriceDialogState extends State<BidPriceDialog> {
                             filled: true,
                             hintText: languages.enterBidPrice,
                             hintStyle: secondaryTextStyle(),
-                            prefixText: appConfigurationStore.currencySymbol + " ",
+                            prefixText:
+                                appConfigurationStore.currencySymbol + " ",
                             prefixStyle: primaryTextStyle(size: 16),
                           ),
                         ),
@@ -144,7 +146,8 @@ class _BidPriceDialogState extends State<BidPriceDialog> {
                         onTap: () {
                           finish(context);
                         },
-                        shapeBorder: RoundedRectangleBorder(borderRadius: radius()),
+                        shapeBorder:
+                            RoundedRectangleBorder(borderRadius: radius()),
                         color: context.scaffoldBackgroundColor,
                         text: languages.lblCancel,
                         textColor: context.iconColor,

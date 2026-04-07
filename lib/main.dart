@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:handyman_provider_flutter/firebase_options.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -51,7 +52,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   log('Message Data : ${message.data}');
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final String title = message.notification?.title.validate().isNotEmpty == true
       ? message.notification!.title.validate()
@@ -130,17 +131,20 @@ void main() async {
   await initialize();
 
   if (!isDesktop) {
-    Firebase.initializeApp().then((value) {
+    try {
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp(
+            options: DefaultFirebaseOptions.currentPlatform);
+      }
       if (kReleaseMode) {
         FlutterError.onError =
             FirebaseCrashlytics.instance.recordFlutterFatalError;
       }
-
-      /// Subscribe Firebase Topic
-      subscribeToFirebaseTopic();
-    }).catchError((e) {
-      log(e.toString());
-    });
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+      await subscribeToFirebaseTopic();
+    } catch (e) {
+      log('Firebase setup failed: $e');
+    }
   }
   HttpOverrides.global = MyHttpOverrides();
 
@@ -159,11 +163,27 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     init();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// iOS often receives APNS after the first cold-start subscribe attempt; retry
+  /// when returning to foreground (no-op on Android / if already subscribed).
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !isDesktop) {
+      trySubscribeFirebaseTopicsOnIosResume();
+    }
   }
 
   void init() async {
@@ -184,11 +204,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void setState(fn) {
     if (mounted) super.setState(fn);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override

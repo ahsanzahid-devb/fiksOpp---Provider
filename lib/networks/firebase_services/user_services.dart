@@ -93,10 +93,18 @@ class UserService extends BaseService {
     });
   }
 
+  /// Merges [lastMessageTime] and always sets [uid] to [receiverId] (the contact
+  /// doc id). Fixes legacy/partial contact docs that only had lastMessageTime /
+  /// isOnline and broke clients expecting a uid field.
   Future<void> saveToContacts({required String senderId, required String receiverId}) async {
-    return ref!.doc(senderId).collection(CONTACT_COLLECTION).doc(receiverId).update({'lastMessageTime': DateTime.now().millisecondsSinceEpoch}).catchError((e) {
-      throw USER_NOT_CREATED;
-    });
+    await ref!
+        .doc(senderId)
+        .collection(CONTACT_COLLECTION)
+        .doc(receiverId)
+        .set({
+          'lastMessageTime': DateTime.now().millisecondsSinceEpoch,
+          'uid': receiverId,
+        }, SetOptions(merge: true));
   }
 
   Future<void> updatePlayerIdInFirebase({required String email, required String playerId}) async {

@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>686507061891-ns1f9delln3tg7g54d4nu7p3jbbuk3mr.apps.googleusercontent.com</string>
+	<string>686507061891-4akb19hpda4tr82eh66u96snlifeh8et.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.686507061891-ns1f9delln3tg7g54d4nu7p3jbbuk3mr</string>
+	<string>com.googleusercontent.apps.686507061891-4akb19hpda4tr82eh66u96snlifeh8et</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>686507061891-2700lpdphhm8ggbbsmj9gs99q89mf1ir.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>fiksopp.inoor.buzz.provider</string>
+	<string>fiksopp.inoor.handymanProviderFlutter</string>
 	<key>PROJECT_ID</key>
 	<string>fiksopp-bb927</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:686507061891:ios:e5532bd27c71ce2cace1b6</string>
+	<string>1:686507061891:ios:f28f9d4d6d182300ace1b6</string>
 </dict>
 </plist>

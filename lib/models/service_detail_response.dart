@@ -122,13 +122,20 @@ class ProviderAddressMapping {
 
   ProviderAddressMapping({this.address, this.createdAt, this.id, this.latitude, this.longitude, this.providerId, this.status, this.updatedAt});
 
+  static String? _coord(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v.toString();
+    final s = v.toString().trim();
+    return s.isEmpty ? null : s;
+  }
+
   factory ProviderAddressMapping.fromJson(Map<String, dynamic> json) {
     return ProviderAddressMapping(
       address: json['address'],
       createdAt: json['created_at'],
       id: json['id'],
-      latitude: json['latitude'],
-      longitude: json['longitude'],
+      latitude: _coord(json['latitude']),
+      longitude: _coord(json['longitude']),
       providerId: json['provider_id'],
       status: json['status'],
       updatedAt: json['updated_at'],

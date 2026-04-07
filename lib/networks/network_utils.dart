@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:handyman_provider_flutter/main.dart';
@@ -16,10 +17,15 @@ import '../utils/model_keys.dart';
 Map<String, String> buildHeaderTokens() {
   Map<String, String> header = {};
 
-  if (appStore.isLoggedIn) header.putIfAbsent(HttpHeaders.authorizationHeader, () => 'Bearer ${appStore.token}');
-  header.putIfAbsent(HttpHeaders.contentTypeHeader, () => 'application/json; charset=utf-8');
-  header.putIfAbsent(HttpHeaders.acceptHeader, () => 'application/json; charset=utf-8');
-  header.putIfAbsent(CustomHeader.LanguageCode, () => appStore.selectedLanguageCode);
+  if (appStore.isLoggedIn)
+    header.putIfAbsent(
+        HttpHeaders.authorizationHeader, () => 'Bearer ${appStore.token}');
+  header.putIfAbsent(
+      HttpHeaders.contentTypeHeader, () => 'application/json; charset=utf-8');
+  header.putIfAbsent(
+      HttpHeaders.acceptHeader, () => 'application/json; charset=utf-8');
+  header.putIfAbsent(
+      CustomHeader.LanguageCode, () => appStore.selectedLanguageCode);
   header.addAll(defaultHeaders());
 
   log(jsonEncode(header));
@@ -52,7 +58,8 @@ Future<Response> _doRequest({
 }) async {
   Response response;
   if (method == HttpMethodType.POST) {
-    response = await http.post(url, body: jsonEncode(request), headers: headers);
+    response =
+        await http.post(url, body: jsonEncode(request), headers: headers);
   } else if (method == HttpMethodType.DELETE) {
     response = await delete(url, headers: headers);
   } else if (method == HttpMethodType.PUT) {
@@ -93,9 +100,12 @@ Future<Response> buildHttpResponse(
   try {
     Response response = await run();
 
-    if (appStore.isLoggedIn && response.statusCode == 401 && !endPoint.startsWith('http')) {
+    if (appStore.isLoggedIn &&
+        response.statusCode == 401 &&
+        !endPoint.startsWith('http')) {
       return await reGenerateToken().then((value) async {
-        return await buildHttpResponse(endPoint, method: method, request: request, header: header);
+        return await buildHttpResponse(endPoint,
+            method: method, request: request, header: header);
       }).catchError((e) {
         throw errorSomethingWentWrong;
       });
@@ -106,9 +116,12 @@ Future<Response> buildHttpResponse(
       await Future<void>.delayed(const Duration(seconds: 2));
       try {
         Response response = await run();
-        if (appStore.isLoggedIn && response.statusCode == 401 && !endPoint.startsWith('http')) {
+        if (appStore.isLoggedIn &&
+            response.statusCode == 401 &&
+            !endPoint.startsWith('http')) {
           return await reGenerateToken().then((value) async {
-            return await buildHttpResponse(endPoint, method: method, request: request, header: header);
+            return await buildHttpResponse(endPoint,
+                method: method, request: request, header: header);
           }).catchError((_) {
             throw errorSomethingWentWrong;
           });
@@ -122,7 +135,8 @@ Future<Response> buildHttpResponse(
   }
 }
 
-Future handleResponse(Response response, {HttpResponseType httpResponseType = HttpResponseType.JSON}) async {
+Future handleResponse(Response response,
+    {HttpResponseType httpResponseType = HttpResponseType.JSON}) async {
   if (response.statusCode == 400) {
     throw '${languages.badRequest}';
   } else if (response.statusCode == 403) {
@@ -144,7 +158,8 @@ Future handleResponse(Response response, {HttpResponseType httpResponseType = Ht
       try {
         var body = jsonDecode(response.body);
         if (body is Map && body.containsKey('message')) {
-          throw parseHtmlString(body['message'] ?? languages.internalServerError);
+          throw parseHtmlString(
+              body['message'] ?? languages.internalServerError);
         }
       } catch (e) {
         // If parsing fails, use default message
@@ -164,7 +179,10 @@ Future handleResponse(Response response, {HttpResponseType httpResponseType = Ht
       var body = jsonDecode(response.body);
 
       if (response.statusCode.isSuccessful()) {
-        if (body is Map && body.containsKey('status') && body['status'] is bool && !body['status']) {
+        if (body is Map &&
+            body.containsKey('status') &&
+            body['status'] is bool &&
+            !body['status']) {
           throw parseHtmlString(body['message'] ?? errorSomethingWentWrong);
         } else {
           return body;
@@ -215,12 +233,14 @@ Future<void> reGenerateToken() async {
   });
 }
 
-Future<MultipartRequest> getMultiPartRequest(String endPoint, {String? baseUrl}) async {
+Future<MultipartRequest> getMultiPartRequest(String endPoint,
+    {String? baseUrl}) async {
   String url = '${baseUrl ?? buildBaseUrl(endPoint).toString()}';
   return MultipartRequest('POST', Uri.parse(url));
 }
 
-Future<void> sendMultiPartRequest(MultipartRequest multiPartRequest, {Function(dynamic)? onSuccess, Function(dynamic)? onError}) async {
+Future<void> sendMultiPartRequest(MultipartRequest multiPartRequest,
+    {Function(dynamic)? onSuccess, Function(dynamic)? onError}) async {
   try {
     http.Response response = await http.Response.fromStream(
       await multiPartRequest.send(),
@@ -258,6 +278,40 @@ Future<void> sendMultiPartRequest(MultipartRequest multiPartRequest, {Function(d
   }
 }
 
+/// Xcode / Android Studio often truncate a single [log] line (~800–1k chars).
+/// Use small chunks and [developer.log] (no nb_utils truncation) per segment.
+const int _kApiBodyChunkSize = 320;
+
+void _logResponseBodyChunked(
+  String methodtype,
+  int statusCode,
+  String responseBody,
+) {
+  final prefix = 'Response ($methodtype) $statusCode';
+  if (responseBody.isEmpty) {
+    developer.log('$prefix: <empty body>', name: 'API');
+    return;
+  }
+  // Always chunk if beyond a safe single-line budget (console still clips long lines).
+  if (responseBody.length <= _kApiBodyChunkSize) {
+    developer.log('$prefix: $responseBody', name: 'API');
+    return;
+  }
+  final n = (responseBody.length / _kApiBodyChunkSize).ceil();
+  developer.log(
+    '$prefix: body ${responseBody.length} chars, $n segments (concatenate segments for full JSON)',
+    name: 'API',
+  );
+  for (var i = 0; i < n; i++) {
+    final start = i * _kApiBodyChunkSize;
+    final end = start + _kApiBodyChunkSize > responseBody.length
+        ? responseBody.length
+        : start + _kApiBodyChunkSize;
+    developer.log('$prefix ~${i + 1}/$n~ ${responseBody.substring(start, end)}',
+        name: 'API');
+  }
+}
+
 void apiPrint({
   String url = "",
   String endPoint = "",
@@ -271,16 +325,31 @@ void apiPrint({
   log("┌───────────────────────────────────────────────────────────────────────────────────────────────────────");
   log("\u001b[93mUrl: \u001B[39m $url");
   log("\u001b[93mHeader: \u001B[39m \u001b[96m$headers\u001B[39m");
-  if (request.isNotEmpty) log("\u001b[93mRequest: \u001B[39m \u001b[96m$request\u001B[39m");
-  log('Response ($methodtype) $statusCode: $responseBody');
+  if (request.isNotEmpty) {
+    if (request.length > 1000) {
+      log("\u001b[93mRequest: \u001B[39m (${request.length} chars, chunked)");
+      const cs = 1000;
+      final rn = (request.length / cs).ceil();
+      for (var i = 0; i < rn; i++) {
+        final a = i * cs;
+        final b = a + cs > request.length ? request.length : a + cs;
+        log("\u001b[93mRequest \u001B[39m[${i + 1}/$rn] \u001b[96m${request.substring(a, b)}\u001B[39m");
+      }
+    } else {
+      log("\u001b[93mRequest: \u001B[39m \u001b[96m$request\u001B[39m");
+    }
+  }
+  _logResponseBodyChunked(methodtype, statusCode, responseBody);
   log("└───────────────────────────────────────────────────────────────────────────────────────────────────────");
 }
 
 Map<String, String> buildHeaderForStripe(String stripeKeyPayment) {
   Map<String, String> header = defaultHeaders();
 
-  header.putIfAbsent(HttpHeaders.contentTypeHeader, () => 'application/x-www-form-urlencoded');
-  header.putIfAbsent(HttpHeaders.authorizationHeader, () => 'Bearer $stripeKeyPayment');
+  header.putIfAbsent(
+      HttpHeaders.contentTypeHeader, () => 'application/x-www-form-urlencoded');
+  header.putIfAbsent(
+      HttpHeaders.authorizationHeader, () => 'Bearer $stripeKeyPayment');
 
   return header;
 }
@@ -289,7 +358,8 @@ Map<String, String> buildHeaderForSadad({String? sadadToken}) {
   Map<String, String> header = defaultHeaders();
 
   header.putIfAbsent(HttpHeaders.contentTypeHeader, () => 'application/json');
-  if (sadadToken != null) header.putIfAbsent(HttpHeaders.authorizationHeader, () => sadadToken);
+  if (sadadToken != null)
+    header.putIfAbsent(HttpHeaders.authorizationHeader, () => sadadToken);
 
   return header;
 }
@@ -297,16 +367,20 @@ Map<String, String> buildHeaderForSadad({String? sadadToken}) {
 Map<String, String> buildHeaderForFlutterWave(String flutterWaveSecretKey) {
   Map<String, String> header = defaultHeaders();
 
-  header.putIfAbsent(HttpHeaders.authorizationHeader, () => "Bearer $flutterWaveSecretKey");
+  header.putIfAbsent(
+      HttpHeaders.authorizationHeader, () => "Bearer $flutterWaveSecretKey");
 
   return header;
 }
 
-Map<String, String> buildHeaderForAirtelMoney(String accessToken, String XCountry, String XCurrency) {
+Map<String, String> buildHeaderForAirtelMoney(
+    String accessToken, String XCountry, String XCurrency) {
   Map<String, String> header = defaultHeaders();
 
-  header.putIfAbsent(HttpHeaders.contentTypeHeader, () => 'application/json; charset=utf-8');
-  header.putIfAbsent(HttpHeaders.authorizationHeader, () => 'Bearer $accessToken');
+  header.putIfAbsent(
+      HttpHeaders.contentTypeHeader, () => 'application/json; charset=utf-8');
+  header.putIfAbsent(
+      HttpHeaders.authorizationHeader, () => 'Bearer $accessToken');
   header.putIfAbsent('X-Country', () => '$XCountry');
   header.putIfAbsent('X-Currency', () => '$XCurrency');
 

@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/models/post_job_data.dart';
 import 'package:nb_utils/nb_utils.dart';
 
-/// Debug-only: explains why bidding may be blocked (API job location vs device GPS).
 void logPostJobBidLocation(String stage, PostJobData data) {
   if (!kDebugMode) return;
 
@@ -28,11 +27,11 @@ void logPostJobBidLocation(String stage, PostJobData data) {
       ? list.first.bidLocationAuditLine
       : 'no_service_array';
   developer.log(
-    'post_request_id=$pid stage=$stage → hasUsableLocationForBid=${data.hasUsableLocationForBid} '
+    'post_request_id=$pid stage=$stage → hasUsableLocation=${PostJobLocation.hasUsableLocation(data)} '
     '| post.address=${data.address} cityId=${data.cityId} lat/lng set=$rootLatLng '
     '| $serviceLine '
-    '| NOTE: Uses post_request + service fields (address, city_id, service_address_mapping). '
-    'It is NOT your phone Settings → Location permission.',
+    '| NOTE: PostJobLocation = post_request_detail lat/lng, address, city_id, service_address_mapping, '
+    'or any service[] with same rules. Not device Settings → Location.',
     name: 'PostJobBid',
   );
 }

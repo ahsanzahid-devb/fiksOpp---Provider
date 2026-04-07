@@ -1,2 +1,4 @@
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
 #include "Generated.xcconfig"
+// Match Flutter: simulator excludes i386 only, not arm64.
+EXCLUDED_ARCHS[sdk=iphonesimulator*] = i386

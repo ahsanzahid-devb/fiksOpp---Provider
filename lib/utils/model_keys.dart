@@ -163,6 +163,18 @@ class PostJob {
   static String providerId = 'provider_id';
 }
 
+/// Body keys for [savePostJob] (align with Laravel `save-post-job`).
+class SavePostJob {
+  static String title = 'title';
+  static String description = 'description';
+  static String price = 'price';
+  static String serviceId = 'service_id';
+  static String address = 'address';
+  static String latitude = 'latitude';
+  static String longitude = 'longitude';
+  static String cityId = 'city_id';
+}
+
 class PackageKey {
   static String packageId = "id";
   static String categoryId = 'category_id';

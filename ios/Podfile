@@ -43,6 +43,16 @@ post_install do |installer|
     target.build_configurations.each do |config|
       config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
       config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
+      # Apple Silicon simulators are arm64; legacy pods often exclude it and break linking (e.g. Pods_Runner not found).
+      config.build_settings.delete('EXCLUDED_ARCHS[sdk=iphonesimulator*]')
     end
+  end
+
+  # CocoaPods re-injects EXCLUDED_ARCHS=arm64 into Pod xcconfigs from dependencies; patch after generate.
+  support_root = File.join(File.dirname(__FILE__), 'Pods', 'Target Support Files')
+  Dir.glob(File.join(support_root, '**', '*.xcconfig')).each do |path|
+    original = File.read(path)
+    patched = original.gsub(/^EXCLUDED_ARCHS\[sdk=iphonesimulator\*\] = arm64$/, 'EXCLUDED_ARCHS[sdk=iphonesimulator*] = i386')
+    File.write(path, patched) if patched != original
   end
 end
