@@ -1129,6 +1129,11 @@ class LanguageNo extends LanguageEn {
   String get lbMinutes => 'Minutter';
   @override
   String get lblAcceptBooking => 'Godta bestilling';
+
+  @override
+  String get lblBookingAcceptedSuccessfully =>
+      'Bestillingen er godtatt og ligger nå i planen din.';
+
   @override
   String get lblAccountNumberMustBetween11And16Digits =>
       'Kontonummer må være 11–16 siffer';

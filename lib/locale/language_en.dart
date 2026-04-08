@@ -1781,6 +1781,10 @@ class LanguageEn extends Languages {
   String get lblAcceptBooking => 'Accept Booking';
 
   @override
+  String get lblBookingAcceptedSuccessfully =>
+      'Booking accepted. It is now on your schedule.';
+
+  @override
   String get lblRejectReason => 'Reject Reason';
 
   @override

@@ -39,10 +39,6 @@ class SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> init() async {
-    /// Reset configuration sync time
-    await setValue(LAST_APP_CONFIGURATION_SYNCED_TIME, 0);
-
-    /// Fetch app configurations
     await getAppConfigurations().then((value) {}).catchError((e) async {
       if (!await isNetworkAvailable()) {
         toast(errorInternetNotAvailable);
@@ -103,7 +99,8 @@ class SplashScreenState extends State<SplashScreen> {
         pageRouteAnimation: PageRouteAnimation.Fade,
       );
     } else {
-      await updateProfilePhoto();
+      // Refresh avatar in background; don’t block dashboard on user-detail API.
+      updateProfilePhoto();
 
       if (!mounted) return;
 

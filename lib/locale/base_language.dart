@@ -1154,6 +1154,9 @@ abstract class Languages {
 
   String get lblAcceptBooking;
 
+  /// Shown after provider accepts a pending booking (clearer than generic API "saved" text).
+  String get lblBookingAcceptedSuccessfully;
+
   String get lblRejectReason;
 
   String get lblApproveBooking;

@@ -28,7 +28,6 @@ import 'package:handyman_provider_flutter/models/booking_list_response.dart';
 import 'package:handyman_provider_flutter/models/extra_charges_model.dart';
 import 'package:handyman_provider_flutter/models/service_model.dart';
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
-import 'package:handyman_provider_flutter/provider/components/assign_handyman_screen.dart';
 import 'package:handyman_provider_flutter/provider/handyman_info_screen.dart';
 import 'package:handyman_provider_flutter/provider/services/service_detail_screen.dart';
 import 'package:handyman_provider_flutter/screens/cash_management/component/cash_confirm_dialog.dart';
@@ -171,19 +170,6 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
         }
       },
     );
-  }
-
-  Future<void> assignBookingDialog(
-      BuildContext context, int? bookingId, int? addressId) async {
-    AssignHandymanScreen(
-      bookingId: bookingId,
-      serviceAddressId: addressId,
-      onUpdate: () {
-        appStore.setLoading(true);
-        init(flag: true);
-        if (appStore.isLoading) appStore.setLoading(false);
-      },
-    ).launch(context);
   }
 
   Future<void> updateBooking(BookingDetailResponse bookDetail,
@@ -1133,6 +1119,68 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
     return Offstage();
   }
 
+  int _handymanIdForLocationTracking(BookingDetailResponse res) {
+    final list = res.handymanData.validate();
+    if (list.isNotEmpty) return list.first.id.validate();
+    return appStore.userId.validate();
+  }
+
+  /// When status is [BookingStatusKeys.accept]: start job (on site / online) or put back to pending.
+  Widget _acceptedBookingStartDriveDeclineBar(BookingDetailResponse res) {
+    return Container(
+      child: Row(
+        children: [
+          AppButton(
+            text: languages.lblStartDrive,
+            color: context.primaryColor,
+            textColor: white,
+            onTap: () {
+              showConfirmDialogCustom(
+                context,
+                title: languages.confirmationRequestTxt,
+                primaryColor: context.primaryColor,
+                positiveText: languages.lblYes,
+                negativeText: languages.lblNo,
+                onAccept: (c) async {
+                  appStore.setLoading(true);
+                  await updateBooking(
+                    res,
+                    '',
+                    res.service!.isOnlineService.validate()
+                        ? BookingStatusKeys.inProgress
+                        : BookingStatusKeys.onGoing,
+                  );
+                  startLocationUpdates(
+                    status: res.bookingDetail?.status.validate() ?? "",
+                    handymanID: _handymanIdForLocationTracking(res),
+                  );
+                },
+              );
+            },
+          ).expand(),
+          16.width,
+          AppButton(
+            text: languages.decline,
+            textColor: textPrimaryColorGlobal,
+            onTap: () {
+              showConfirmDialogCustom(
+                context,
+                title: languages.confirmationRequestTxt,
+                positiveText: languages.lblYes,
+                negativeText: languages.lblNo,
+                onAccept: (val) {
+                  appStore.setLoading(true);
+                  updateBooking(res, '', BookingStatusKeys.pending);
+                },
+                primaryColor: context.primaryColor,
+              );
+            },
+          ).expand(),
+        ],
+      ),
+    );
+  }
+
   Widget handleProvider({required BookingDetailResponse res}) {
     if (res.bookingDetail!.status == BookingStatusKeys.pending) {
       showBottomActionBar = true;
@@ -1151,11 +1199,11 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
                   positiveText: languages.lblYes,
                   negativeText: languages.lblCancel,
                   onAccept: (c) async {
-                    var assignRequest = {
+                    final assignRequest = {
                       CommonKeys.id: widget.bookingId.validate(),
                       CommonKeys.handymanId: [appStore.userId.validate()],
                     };
-                    var updateRequest = {
+                    final updateRequest = {
                       CommonKeys.id: widget.bookingId.validate(),
                       BookingUpdateKeys.status: BookingStatusKeys.accept,
                       BookingUpdateKeys.paymentStatus:
@@ -1164,14 +1212,17 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
                               : res.bookingDetail!.paymentStatus.validate(),
                     };
                     appStore.setLoading(true);
-
-                    await bookingUpdate(updateRequest);
-                    await assignBooking(assignRequest).then((res) async {
+                    try {
+                      await bookingUpdate(updateRequest);
+                      await assignBooking(assignRequest);
                       LiveStream().emit(LIVESTREAM_UPDATE_BOOKINGS);
                       init(flag: true);
-                    }).catchError((e) {
+                      toast(languages.lblBookingAcceptedSuccessfully);
+                    } catch (e) {
                       toast(e.toString());
-                    });
+                    } finally {
+                      appStore.setLoading(false);
+                    }
                   },
                 );
               } else {
@@ -1182,7 +1233,7 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
                   positiveText: languages.lblYes,
                   negativeText: languages.lblNo,
                   onAccept: (_) async {
-                    var request = {
+                    final request = {
                       CommonKeys.id: res.bookingDetail!.id.validate(),
                       BookingUpdateKeys.status: BookingStatusKeys.accept,
                       BookingUpdateKeys.paymentStatus:
@@ -1191,13 +1242,16 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
                               : res.bookingDetail!.paymentStatus.validate(),
                     };
                     appStore.setLoading(true);
-
-                    bookingUpdate(request).then((res) async {
+                    try {
+                      await bookingUpdate(request);
                       LiveStream().emit(LIVESTREAM_UPDATE_BOOKINGS);
                       init(flag: true);
-                    }).catchError((e) {
+                      toast(languages.lblBookingAcceptedSuccessfully);
+                    } catch (e) {
                       toast(e.toString());
-                    });
+                    } finally {
+                      appStore.setLoading(false);
+                    }
                   },
                 );
               }
@@ -1216,35 +1270,7 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
       );
     } else if (res.bookingDetail!.status == BookingStatusKeys.accept) {
       showBottomActionBar = true;
-
-      if (res.handymanData.validate().isEmpty) {
-        return AppButton(
-          text: languages.lblAssignBooking,
-          color: context.primaryColor,
-          onTap: () {
-            assignBookingDialog(context, res.bookingDetail!.id,
-                res.bookingDetail!.bookingAddressId);
-          },
-        );
-      } else if (res.handymanData!.isNotEmpty) {
-        return Column(
-          children: [
-            Text('${res.handymanData!.first.displayName.validate()} ${languages.lblAssigned}',
-                    style: boldTextStyle())
-                .center(),
-            16.height,
-            AppButton(
-              width: context.width(),
-              text: languages.lblReassign,
-              color: context.primaryColor,
-              onTap: () {
-                assignBookingDialog(context, res.bookingDetail!.id,
-                    res.bookingDetail!.bookingAddressId);
-              },
-            ),
-          ],
-        );
-      }
+      return _acceptedBookingStartDriveDeclineBar(res);
     }
 
     return Offstage();
@@ -1253,61 +1279,7 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
   Widget handleHandyman({required BookingDetailResponse res}) {
     if (res.bookingDetail!.status == BookingStatusKeys.accept) {
       showBottomActionBar = true;
-
-      return Container(
-        child: Row(
-          children: [
-            AppButton(
-              text: res.service!.isOnlineService.validate()
-                  ? languages.lblStartDrive
-                  : languages.lblStartDrive,
-              color: context.primaryColor,
-              textColor: white,
-              onTap: () {
-                showConfirmDialogCustom(
-                  context,
-                  title: languages.confirmationRequestTxt,
-                  primaryColor: context.primaryColor,
-                  positiveText: languages.lblYes,
-                  negativeText: languages.lblNo,
-                  onAccept: (c) async {
-                    appStore.setLoading(true);
-                    await updateBooking(
-                      res,
-                      '',
-                      res.service!.isOnlineService.validate()
-                          ? BookingStatusKeys.inProgress
-                          : BookingStatusKeys.onGoing,
-                    );
-                    startLocationUpdates(
-                        status: res.bookingDetail?.status.validate() ?? "",
-                        handymanID:
-                            res.handymanData?.first.id.validate() ?? -1);
-                  },
-                );
-              },
-            ).expand(),
-            16.width,
-            AppButton(
-              text: languages.decline,
-              textColor: textPrimaryColorGlobal,
-              onTap: () {
-                showConfirmDialogCustom(
-                  context,
-                  title: languages.confirmationRequestTxt,
-                  positiveText: languages.lblYes,
-                  negativeText: languages.lblNo,
-                  onAccept: (val) {
-                    appStore.setLoading(true);
-                    updateBooking(res, '', BookingStatusKeys.pending);
-                  },
-                  primaryColor: context.primaryColor,
-                );
-              },
-            ).expand(),
-          ],
-        ),
-      );
+      return _acceptedBookingStartDriveDeclineBar(res);
     } else if (res.bookingDetail!.status == BookingStatusKeys.pendingApproval) {
       showBottomActionBar = true;
       return Container(
