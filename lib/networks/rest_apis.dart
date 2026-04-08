@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
@@ -800,6 +799,47 @@ Future<num> getUserWalletBalance() async {
   }
 }
 
+DateTime? _parseApiDateTime(String? raw) {
+  if (raw == null) return null;
+  final t = raw.trim();
+  if (t.isEmpty) return null;
+  var d = DateTime.tryParse(t);
+  if (d != null) return d;
+  if (t.contains(' ') && !t.contains('T')) {
+    d = DateTime.tryParse(t.replaceFirst(' ', 'T'));
+    if (d != null) return d;
+  }
+  return null;
+}
+
+void _sortBookingsNewestFirst(List<BookingData> list) {
+  int millis(BookingData b) {
+    final t = _parseApiDateTime(b.createdAt) ??
+        _parseApiDateTime(b.date) ??
+        _parseApiDateTime(b.startAt);
+    return t?.millisecondsSinceEpoch ?? 0;
+  }
+
+  list.sort((a, b) {
+    final c = millis(b).compareTo(millis(a));
+    if (c != 0) return c;
+    return (b.id ?? 0).compareTo(a.id ?? 0);
+  });
+}
+
+void _sortPostJobsNewestFirst(List<PostJobData> list) {
+  int millis(PostJobData j) {
+    final t = _parseApiDateTime(j.createdAt);
+    return t?.millisecondsSinceEpoch ?? 0;
+  }
+
+  list.sort((a, b) {
+    final c = millis(b).compareTo(millis(a));
+    if (c != 0) return c;
+    return (b.id ?? 0).compareTo(a.id ?? 0);
+  });
+}
+
 Future<List<BookingData>> getBookingList(
   int page, {
   var perPage = PER_PAGE_ITEM,
@@ -825,6 +865,7 @@ Future<List<BookingData>> getBookingList(
 
     queryParts.add('per_page=$perPage');
     queryParts.add('page=$page');
+    queryParts.add('orderby=desc');
 
     void addQueryPart(String key, String value, {bool encode = false}) {
       if (value.trim().isEmpty) return;
@@ -882,6 +923,7 @@ Future<List<BookingData>> getBookingList(
 
     if (page == 1) bookings.clear();
     bookings.addAll(res.data.validate());
+    _sortBookingsNewestFirst(bookings);
     lastPageCallback?.call(res.data.validate().length != PER_PAGE_ITEM);
 
     if (res.totalEarning.validate().isNotEmpty &&
@@ -1562,13 +1604,14 @@ Future<List<PostJobData>> getPostJobList(int page,
   if (cached != null && cached.until.isAfter(now)) {
     if (page == 1) postJobList.clear();
     appendUniqueById(cached.data);
+    _sortPostJobsNewestFirst(postJobList);
     lastPageCallback?.call(cached.isLastPage);
     appStore.setLoading(false);
     return postJobList;
   }
 
   try {
-    String url = 'get-post-job?per_page=$perPage&page=$page';
+    String url = 'get-post-job?orderby=desc&per_page=$perPage&page=$page';
     if (serviceIds != null && serviceIds.isNotEmpty) {
       url += '&service_id=${serviceIds.join(',')}';
     }
@@ -1583,6 +1626,7 @@ Future<List<PostJobData>> getPostJobList(int page,
     final isLastPage = list.length != perPage;
     lastPageCallback?.call(isLastPage);
     appendUniqueById(list);
+    _sortPostJobsNewestFirst(postJobList);
 
     _postJobListCache[cacheKey] = (
       until: now.add(_postJobListCacheDuration),

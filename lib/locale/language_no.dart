@@ -221,6 +221,14 @@ class LanguageNo extends LanguageEn {
   String get lblCall => 'Ring';
   @override
   String get lblAssignHandyman => 'Tildel håndverker';
+
+  @override
+  String get lblAssignBooking => 'Tildel booking';
+
+  @override
+  String get lblNoTeamMembersForAssign =>
+      'Ingen teammedlemmer ennå. Du kan fortsatt tildele bookingen til deg selv nedenfor.';
+
   @override
   String get lblAssigned => 'Tildelt';
   @override

@@ -6,6 +6,7 @@ import 'package:handyman_provider_flutter/components/handyman_name_widget.dart';
 import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/models/user_data.dart';
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
+import 'package:handyman_provider_flutter/utils/common.dart';
 import 'package:handyman_provider_flutter/utils/configs.dart';
 import 'package:handyman_provider_flutter/utils/model_keys.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -234,7 +235,9 @@ class _AssignHandymanScreenState extends State<AssignHandymanScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appBarTitle: languages.lblAssignHandyman,
+      appBarTitle: isUserTypeProvider
+          ? languages.lblAssignBooking
+          : languages.lblAssignHandyman,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -244,7 +247,9 @@ class _AssignHandymanScreenState extends State<AssignHandymanScreen> {
             onSuccess: (snap) {
               if (snap.isEmpty) {
                 return NoDataWidget(
-                  title: languages.noHandymanAvailable,
+                  title: isUserTypeProvider
+                      ? languages.lblNoTeamMembersForAssign
+                      : languages.noHandymanAvailable,
                   imageWidget: EmptyStateWidget(),
                   retryText: languages.reload,
                   onRetry: () {

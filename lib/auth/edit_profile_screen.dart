@@ -135,19 +135,10 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     addressCont.text = appStore.address;
     serviceAddressId = appStore.serviceAddressId;
     designationCont.text = appStore.designation;
-    selectedCountryPicker = Country(
-      phoneCode: appStore.userContactNumber.split("-").first.isEmpty
-          ? "+91"
-          : appStore.userContactNumber.split("-").first.toString(),
-      countryCode: "",
-      e164Sc: 0,
-      geographic: true,
-      level: 0,
-      name: "",
-      example: "",
-      displayName: "",
-      displayNameNoCountryCode: "",
-      e164Key: "",
+    final dialRaw =
+        appStore.userContactNumber.split("-").first.toString().trim();
+    selectedCountryPicker = countryFromDialCodePrefix(
+      dialRaw.isEmpty ? '91' : dialRaw,
     );
     userDetailAPI();
 
@@ -667,11 +658,28 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                                 decoration: inputDecoration(context,
                                         hint: languages.hintContactNumberTxt)
                                     .copyWith(
+                                  hintText:
+                                      '${languages.lblExample}: ${selectedCountryPicker.example}',
                                   hintStyle: secondaryTextStyle(),
                                 ),
                                 suffix:
                                     calling.iconImage(size: 10).paddingAll(14),
-                                maxLength: 15,
+                                maxLength: nationalPhoneMaxLength(
+                                    selectedCountryPicker),
+                                validator: (value) {
+                                  final phone = value.validate().trim();
+                                  if (phone.isEmpty) return null;
+                                  final maxLen = nationalPhoneMaxLength(
+                                      selectedCountryPicker);
+                                  if (!RegExp(r'^[0-9]+$').hasMatch(phone)) {
+                                    return 'Invalid contact number';
+                                  }
+                                  if (phone.length < 6 ||
+                                      phone.length > maxLen) {
+                                    return 'Invalid contact number';
+                                  }
+                                  return null;
+                                },
                               ).expand(),
                             ],
                           ),
@@ -1131,7 +1139,12 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           true, // optional. Shows phone code before the country name.
       onSelect: (Country country) {
         selectedCountryPicker = country;
+        final maxLen = nationalPhoneMaxLength(country);
+        if (mobileCont.text.length > maxLen) {
+          mobileCont.text = mobileCont.text.substring(0, maxLen);
+        }
         _valueNotifier.notifyListeners();
+        setState(() {});
       },
     );
   }

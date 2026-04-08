@@ -200,6 +200,13 @@ class LanguageEn extends Languages {
   String get lblAssignHandyman => 'Assign Handyman';
 
   @override
+  String get lblAssignBooking => 'Assign booking';
+
+  @override
+  String get lblNoTeamMembersForAssign =>
+      'No team members yet. You can still assign this booking to yourself below.';
+
+  @override
   String get lblAssigned => 'Assigned';
 
   @override
@@ -2315,7 +2322,7 @@ class LanguageEn extends Languages {
   String get lblJobServiceLocationOnFile => 'Service location on file';
 
   @override
-  String get lblJobLocationCityAreaFallback => 'Oslo';
+  String get lblJobLocationCityAreaFallback => 'Service area (city)';
 
   @override
   String get lblAllowLocation => 'Allow';

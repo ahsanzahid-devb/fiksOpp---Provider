@@ -11,6 +11,7 @@ import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/components/bid_price_dialog.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/models/post_job_detail_response.dart';
 import 'package:handyman_provider_flutter/provider/services/service_detail_screen.dart';
+import 'package:handyman_provider_flutter/utils/city_lookup_cache.dart';
 import 'package:handyman_provider_flutter/utils/constant.dart';
 import 'package:handyman_provider_flutter/utils/lat_lng_valid.dart';
 import 'package:handyman_provider_flutter/utils/model_keys.dart';
@@ -155,8 +156,6 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
               ),
             ).onTap(() async {
               if (data.id != null) {
-                // Check if service belongs to a different provider
-                // Services from other providers cannot be viewed via service-detail API
                 if (data.providerId != null &&
                     data.providerId.validate() != appStore.userId.validate()) {
                   toast(languages.noServiceFound);
@@ -237,7 +236,7 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
 
     final lat = double.parse(d.latitude!.trim());
     final lng = double.parse(d.longitude!.trim());
-    reverseGeocodeLatLng(lat, lng).then((resolved) {
+    reverseGeocodeLatLngCached(lat, lng).then((resolved) {
       if (!mounted || gen != _addressResolveGen) return;
       setState(() {
         _resolvingAddressFromCoords = false;
@@ -270,6 +269,14 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
       );
     }
     if (hasUsable && location.isEmpty) {
+      String interim = CityLookupCache.nameForCityId(data.cityId) ?? '';
+      if (interim.isEmpty &&
+          isUsableLatLngStrings(data.latitude, data.longitude)) {
+        interim = '${data.latitude!.trim()}, ${data.longitude!.trim()}';
+      }
+      if (interim.isEmpty) {
+        interim = languages.lblJobLocationCityAreaFallback;
+      }
       return Container(
         width: context.width(),
         margin: EdgeInsets.symmetric(horizontal: 16),
@@ -286,7 +293,7 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
             8.width,
             Expanded(
               child: Text(
-                "Oslo",
+                interim,
                 style: secondaryTextStyle(size: 13),
               ),
             ),
@@ -317,15 +324,15 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
                   displayText,
                   style: primaryTextStyle(size: 13),
                 ),
-                if (showResolvedRow &&
-                    _resolvedAddressFromCoords != null &&
-                    location != _resolvedAddressFromCoords) ...[
-                  4.height,
-                  Text(
-                    location,
-                    style: secondaryTextStyle(size: 11),
-                  ),
-                ],
+                // if (showResolvedRow &&
+                //     _resolvedAddressFromCoords != null &&
+                //     location != _resolvedAddressFromCoords) ...[
+                // 4.height,
+                // Text(
+                //   location,
+                //   style: secondaryTextStyle(size: 11),
+                // ),
+                // ],
               ],
             ),
           ),

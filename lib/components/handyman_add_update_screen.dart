@@ -59,7 +59,9 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
   List<ZoneResponse> providerZoneList = [];
   ZoneResponse? selectedServiceZone;
 
-  List<UserTypeData> commissionList = [UserTypeData(name: languages.lblSelectCommission, id: -1)];
+  List<UserTypeData> commissionList = [
+    UserTypeData(name: languages.lblSelectCommission, id: -1)
+  ];
   UserTypeData? selectedHandymanCommission;
 
   int? serviceZoneId;
@@ -77,23 +79,16 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
       lNameCont.text = widget.data!.lastName.validate();
       emailCont.text = widget.data!.email.validate();
       userNameCont.text = widget.data!.username.validate();
-      mobileCont.text = widget.data!.contactNumber?.split("-").last.validate() ?? "";
+      mobileCont.text =
+          widget.data!.contactNumber?.split("-").last.validate() ?? "";
       serviceZoneId = widget.data!.handymanZoneID.validate();
       commissionId = widget.data!.handymanCommissionId.validate();
       designationCont.text = widget.data!.designation.validate();
-      selectedCountry = Country(
-        phoneCode: widget.data!.contactNumber?.split("-").first.validate() ?? "",
-        countryCode: "",
-        e164Sc: 0,
-        geographic: true,
-        level: 0,
-        name: "",
-        example: "",
-        displayName: "",
-        displayNameNoCountryCode: "",
-        e164Key: "",
-      );
-      widget.data!.contactNumber?.split("-").first.validate();
+      final dialRaw =
+          widget.data!.contactNumber?.split("-").first.validate() ?? "";
+      selectedCountry = dialRaw.isEmpty
+          ? defaultCountry()
+          : countryFromDialCodePrefix(dialRaw);
     }
 
     init();
@@ -109,7 +104,11 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
 
   Future<void> getAddressList() async {
     appStore.setLoading(true);
-    await getZoneWithPagination(providerId: appStore.userId, zoneList: providerZoneList, isRequiredAllZones: true).then((value) {
+    await getZoneWithPagination(
+            providerId: appStore.userId,
+            zoneList: providerZoneList,
+            isRequiredAllZones: true)
+        .then((value) {
       appStore.setLoading(false);
 
       providerZoneList.forEach((e) {
@@ -125,7 +124,8 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
   }
 
   Future<void> getCommissionList() async {
-    getCommissionType(type: USER_TYPE_HANDYMAN, providerId: appStore.userId).then((value) {
+    getCommissionType(type: USER_TYPE_HANDYMAN, providerId: appStore.userId)
+        .then((value) {
       appStore.setLoading(false);
       commissionList.addAll(value.userTypeData!);
 
@@ -137,7 +137,9 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
       setState(() {});
     }).catchError((e) {
       appStore.setLoading(false);
-      commissionList = [UserTypeData(name: languages.lblSelectCommission, id: -1)];
+      commissionList = [
+        UserTypeData(name: languages.lblSelectCommission, id: -1)
+      ];
       log(e.toString());
     });
   }
@@ -150,7 +152,8 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
   /// Register the Handyman
   Future<void> register() async {
     if (formKey.currentState!.validate()) {
-      if (selectedHandymanCommission == null || selectedHandymanCommission!.id == -1) {
+      if (selectedHandymanCommission == null ||
+          selectedHandymanCommission!.id == -1) {
         return toast(languages.pleaseSelectCommission);
       }
       formKey.currentState!.save();
@@ -166,7 +169,8 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
         UserKeys.status: USER_STATUS_CODE,
         UserKeys.contactNumber: buildMobileNumber(),
         UserKeys.designation: designationCont.text.validate(),
-        if (serviceZoneId != null && serviceZoneId != -1) UserKeys.handyman_zone_id: serviceZoneId.validate(),
+        if (serviceZoneId != null && serviceZoneId != -1)
+          UserKeys.handyman_zone_id: serviceZoneId.validate(),
         UserKeys.email: emailCont.text,
         UserKeys.handymanTypeId: selectedHandymanCommission?.id,
         if (!isUpdate) UserKeys.password: passwordCont.text
@@ -320,12 +324,18 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                     child: Text(languages.lblDelete),
                     value: 1,
                     enabled: widget.data!.deletedAt == null,
-                    textStyle: boldTextStyle(color: widget.data!.deletedAt == null ? textPrimaryColorGlobal : null),
+                    textStyle: boldTextStyle(
+                        color: widget.data!.deletedAt == null
+                            ? textPrimaryColorGlobal
+                            : null),
                   ),
                   PopupMenuItem(
                     child: Text(languages.lblRestore),
                     value: 2,
-                    textStyle: boldTextStyle(color: widget.data!.deletedAt != null ? textPrimaryColorGlobal : null),
+                    textStyle: boldTextStyle(
+                        color: widget.data!.deletedAt != null
+                            ? textPrimaryColorGlobal
+                            : null),
                     enabled: widget.data!.deletedAt != null,
                   ),
                   PopupMenuItem(
@@ -360,7 +370,9 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                       textFieldType: TextFieldType.NAME,
                       controller: fNameCont,
                       focus: fNameFocus,
-                      enabled: isUpdate ? rolesAndPermissionStore.handymanEdit : true,
+                      enabled: isUpdate
+                          ? rolesAndPermissionStore.handymanEdit
+                          : true,
                       nextFocus: lNameFocus,
                       decoration: inputDecoration(
                         context,
@@ -374,7 +386,9 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                       textFieldType: TextFieldType.NAME,
                       controller: lNameCont,
                       focus: lNameFocus,
-                      enabled: isUpdate ? rolesAndPermissionStore.handymanEdit : true,
+                      enabled: isUpdate
+                          ? rolesAndPermissionStore.handymanEdit
+                          : true,
                       nextFocus: userNameFocus,
                       decoration: inputDecoration(
                         context,
@@ -389,7 +403,9 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                       controller: userNameCont,
                       focus: userNameFocus,
                       nextFocus: emailFocus,
-                      enabled: isUpdate ? rolesAndPermissionStore.handymanEdit : true,
+                      enabled: isUpdate
+                          ? rolesAndPermissionStore.handymanEdit
+                          : true,
                       decoration: inputDecoration(
                         context,
                         hint: languages.hintUserNameTxt,
@@ -403,7 +419,9 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                       controller: emailCont,
                       focus: emailFocus,
                       nextFocus: mobileFocus,
-                      enabled: isUpdate ? rolesAndPermissionStore.handymanEdit : true,
+                      enabled: isUpdate
+                          ? rolesAndPermissionStore.handymanEdit
+                          : true,
                       decoration: inputDecoration(
                         context,
                         hint: languages.hintEmailAddressTxt,
@@ -413,7 +431,9 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                     ),
                     16.height,
                     IgnorePointer(
-                      ignoring: isUpdate ? !rolesAndPermissionStore.handymanEdit : false,
+                      ignoring: isUpdate
+                          ? !rolesAndPermissionStore.handymanEdit
+                          : false,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -452,10 +472,29 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                                 context,
                                 hint: languages.hintContactNumberTxt,
                                 fillColor: context.scaffoldBackgroundColor,
+                              ).copyWith(
+                                hintText:
+                                    '${languages.lblExample}: ${selectedCountry.example}',
+                                hintStyle: secondaryTextStyle(),
                               ),
-                              suffix: calling.iconImage(size: 10).paddingAll(14),
+                              maxLength:
+                                  nationalPhoneMaxLength(selectedCountry),
+                              suffix:
+                                  calling.iconImage(size: 10).paddingAll(14),
                               validator: (mobileCont) {
-                                if (mobileCont!.isEmpty) return languages.lblPleaseEnterMobileNumber;
+                                if (mobileCont == null ||
+                                    mobileCont.trim().isEmpty) {
+                                  return languages.lblPleaseEnterMobileNumber;
+                                }
+                                final phone = mobileCont.trim();
+                                final maxLen =
+                                    nationalPhoneMaxLength(selectedCountry);
+                                if (!RegExp(r'^[0-9]+$').hasMatch(phone)) {
+                                  return 'Invalid contact number';
+                                }
+                                if (phone.length < 6 || phone.length > maxLen) {
+                                  return 'Invalid contact number';
+                                }
                                 return null;
                               },
                             ),
@@ -468,7 +507,9 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                       textFieldType: TextFieldType.NAME,
                       controller: designationCont,
                       isValidationRequired: false,
-                      enabled: isUpdate ? rolesAndPermissionStore.handymanEdit : true,
+                      enabled: isUpdate
+                          ? rolesAndPermissionStore.handymanEdit
+                          : true,
                       focus: designationFocus,
                       nextFocus: passwordFocus,
                       decoration: inputDecoration(
@@ -480,7 +521,9 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                     16.height,
                     // Select commission text field...
                     IgnorePointer(
-                      ignoring: isUpdate ? !rolesAndPermissionStore.handymanEdit : false,
+                      ignoring: isUpdate
+                          ? !rolesAndPermissionStore.handymanEdit
+                          : false,
                       child: DropdownButtonFormField<UserTypeData>(
                         decoration: inputDecoration(
                           context,
@@ -489,13 +532,16 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                         ),
                         isExpanded: true,
                         dropdownColor: context.cardColor,
-                        initialValue: selectedHandymanCommission != null ? selectedHandymanCommission : null,
+                        initialValue: selectedHandymanCommission != null
+                            ? selectedHandymanCommission
+                            : null,
                         items: commissionList.map((data) {
                           return DropdownMenuItem<UserTypeData>(
                             value: data,
                             child: Row(
                               children: [
-                                Text(data.name.toString(), style: primaryTextStyle()),
+                                Text(data.name.toString(),
+                                    style: primaryTextStyle()),
                                 4.width,
                                 if (data.type == COMMISSION_TYPE_PERCENT)
                                   Text(
@@ -503,21 +549,26 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                                     style: primaryTextStyle(),
                                   )
                                 else if (data.type == COMMISSION_TYPE_FIXED)
-                                  Text('(${data.commission.validate().toPriceFormat()})', style: primaryTextStyle()),
+                                  Text(
+                                      '(${data.commission.validate().toPriceFormat()})',
+                                      style: primaryTextStyle()),
                               ],
                             ),
                           );
                         }).toList(),
                         onChanged: (UserTypeData? value) async {
                           selectedHandymanCommission = value;
-                          commissionId = selectedHandymanCommission!.id.validate();
+                          commissionId =
+                              selectedHandymanCommission!.id.validate();
                           setState(() {});
                         },
                       ),
                     ).visible(commissionList.isNotEmpty),
                     16.height,
                     IgnorePointer(
-                      ignoring: isUpdate ? !rolesAndPermissionStore.handymanEdit : false,
+                      ignoring: isUpdate
+                          ? !rolesAndPermissionStore.handymanEdit
+                          : false,
                       child: DropdownButtonFormField<ZoneResponse>(
                         decoration: inputDecoration(
                           context,
@@ -526,7 +577,9 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                         ),
                         isExpanded: true,
                         dropdownColor: context.cardColor,
-                        initialValue: selectedServiceZone != null ? selectedServiceZone : null,
+                        initialValue: selectedServiceZone != null
+                            ? selectedServiceZone
+                            : null,
                         items: providerZoneList.map((data) {
                           return DropdownMenuItem<ZoneResponse>(
                             value: data,
@@ -548,7 +601,9 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                       textFieldType: TextFieldType.PASSWORD,
                       controller: passwordCont,
                       focus: passwordFocus,
-                      enabled: isUpdate ? rolesAndPermissionStore.handymanEdit : true,
+                      enabled: isUpdate
+                          ? rolesAndPermissionStore.handymanEdit
+                          : true,
                       obscureText: true,
                       decoration: inputDecoration(
                         context,
@@ -575,16 +630,22 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${widget.data!.displayName} ${languages.lblRegistered} ${DateTime.parse(widget.data!.createdAt!).timeAgo}\n${formatBookingDate(widget.data!.createdAt!)}',
+                          Text(
+                              '${widget.data!.displayName} ${languages.lblRegistered} ${DateTime.parse(widget.data!.createdAt!).timeAgo}\n${formatBookingDate(widget.data!.createdAt!)}',
                               style: secondaryTextStyle()),
-                          if (widget.data!.emailVerifiedAt.validate().isNotEmpty)
+                          if (widget.data!.emailVerifiedAt
+                              .validate()
+                              .isNotEmpty)
                             TextIcon(
                               text: '${languages.lblEmailIsVerified}',
                               textStyle: primaryTextStyle(color: Colors.green),
                               prefix: Container(
-                                child: Icon(Icons.check, color: Colors.white, size: 14),
+                                child: Icon(Icons.check,
+                                    color: Colors.white, size: 14),
                                 padding: EdgeInsets.all(2),
-                                decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.green),
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.green),
                               ),
                             ).paddingTop(8),
                         ],
@@ -619,7 +680,9 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
                 ),
               ),
             ),
-            Observer(builder: (_) => LoaderWidget().center().visible(appStore.isLoading)),
+            Observer(
+                builder: (_) =>
+                    LoaderWidget().center().visible(appStore.isLoading)),
           ],
         ),
       ),
@@ -643,10 +706,16 @@ class HandymanAddUpdateScreenState extends State<HandymanAddUpdateScreen> {
           ),
         ),
       ),
-      showPhoneCode: true, // optional. Shows phone code before the country name.
+      showPhoneCode:
+          true, // optional. Shows phone code before the country name.
       onSelect: (Country country) {
         selectedCountry = country;
+        final maxLen = nationalPhoneMaxLength(country);
+        if (mobileCont.text.length > maxLen) {
+          mobileCont.text = mobileCont.text.substring(0, maxLen);
+        }
         _valueNotifier.notifyListeners();
+        setState(() {});
       },
     );
   }

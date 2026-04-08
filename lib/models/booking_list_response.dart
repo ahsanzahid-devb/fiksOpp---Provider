@@ -97,6 +97,8 @@ class BookingData {
   int? providerIsVerified;
   String? customerImage;
   String? date;
+  /// When the API sends `created_at` on list rows (preferred for “newest first”).
+  String? createdAt;
   String? durationDiff;
   int? paymentId;
   int? bookingAddressId;
@@ -160,6 +162,7 @@ class BookingData {
     this.bookingSlot,
     this.customerName,
     this.date,
+    this.createdAt,
     this.description,
     this.discount,
     this.amount,
@@ -213,6 +216,7 @@ class BookingData {
       customerId: json['customer_id'],
       customerName: json['customer_name'],
       date: json['date'],
+      createdAt: json['created_at']?.toString(),
       description: json['description'],
       discount: json['discount'],
       amount: json['amount'],
@@ -284,6 +288,7 @@ class BookingData {
     data['customer_id'] = this.customerId;
     data['customer_name'] = this.customerName;
     data['date'] = this.date;
+    data['created_at'] = this.createdAt;
     data['discount'] = this.discount;
     data['amount'] = this.amount;
     data['duration_diff'] = this.durationDiff;

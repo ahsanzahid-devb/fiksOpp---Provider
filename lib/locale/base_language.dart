@@ -134,6 +134,12 @@ abstract class Languages {
 
   String get lblAssignHandyman;
 
+  /// Neutral title when provider may assign themselves or a team member.
+  String get lblAssignBooking;
+
+  /// Shown when the handyman list is empty but "Assign to Myself" is still available.
+  String get lblNoTeamMembersForAssign;
+
   String get lblAssigned;
 
   String get viewAll;

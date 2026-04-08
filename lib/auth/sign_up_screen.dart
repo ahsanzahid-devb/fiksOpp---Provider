@@ -1,5 +1,3 @@
-// ignore_for_file: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
-
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -37,8 +35,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   Future<ZoneModel>? providerZoneFuture;
-
-  //-------------------------------- Variables -------------------------------//
 
   /// TextEditing controller
   TextEditingController fNameCont = TextEditingController();
@@ -295,31 +291,39 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ).onTap(() => changeCountry()),
             10.width,
-            AppTextField(
-              textFieldType: TextFieldType.PHONE,
-              controller: mobileCont,
-              focus: mobileFocus,
-              errorThisFieldRequired: languages.hintRequired,
-              nextFocus: passwordFocus,
-              decoration: inputDecoration(context,
-                      hint: '${languages.hintContactNumberTxt}')
-                  .copyWith(
-                hintText: '${languages.lblExample}: ${selectedCountry.example}',
-                hintStyle: secondaryTextStyle(),
-              ),
-              maxLength: 15,
-              validator: (value) {
-                final phone = value.validate().trim();
-                if (phone.isEmpty) return languages.hintRequired;
-                if (!RegExp(r'^[0-9]+$').hasMatch(phone)) {
-                  return 'Invalid contact number';
-                }
-                if (phone.length < 6 || phone.length > 15) {
-                  return 'Invalid contact number';
-                }
-                return null;
+            ValueListenableBuilder(
+              valueListenable: _valueNotifier,
+              builder: (context, _, __) {
+                final countryForRules =
+                    resolveCountryForPhoneRules(selectedCountry);
+                final maxLen = nationalPhoneMaxLength(selectedCountry);
+                return AppTextField(
+                  key: ValueKey(
+                      'signup_mobile_${countryForRules.countryCode}_$maxLen'),
+                  textFieldType: TextFieldType.PHONE,
+                  controller: mobileCont,
+                  focus: mobileFocus,
+                  errorThisFieldRequired: languages.hintRequired,
+                  nextFocus: passwordFocus,
+                  decoration: inputDecoration(context,
+                          hint: '${languages.hintContactNumberTxt}')
+                      .copyWith(
+                    hintText:
+                        '${languages.lblExample}: ${countryForRules.example}',
+                    hintStyle: secondaryTextStyle(),
+                  ),
+                  maxLength: maxLen,
+                  validator: (value) {
+                    final phone = value.validate().trim();
+                    if (phone.isEmpty) return languages.hintRequired;
+                    if (phone.length > maxLen) {
+                      return languages.hintRequired;
+                    }
+                    return null;
+                  },
+                  suffix: calling.iconImage(size: 10).paddingAll(14),
+                );
               },
-              suffix: calling.iconImage(size: 10).paddingAll(14),
             ).expand(),
           ],
         ),
@@ -748,8 +752,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
       showPhoneCode: true,
       // optional. Shows phone code before the country name.
       onSelect: (Country country) {
-        selectedCountry = country;
+        selectedCountry = resolveCountryForPhoneRules(country);
+        final maxLen = nationalPhoneMaxLength(selectedCountry);
+        if (mobileCont.text.length > maxLen) {
+          mobileCont.text = mobileCont.text.substring(0, maxLen);
+        }
         _valueNotifier.notifyListeners();
+        setState(() {});
       },
     );
   }

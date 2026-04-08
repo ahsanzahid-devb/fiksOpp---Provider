@@ -14,7 +14,8 @@ const BASE_URL = "$DOMAIN_URL/api/";
 /// You can specify in Admin Panel, These will be used if you don't specify in Admin Panel
 const IOS_LINK_FOR_PARTNER = "";
 const TERMS_CONDITION_URL = 'https://fiksopp.com/brukeravtale-for-fiksopp/';
-const PRIVACY_POLICY_URL = 'https://fiksopp.com/personvernerklaering-for-fiksopp/';
+const PRIVACY_POLICY_URL =
+    'https://fiksopp.com/personvernerklaering-for-fiksopp/';
 const HELP_AND_SUPPORT_URL = '';
 const REFUND_POLICY_URL = '';
 const INQUIRY_SUPPORT_EMAIL = '';
@@ -48,21 +49,76 @@ const STRIPE_CURRENCY_CODE = 'INR';
 
 Country defaultCountry() {
   return Country(
-    phoneCode: '91',
-    countryCode: 'IN',
+    phoneCode: '45',
+    countryCode: 'DK',
     e164Sc: 91,
     geographic: true,
     level: 1,
-    name: 'India',
-    example: '9123456789',
-    displayName: 'India (IN) [+91]',
-    displayNameNoCountryCode: 'India (IN)',
-    e164Key: '91-IN-0',
-    fullExampleWithPlusSign: '+919123456789',
+    name: 'Denmark',
+    example: '4523456789',
+    displayName: 'Denmark (DK) [+45]',
+    displayNameNoCountryCode: 'Denmark (DK)',
+    e164Key: '45-DK-0',
+    fullExampleWithPlusSign: '+454523456789',
   );
 }
 
-//Chat Module File Upload Configs
+int _exampleDigitCount(Country c) =>
+    c.example.replaceAll(RegExp(r'[^0-9]'), '').length;
+
+Country resolveCountryForPhoneRules(Country country) {
+  if (_exampleDigitCount(country) > 0) return country;
+
+  if (country.countryCode.isNotEmpty) {
+    final iso = CountryParser.tryParseCountryCode(
+      country.countryCode.toUpperCase(),
+    );
+    if (iso != null && _exampleDigitCount(iso) > 0) return iso;
+  }
+
+  final pc = country.phoneCode.replaceAll(RegExp(r'[^0-9]'), '');
+  if (pc.isNotEmpty) {
+    final exact = CountryParser.tryParsePhoneCode(pc);
+    if (exact != null && _exampleDigitCount(exact) > 0) return exact;
+    for (var len = pc.length; len >= 1; len--) {
+      final sub = pc.substring(0, len);
+      final m = CountryParser.tryParsePhoneCode(sub);
+      if (m != null && _exampleDigitCount(m) > 0) return m;
+    }
+    if (pc == '1') {
+      final us = CountryParser.tryParseCountryCode('US');
+      if (us != null && _exampleDigitCount(us) > 0) return us;
+    }
+  }
+
+  return country;
+}
+
+int nationalPhoneMaxLength(Country country) {
+  final c = resolveCountryForPhoneRules(country);
+  final n = _exampleDigitCount(c);
+  if (n == 0) return 12;
+  if (c.phoneCode == '1') return n;
+  return n + 1;
+}
+
+Country countryFromDialCodePrefix(String rawPrefix) {
+  final digits = rawPrefix.replaceAll(RegExp(r'[^0-9]'), '');
+  if (digits.isEmpty) return defaultCountry();
+
+  for (var len = digits.length; len >= 1; len--) {
+    final sub = digits.substring(0, len);
+    final match = CountryParser.tryParsePhoneCode(sub);
+    if (match != null) return match;
+  }
+
+  if (digits.startsWith('1')) {
+    return CountryParser.tryParseCountryCode('US') ?? defaultCountry();
+  }
+
+  return defaultCountry();
+}
+
 const chatFilesAllowedExtensions = [
   'jpg', 'jpeg', 'png', 'gif', 'webp', // Images
   'pdf', 'txt', // Documents

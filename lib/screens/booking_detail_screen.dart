@@ -1219,7 +1219,7 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
 
       if (res.handymanData.validate().isEmpty) {
         return AppButton(
-          text: languages.lblAssignHandyman,
+          text: languages.lblAssignBooking,
           color: context.primaryColor,
           onTap: () {
             assignBookingDialog(context, res.bookingDetail!.id,

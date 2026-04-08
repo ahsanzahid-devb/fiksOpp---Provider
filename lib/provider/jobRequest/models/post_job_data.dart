@@ -75,12 +75,11 @@ class PostJobData {
     return null;
   }
 
-  /// Single line for list/detail: post-level fields first, then nested service mapping/address/city.
+  /// Single line for list/detail: address and city before raw coordinates so list rows
+  /// can show [CityLookupCache] city names instead of lat/lng when the API omits `address`.
   String get displayJobLocationLabel {
     if (address.validate().trim().isNotEmpty) return address!.trim();
-    if (isUsableLatLngStrings(latitude, longitude)) {
-      return '${latitude!.trim()}, ${longitude!.trim()}';
-    }
+
     for (final m in serviceAddressMapping ?? <ServiceAddressMapping>[]) {
       final pam = m.providerAddressMapping;
       if (pam == null) continue;
@@ -90,14 +89,42 @@ class PostJobData {
         return '${pam.latitude}, ${pam.longitude}';
       }
     }
+
     if (service.validate().isNotEmpty) {
-      final label = service!.first.displayServiceLocationLabel;
-      if (label.isNotEmpty) return label;
+      final s = service!.first;
+      if (s.address.validate().trim().isNotEmpty) return s.address!.trim();
+      for (final m in s.serviceAddressMapping ?? <ServiceAddressMapping>[]) {
+        final pam = m.providerAddressMapping;
+        if (pam == null) continue;
+        final a = pam.address?.trim();
+        if (a.validate().isNotEmpty) return a!;
+        if (isUsableLatLngStrings(pam.latitude, pam.longitude)) {
+          return '${pam.latitude}, ${pam.longitude}';
+        }
+      }
     }
+
+    if (cityName.validate().trim().isNotEmpty) return cityName!.trim();
+    if (service.validate().isNotEmpty) {
+      final cn = service!.first.cityName?.trim();
+      if (cn.validate().isNotEmpty) return cn!;
+    }
+
     if (cityId != null && cityId! > 0) {
-      if (cityName.validate().trim().isNotEmpty) return cityName!.trim();
       return '';
     }
+
+    if (isUsableLatLngStrings(latitude, longitude)) {
+      return '${latitude!.trim()}, ${longitude!.trim()}';
+    }
+
+    if (service.validate().isNotEmpty) {
+      final s = service!.first;
+      if (isUsableLatLngStrings(s.latitude, s.longitude)) {
+        return '${s.latitude!.trim()}, ${s.longitude!.trim()}';
+      }
+    }
+
     return '';
   }
 
