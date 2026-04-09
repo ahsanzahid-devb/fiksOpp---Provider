@@ -43,9 +43,7 @@ class BookingItemComponentState extends State<BookingItemComponent> {
     init();
   }
 
-  Future<void> init() async {
-    //
-  }
+  Future<void> init() async {}
 
   String buildTimeWidget({required BookingData bookingDetail}) {
     if (bookingDetail.bookingSlot == null) {
@@ -147,386 +145,413 @@ class BookingItemComponentState extends State<BookingItemComponent> {
             appStore.isDarkMode ? context.cardColor : cardLightColor,
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (widget.bookingData.isPackageBooking)
-                CachedImageWidget(
-                  url: widget.bookingData.bookingPackage!.imageAttachments
-                          .validate()
-                          .isNotEmpty
-                      ? widget.bookingData.bookingPackage!.imageAttachments
-                          .validate()
-                          .first
-                          .validate()
-                      : "",
-                  height: 80,
-                  width: 80,
-                  fit: BoxFit.cover,
-                  radius: defaultRadius,
-                )
-              else
-                CachedImageWidget(
-                  url: widget.bookingData.imageAttachments.validate().isNotEmpty
-                      ? widget.bookingData.imageAttachments!.first.validate()
-                      : '',
-                  fit: BoxFit.cover,
-                  width: 80,
-                  height: 80,
-                  radius: defaultRadius,
-                ),
-              16.width,
-              Column(
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal:
-                                    widget.bookingData.isPostJob ? 14 : 12,
-                                vertical: widget.bookingData.isPostJob ? 4 : 2),
-                            decoration: BoxDecoration(
-                              color:
-                                  context.primaryColor.withValues(alpha: 0.1),
-                              borderRadius: radius(16),
-                              border: Border.all(
-                                  color: context.primaryColor,
-                                  width:
-                                      widget.bookingData.isPostJob ? 1.5 : 1),
-                            ),
-                            child: Text(
-                              '#${widget.bookingData.id.validate()}',
-                              style: boldTextStyle(
-                                  color: context.primaryColor,
-                                  size: widget.bookingData.isPostJob ? 13 : 12),
-                            ),
-                          ).flexible(),
-                          5.width,
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: widget.bookingData.status
-                                  .validate()
-                                  .getBookingStatusBackgroundColor
-                                  .withValues(alpha: 0.1),
-                              borderRadius: radius(16),
-                              border: Border.all(
-                                  color: widget.bookingData.status
-                                      .validate()
-                                      .getBookingStatusBackgroundColor),
-                            ),
-                            child: Marquee(
-                              child: Text(
-                                widget.bookingData.status
-                                    .validate()
-                                    .toBookingStatus(),
-                                style: boldTextStyle(
-                                  color: widget.bookingData.status
-                                      .validate()
-                                      .getBookingStatusBackgroundColor,
-                                  size: 12,
-                                ),
-                              ),
-                            ),
-                          ).flexible(),
-                          if (widget.bookingData.isPostJob)
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 2),
-                              margin: EdgeInsets.only(left: 4),
-                              decoration: BoxDecoration(
-                                color:
-                                    context.primaryColor.withValues(alpha: 0.1),
-                                border: Border.all(color: context.primaryColor),
-                                borderRadius: radius(16),
-                              ),
-                              child: Text(
-                                languages.postJob,
-                                style: boldTextStyle(
-                                    color: context.primaryColor, size: 12),
-                              ),
-                            ),
-                          if (widget.bookingData.isPackageBooking)
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 2),
-                              margin: EdgeInsets.only(left: 4),
-                              decoration: BoxDecoration(
-                                color:
-                                    context.primaryColor.withValues(alpha: 0.1),
-                                border: Border.all(color: context.primaryColor),
-                                borderRadius: radius(16),
-                              ),
-                              child: Text(
-                                languages.package,
-                                style: boldTextStyle(
-                                    color: context.primaryColor, size: 12),
-                              ),
-                            ),
-                        ],
-                      ).flexible(),
-                    ],
-                  ),
-                  12.height,
+                  if (widget.bookingData.isPackageBooking)
+                    CachedImageWidget(
+                      url: widget.bookingData.bookingPackage!.imageAttachments
+                              .validate()
+                              .isNotEmpty
+                          ? widget.bookingData.bookingPackage!.imageAttachments
+                              .validate()
+                              .first
+                              .validate()
+                          : "",
+                      height: 80,
+                      width: 80,
+                      fit: BoxFit.cover,
+                      radius: defaultRadius,
+                    )
+                  else
+                    CachedImageWidget(
+                      url: widget.bookingData.imageAttachments
+                              .validate()
+                              .isNotEmpty
+                          ? widget.bookingData.imageAttachments!.first
+                              .validate()
+                          : '',
+                      fit: BoxFit.cover,
+                      width: 80,
+                      height: 80,
+                      radius: defaultRadius,
+                    ),
+                  16.width,
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Marquee(
-                        child: Text(
-                          widget.bookingData.isPackageBooking
-                              ? '${widget.bookingData.bookingPackage!.name.validate()}'
-                              : '${widget.bookingData.serviceName.validate()}',
-                          style: boldTextStyle(),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                      if (widget.bookingData.isPostJob)
-                        Padding(
-                          padding: EdgeInsets.only(top: 4),
-                          child: Text(
-                            '${languages.postJob} #${widget.bookingData.id.validate()}',
-                            style: secondaryTextStyle(
-                                size: 11, color: context.primaryColor),
-                          ),
-                        ),
-                    ],
-                  ),
-                  8.height,
-                  if (widget.bookingData.bookingPackage != null)
-                    PriceWidget(
-                      price: widget.bookingData.totalAmount.validate(),
-                      color: primaryColor,
-                    )
-                  else
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        PriceWidget(
-                          isFreeService:
-                              widget.bookingData.type == SERVICE_TYPE_FREE,
-                          price: widget.bookingData.totalAmount.validate(),
-                          color: primaryColor,
-                        ),
-                        if (widget.bookingData.isHourlyService)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
                           Row(
                             children: [
-                              4.width,
-                              Text(
-                                '${widget.bookingData.amount.validate().toPriceFormat()}/${languages.lblHr}',
-                                style: secondaryTextStyle(),
-                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal:
+                                        widget.bookingData.isPostJob ? 14 : 12,
+                                    vertical:
+                                        widget.bookingData.isPostJob ? 4 : 2),
+                                decoration: BoxDecoration(
+                                  color: context.primaryColor
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: radius(16),
+                                  border: Border.all(
+                                      color: context.primaryColor,
+                                      width: widget.bookingData.isPostJob
+                                          ? 1.5
+                                          : 1),
+                                ),
+                                child: Text(
+                                  '#${widget.bookingData.id.validate()}',
+                                  style: boldTextStyle(
+                                      color: context.primaryColor,
+                                      size: widget.bookingData.isPostJob
+                                          ? 13
+                                          : 12),
+                                ),
+                              ).flexible(),
+                              5.width,
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: widget.bookingData.status
+                                      .validate()
+                                      .getBookingStatusBackgroundColor
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: radius(16),
+                                  border: Border.all(
+                                      color: widget.bookingData.status
+                                          .validate()
+                                          .getBookingStatusBackgroundColor),
+                                ),
+                                child: Marquee(
+                                  child: Text(
+                                    widget.bookingData.status
+                                        .validate()
+                                        .toBookingStatus(),
+                                    style: boldTextStyle(
+                                      color: widget.bookingData.status
+                                          .validate()
+                                          .getBookingStatusBackgroundColor,
+                                      size: 12,
+                                    ),
+                                  ),
+                                ),
+                              ).flexible(),
+                              if (widget.bookingData.isPostJob)
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 2),
+                                  margin: EdgeInsets.only(left: 4),
+                                  decoration: BoxDecoration(
+                                    color: context.primaryColor
+                                        .withValues(alpha: 0.1),
+                                    border:
+                                        Border.all(color: context.primaryColor),
+                                    borderRadius: radius(16),
+                                  ),
+                                  child: Text(
+                                    languages.postJob,
+                                    style: boldTextStyle(
+                                        color: context.primaryColor, size: 12),
+                                  ),
+                                ),
+                              if (widget.bookingData.isPackageBooking)
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 2),
+                                  margin: EdgeInsets.only(left: 4),
+                                  decoration: BoxDecoration(
+                                    color: context.primaryColor
+                                        .withValues(alpha: 0.1),
+                                    border:
+                                        Border.all(color: context.primaryColor),
+                                    borderRadius: radius(16),
+                                  ),
+                                  child: Text(
+                                    languages.package,
+                                    style: boldTextStyle(
+                                        color: context.primaryColor, size: 12),
+                                  ),
+                                ),
                             ],
+                          ).flexible(),
+                        ],
+                      ),
+                      12.height,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Marquee(
+                            child: Text(
+                              widget.bookingData.isPackageBooking
+                                  ? '${widget.bookingData.bookingPackage!.name.validate()}'
+                                  : '${widget.bookingData.serviceName.validate()}',
+                              style: boldTextStyle(),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
                           ),
-                        if (widget.bookingData.discount.validate() != 0)
-                          Text(
-                            '(${widget.bookingData.discount.validate()}% ${languages.lblOff})',
-                            style: boldTextStyle(size: 12, color: Colors.green),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ).paddingLeft(4).expand(),
-                      ],
-                    ),
+                          if (widget.bookingData.isPostJob)
+                            Padding(
+                              padding: EdgeInsets.only(top: 4),
+                              child: Text(
+                                '${languages.postJob} #${widget.bookingData.id.validate()}',
+                                style: secondaryTextStyle(
+                                    size: 11, color: context.primaryColor),
+                              ),
+                            ),
+                        ],
+                      ),
+                      8.height,
+                      if (widget.bookingData.bookingPackage != null)
+                        PriceWidget(
+                          price: widget.bookingData.totalAmount.validate(),
+                          color: primaryColor,
+                        )
+                      else
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            PriceWidget(
+                              isFreeService:
+                                  widget.bookingData.type == SERVICE_TYPE_FREE,
+                              price: widget.bookingData.totalAmount.validate(),
+                              color: primaryColor,
+                            ),
+                            if (widget.bookingData.isHourlyService)
+                              Row(
+                                children: [
+                                  4.width,
+                                  Text(
+                                    '${widget.bookingData.amount.validate().toPriceFormat()}/${languages.lblHr}',
+                                    style: secondaryTextStyle(),
+                                  ),
+                                ],
+                              ),
+                            if (widget.bookingData.discount.validate() != 0)
+                              Text(
+                                '(${widget.bookingData.discount.validate()}% ${languages.lblOff})',
+                                style: boldTextStyle(
+                                    size: 12, color: Colors.green),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ).paddingLeft(4).expand(),
+                          ],
+                        ),
+                    ],
+                  ).expand(),
                 ],
-              ).expand(),
-            ],
-          ).paddingAll(8),
-          if (widget.showDescription)
-            Container(
-              decoration: boxDecorationWithRoundedCorners(
-                backgroundColor:
-                    appStore.isDarkMode ? context.cardColor : whiteColor,
-                border: Border.all(color: context.dividerColor),
-                borderRadius: BorderRadius.all(Radius.circular(8)),
-              ),
-              margin: EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (widget.bookingData.address.validate().isNotEmpty)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          '${languages.lblAddress}:',
-                          style: secondaryTextStyle(),
-                        ).expand(flex: 2),
-                        8.width,
-                        Marquee(
-                          child: Text(
-                            widget.bookingData.address.validate(),
-                            style: boldTextStyle(size: 12),
-                            textAlign: TextAlign.left,
-                          ),
-                        ).expand(flex: 5),
-                      ],
-                    ).paddingAll(8),
-                  Row(
+              ).paddingAll(8),
+              if (widget.showDescription)
+                Container(
+                  decoration: boxDecorationWithRoundedCorners(
+                    backgroundColor:
+                        appStore.isDarkMode ? context.cardColor : whiteColor,
+                    border: Border.all(color: context.dividerColor),
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                  ),
+                  margin: EdgeInsets.all(8),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        '${languages.lblDate} & ${languages.lblTime}:',
-                        style: secondaryTextStyle(),
-                      ).expand(flex: 2),
-                      8.width,
-                      Marquee(
-                        child: Text(
-                          "${formatDate(widget.bookingData.date.validate(), format: DATE_FORMAT_2)} ${languages.at} ${buildTimeWidget(bookingDetail: widget.bookingData)}",
-                          style: boldTextStyle(size: 12),
-                          textAlign: TextAlign.left,
-                        ),
-                      ).expand(flex: 5),
-                    ],
-                  ).paddingOnly(left: 8, bottom: 8, right: 8),
-                  if (widget.bookingData.customerName.validate().isNotEmpty)
-                    Row(
-                      children: [
-                        Text(
-                          '${languages.customer}:',
-                          style: secondaryTextStyle(),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ).expand(flex: 2),
-                        8.width,
-                        Marquee(
-                          child: Text(
-                            widget.bookingData.customerName.validate(),
-                            style: boldTextStyle(size: 12),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.left,
-                          ),
-                        ).expand(flex: 5),
-                      ],
-                    ).paddingOnly(left: 8, bottom: 8, right: 8),
-                  if (widget.bookingData.paymentStatus != null &&
-                      widget.bookingData.status == BookingStatusKeys.complete)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${languages.paymentStatus}:',
-                          style: secondaryTextStyle(),
-                        ).expand(flex: 2),
-                        8.width,
-                        Marquee(
-                          child: Text(
-                            buildPaymentStatusWithMethod(
-                              widget.bookingData.paymentStatus.validate(),
-                              widget.bookingData.paymentMethod
-                                  .validate()
-                                  .capitalizeFirstLetter(),
-                            ),
-                            style: boldTextStyle(
-                              size: 12,
-                              color: (widget.bookingData.paymentStatus
-                                              .validate() ==
-                                          PAID ||
-                                      widget.bookingData.paymentStatus
-                                              .validate() ==
-                                          PENDING_BY_ADMINS)
-                                  ? Colors.green
-                                  : Colors.red,
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
-                        ).expand(flex: 5),
-                      ],
-                    ).paddingOnly(left: 8, bottom: 8, right: 8),
-                  if (widget.bookingData.handyman.validate().isNotEmpty &&
-                      isUserTypeProvider)
-                    Column(
-                      children: [
-                        DottedLine(
-                          dashColor: appStore.isDarkMode
-                              ? lightGray.withValues(alpha: 0.4)
-                              : lightGray,
-                          dashGapLength: 5,
-                          dashLength: 8,
-                        ).paddingAll(8),
+                      if (widget.bookingData.address.validate().isNotEmpty)
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              '${languages.lblAddress}:',
+                              style: secondaryTextStyle(),
+                            ).expand(flex: 2),
+                            8.width,
+                            Marquee(
+                              child: Text(
+                                widget.bookingData.address.validate(),
+                                style: boldTextStyle(size: 12),
+                                textAlign: TextAlign.left,
+                              ),
+                            ).expand(flex: 5),
+                          ],
+                        ).paddingAll(8),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${languages.lblDate} & ${languages.lblTime}:',
+                            style: secondaryTextStyle(),
+                          ).expand(flex: 2),
+                          8.width,
+                          Marquee(
+                            child: Text(
+                              "${formatDate(widget.bookingData.date.validate(), format: DATE_FORMAT_2)} ${languages.at} ${buildTimeWidget(bookingDetail: widget.bookingData)}",
+                              style: boldTextStyle(size: 12),
+                              textAlign: TextAlign.left,
+                            ),
+                          ).expand(flex: 5),
+                        ],
+                      ).paddingOnly(left: 8, bottom: 8, right: 8),
+                      if (widget.bookingData.customerName.validate().isNotEmpty)
+                        Row(
+                          children: [
+                            Text(
+                              '${languages.customer}:',
+                              style: secondaryTextStyle(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ).expand(flex: 2),
+                            8.width,
+                            Marquee(
+                              child: Text(
+                                widget.bookingData.customerName.validate(),
+                                style: boldTextStyle(size: 12),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.left,
+                              ),
+                            ).expand(flex: 5),
+                          ],
+                        ).paddingOnly(left: 8, bottom: 8, right: 8),
+                      if (widget.bookingData.paymentStatus != null &&
+                          widget.bookingData.status ==
+                              BookingStatusKeys.complete)
+                        Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ImageBorder(
-                              src: widget.bookingData.handyman!.isEmpty
-                                  ? widget.bookingData.providerImage.validate()
-                                  : widget.bookingData.isProviderAndHandymanSame
-                                      ? widget.bookingData.providerImage
-                                          .validate()
-                                      : widget.bookingData.handyman!.first
-                                          .handyman!.handymanImage
-                                          .validate(),
-                              height: 40,
-                            ),
-                            16.width,
-                            Column(
+                            Text(
+                              '${languages.paymentStatus}:',
+                              style: secondaryTextStyle(),
+                            ).expand(flex: 2),
+                            8.width,
+                            Marquee(
+                              child: Text(
+                                buildPaymentStatusWithMethod(
+                                  widget.bookingData.paymentStatus.validate(),
+                                  widget.bookingData.paymentMethod
+                                      .validate()
+                                      .capitalizeFirstLetter(),
+                                ),
+                                style: boldTextStyle(
+                                  size: 12,
+                                  color: (widget.bookingData.paymentStatus
+                                                  .validate() ==
+                                              PAID ||
+                                          widget.bookingData.paymentStatus
+                                                  .validate() ==
+                                              PENDING_BY_ADMINS)
+                                      ? Colors.green
+                                      : Colors.red,
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ).expand(flex: 5),
+                          ],
+                        ).paddingOnly(left: 8, bottom: 8, right: 8),
+                      if (widget.bookingData.handyman.validate().isNotEmpty &&
+                          isUserTypeProvider)
+                        Column(
+                          children: [
+                            DottedLine(
+                              dashColor: appStore.isDarkMode
+                                  ? lightGray.withValues(alpha: 0.4)
+                                  : lightGray,
+                              dashGapLength: 5,
+                              dashLength: 8,
+                            ).paddingAll(8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
+                                ImageBorder(
+                                  src: widget.bookingData.handyman!.isEmpty
+                                      ? widget.bookingData.providerImage
+                                          .validate()
+                                      : widget.bookingData
+                                              .isProviderAndHandymanSame
+                                          ? widget.bookingData.providerImage
+                                              .validate()
+                                          : widget.bookingData.handyman!.first
+                                              .handyman!.handymanImage
+                                              .validate(),
+                                  height: 40,
+                                ),
+                                16.width,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Marquee(
-                                      child: Text(
-                                        widget.bookingData.handyman
-                                            .validate()
-                                            .first
-                                            .handyman!
-                                            .displayName
-                                            .validate(),
-                                        style: boldTextStyle(size: 12),
-                                      ),
-                                    ).flexible(),
-                                    4.width,
-                                    ImageIcon(
-                                      AssetImage(ic_verified),
-                                      size: 14,
-                                      color: Colors.green,
-                                    ).visible(
-                                      widget.bookingData.handyman!.isEmpty
-                                          ? widget.bookingData
-                                                  .providerIsVerified
-                                                  .validate() ==
-                                              1
-                                          : widget.bookingData
-                                                  .isProviderAndHandymanSame
+                                    Row(
+                                      children: [
+                                        Marquee(
+                                          child: Text(
+                                            widget.bookingData.handyman
+                                                .validate()
+                                                .first
+                                                .handyman!
+                                                .displayName
+                                                .validate(),
+                                            style: boldTextStyle(size: 12),
+                                          ),
+                                        ).flexible(),
+                                        4.width,
+                                        ImageIcon(
+                                          AssetImage(ic_verified),
+                                          size: 14,
+                                          color: Colors.green,
+                                        ).visible(
+                                          widget.bookingData.handyman!.isEmpty
                                               ? widget.bookingData
                                                       .providerIsVerified
                                                       .validate() ==
                                                   1
-                                              : widget
-                                                      .bookingData
-                                                      .handyman!
-                                                      .first
-                                                      .handyman!
-                                                      .isVerifiedHandyman
-                                                      .validate() ==
-                                                  1,
+                                              : widget.bookingData
+                                                      .isProviderAndHandymanSame
+                                                  ? widget.bookingData
+                                                          .providerIsVerified
+                                                          .validate() ==
+                                                      1
+                                                  : widget
+                                                          .bookingData
+                                                          .handyman!
+                                                          .first
+                                                          .handyman!
+                                                          .isVerifiedHandyman
+                                                          .validate() ==
+                                                      1,
+                                        ),
+                                      ],
+                                    ),
+                                    4.height,
+                                    Text(
+                                      languages.handyman,
+                                      style: secondaryTextStyle(),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
-                                ),
-                                4.height,
-                                Text(
-                                  languages.handyman,
-                                  style: secondaryTextStyle(),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                ).flexible(),
                               ],
-                            ).flexible(),
+                            ).paddingAll(8),
                           ],
-                        ).paddingAll(8),
-                      ],
-                    ),
-                ],
-              ).paddingAll(8),
-            ),
+                        ),
+                    ],
+                  ).paddingAll(8),
+                ),
+            ],
+          ).onTap(
+            () {
+              BookingDetailScreen(bookingId: widget.bookingData.id.validate())
+                  .launch(context);
+            },
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+          ),
           if (isUserTypeProvider &&
               widget.bookingData.status == BookingStatusKeys.pending)
             Row(
@@ -664,14 +689,6 @@ class BookingItemComponentState extends State<BookingItemComponent> {
             ).paddingOnly(bottom: 8, left: 8, right: 8, top: 16),
         ],
       ), //booking card change
-    ).onTap(
-      () async {
-        BookingDetailScreen(bookingId: widget.bookingData.id.validate())
-            .launch(context);
-      },
-      hoverColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      splashColor: Colors.transparent,
     );
   }
 }

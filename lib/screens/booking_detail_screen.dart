@@ -46,7 +46,6 @@ import 'package:handyman_provider_flutter/utils/getImage.dart';
 import 'package:intl/intl.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:permission_handler_platform_interface/permission_handler_platform_interface.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../components/base_scaffold_widget.dart';
@@ -424,51 +423,101 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
     });
   }
 
+  Future<void> _beginOngoingLocationTracking({
+    required String status,
+    required int handymanID,
+    required bool isFirstTimeLoad,
+  }) async {
+    if (isFirstTimeLoad) {
+      await refreshProviderAndHandymanLocation(
+          status: status, handymanID: handymanID);
+    }
+    if (_locationUpdateTimer == null || !_locationUpdateTimer!.isActive) {
+      _locationUpdateTimer = Timer.periodic(
+        Duration(seconds: providerLocationRefreshPeriodInSeconds),
+        (Timer timer) async {
+          refreshProviderAndHandymanLocation(
+              status: status, handymanID: handymanID);
+        },
+      );
+    }
+  }
+
+  /// iOS: do not use [Permission.locationAlways] here — "While Using" leaves
+  /// "Always" denied and was misread as permanently denied, opening Settings in a loop.
+  Future<bool> _isWhenInUseLocationPermanentlyDenied() async {
+    final loc = await Permission.location.status;
+    if (Platform.isIOS) {
+      final w = await Permission.locationWhenInUse.status;
+      if (w.isGranted || w.isLimited) return false;
+      if (loc.isGranted || loc.isLimited) return false;
+      return w.isPermanentlyDenied || loc.isPermanentlyDenied;
+    }
+    if (loc.isGranted || loc.isLimited) return false;
+    return loc.isPermanentlyDenied;
+  }
+
   void startLocationUpdates(
       {required String status,
       required int handymanID,
       bool isFirstTimeLoad = false}) async {
-    if (bookingStatus == BookingStatusKeys.onGoing) {
-      bool isPermenetlyDenied = await PermissionHandlerPlatform.instance
-                  .checkPermissionStatus(Permission.locationAlways) ==
-              PermissionStatus.permanentlyDenied ||
-          await PermissionHandlerPlatform.instance
-                  .checkPermissionStatus(Permission.location) ==
-              PermissionStatus.permanentlyDenied ||
-          await PermissionHandlerPlatform.instance
-                  .checkPermissionStatus(Permission.locationWhenInUse) ==
-              PermissionStatus.permanentlyDenied;
-      if (isPermenetlyDenied &&
-          isUserTypeProvider &&
-          handymanID != appStore.userId) {
-        stopLocationUpdates();
-        showConfirmDialogCustom(
-          context,
-          title: languages.youHavePermanentlyDenied,
-          primaryColor: primaryColor,
-          positiveText: languages.lblYes,
-          negativeText: languages.lblNo,
-          onAccept: (context) async {
-            openAppSettings();
-          },
-        );
-      } else if (await Permissions.locationPermissionsGranted()) {
-        if (isFirstTimeLoad) {
-          await refreshProviderAndHandymanLocation(
-              status: status, handymanID: handymanID);
-        }
-        if (_locationUpdateTimer == null || !_locationUpdateTimer!.isActive) {
-          _locationUpdateTimer = Timer.periodic(
-            Duration(seconds: providerLocationRefreshPeriodInSeconds),
-            (Timer timer) async {
-              refreshProviderAndHandymanLocation(
-                  status: status, handymanID: handymanID);
-            },
-          );
-        }
-      }
-    } else {
+    // [bookingDetail] may not have refreshed yet after [updateBooking]; honor [status] too.
+    final wantOngoingTracking = bookingStatus == BookingStatusKeys.onGoing ||
+        status == BookingStatusKeys.onGoing;
+    if (!wantOngoingTracking) {
       stopLocationUpdates();
+      return;
+    }
+
+    // Provider watching another handyman: map uses API ([_getCurrentLocation]), not this device's GPS.
+    // Do not gate on [Permissions.hasLocationAccess] or show the Settings dialog — that caused
+    // false "open Settings" loops when the provider had "While Using" but not "Always", etc.
+    final bool providerTracksOtherHandyman = isUserTypeProvider &&
+        handymanID != -1 &&
+        handymanID.validate() != appStore.userId.validate();
+    if (providerTracksOtherHandyman) {
+      await _beginOngoingLocationTracking(
+        status: status,
+        handymanID: handymanID,
+        isFirstTimeLoad: isFirstTimeLoad,
+      );
+      return;
+    }
+
+    if (await Permissions.hasLocationAccess()) {
+      await _beginOngoingLocationTracking(
+        status: status,
+        handymanID: handymanID,
+        isFirstTimeLoad: isFirstTimeLoad,
+      );
+      return;
+    }
+
+    final blocked = await _isWhenInUseLocationPermanentlyDenied();
+    if (blocked &&
+        isUserTypeProvider &&
+        handymanID.validate() != appStore.userId.validate()) {
+      stopLocationUpdates();
+      if (!mounted) return;
+      showConfirmDialogCustom(
+        context,
+        title: languages.youHavePermanentlyDenied,
+        primaryColor: primaryColor,
+        positiveText: languages.lblYes,
+        negativeText: languages.lblNo,
+        onAccept: (context) async {
+          openAppSettings();
+        },
+      );
+      return;
+    }
+
+    if (await Permissions.locationPermissionsGranted()) {
+      await _beginOngoingLocationTracking(
+        status: status,
+        handymanID: handymanID,
+        isFirstTimeLoad: isFirstTimeLoad,
+      );
     }
   }
 
@@ -1141,17 +1190,16 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
                 negativeText: languages.lblNo,
                 onAccept: (c) async {
                   appStore.setLoading(true);
-                  await updateBooking(
-                    res,
-                    '',
-                    res.service!.isOnlineService.validate()
-                        ? BookingStatusKeys.inProgress
-                        : BookingStatusKeys.onGoing,
-                  );
-                  startLocationUpdates(
-                    status: res.bookingDetail?.status.validate() ?? "",
-                    handymanID: _handymanIdForLocationTracking(res),
-                  );
+                  final nextStatus = res.service!.isOnlineService.validate()
+                      ? BookingStatusKeys.inProgress
+                      : BookingStatusKeys.onGoing;
+                  await updateBooking(res, '', nextStatus);
+                  if (nextStatus == BookingStatusKeys.onGoing) {
+                    startLocationUpdates(
+                      status: nextStatus,
+                      handymanID: _handymanIdForLocationTracking(res),
+                    );
+                  }
                 },
               );
             },

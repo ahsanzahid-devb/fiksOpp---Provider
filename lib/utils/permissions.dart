@@ -12,8 +12,6 @@ import 'constant.dart';
 class Permissions {
   static PermissionHandlerPlatform get _handler =>
       PermissionHandlerPlatform.instance;
-  static const String _lastPermissionSettingsRedirectAt =
-      'lastPermissionSettingsRedirectAt';
 
   static Future<bool> _isLocationAccessGranted() async {
     final loc = await Permission.location.status;
@@ -24,6 +22,10 @@ class Permissions {
     }
     return false;
   }
+
+  /// True when device location is already usable (incl. iOS "While Using" / approximate).
+  /// Use this before treating permissions as "blocked" or opening Settings.
+  static Future<bool> hasLocationAccess() => _isLocationAccessGranted();
 
   /// When [backendDescribesJobSite] is true (address / coordinates / city from API),
   /// returns true immediately — no device location prompt.
@@ -151,18 +153,6 @@ class Permissions {
     final hasAccess = statuses.any(
       (element) => element.isGranted || element.isLimited,
     );
-    final hasPermanentlyDenied = statuses.any(
-      (element) => element == PermissionStatus.permanentlyDenied,
-    );
-
-    if (hasPermanentlyDenied) {
-      final now = DateTime.now().millisecondsSinceEpoch;
-      final lastRedirectAt = getIntAsync(_lastPermissionSettingsRedirectAt);
-      if (now - lastRedirectAt > 15000) {
-        await setValue(_lastPermissionSettingsRedirectAt, now);
-        openAppSettings();
-      }
-    }
 
     await setValue(PERMISSION_STATUS, hasAccess);
     return hasAccess;
