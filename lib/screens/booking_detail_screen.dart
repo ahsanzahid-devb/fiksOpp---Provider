@@ -99,8 +99,6 @@ class BookingDetailScreenState extends State<BookingDetailScreen>
   String bookingStatus = "";
   int handymanId = -1;
 
-  // endregion Variables
-
   @override
   void initState() {
     init();
