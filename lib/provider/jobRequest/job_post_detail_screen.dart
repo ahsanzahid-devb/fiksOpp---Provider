@@ -173,8 +173,6 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
 
   String _getJobLocation(PostJobData data) => data.displayJobLocationLabel;
 
-  /// [booking-list] rows include `address` for `user_post_job`; [get-post-job-detail]
-  /// often does not. Re-use a matching cached booking so bidding matches booking UX.
   PostJobData _mergeJobLocation(PostJobData raw) {
     var d = PostJobData.withLocationFallbackFromList(raw, widget.postJobData);
     if (PostJobLocation.hasUsableLocation(d)) return d;

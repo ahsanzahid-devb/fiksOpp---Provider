@@ -16,14 +16,24 @@ class BookingListResponse {
   String? totalEarning;
   PaymentBreakdown? paymentBreakdown;
 
-  BookingListResponse({required this.data, required this.pagination, this.totalEarning, this.paymentBreakdown});
+  BookingListResponse(
+      {required this.data,
+      required this.pagination,
+      this.totalEarning,
+      this.paymentBreakdown});
 
   factory BookingListResponse.fromJson(Map<String, dynamic> json) {
     return BookingListResponse(
-      data: json['data'] != null ? (json['data'] as List).map((i) => BookingData.fromJson(i)).toList() : null,
-      pagination: json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null,
+      data: json['data'] != null
+          ? (json['data'] as List).map((i) => BookingData.fromJson(i)).toList()
+          : null,
+      pagination: json['pagination'] != null
+          ? Pagination.fromJson(json['pagination'])
+          : null,
       totalEarning: json['total_earning'],
-      paymentBreakdown: json['payment_breakdown'] != null ? PaymentBreakdown.fromJson(json['payment_breakdown']) : null,
+      paymentBreakdown: json['payment_breakdown'] != null
+          ? PaymentBreakdown.fromJson(json['payment_breakdown'])
+          : null,
     );
   }
 
@@ -50,15 +60,22 @@ class PaymentBreakdown {
   String? tax;
   String? discount;
 
-  PaymentBreakdown({this.adminEarned, this.handymanEarned, this.providerEarned, this.tax, this.discount});
+  PaymentBreakdown(
+      {this.adminEarned,
+      this.handymanEarned,
+      this.providerEarned,
+      this.tax,
+      this.discount});
 
   factory PaymentBreakdown.fromJson(Map<String, dynamic> json) {
+    String? s(dynamic v) => v == null ? null : v.toString();
+
     return PaymentBreakdown(
-      adminEarned: json['admin_earned'],
-      handymanEarned: json['handyman_earned'],
-      providerEarned: json['provider_earned'],
-      tax: json['tax'],
-      discount: json['discount'],
+      adminEarned: s(json['admin_earned']),
+      handymanEarned: s(json['handyman_earned']),
+      providerEarned: s(json['provider_earned']),
+      tax: s(json['tax']),
+      discount: s(json['discount']),
     );
   }
 
@@ -97,6 +114,7 @@ class BookingData {
   int? providerIsVerified;
   String? customerImage;
   String? date;
+
   /// When the API sends `created_at` on list rows (preferred for “newest first”).
   String? createdAt;
   String? durationDiff;
@@ -132,13 +150,19 @@ class BookingData {
   String? beforeJobImage;
 
   //Local
-  double get totalAmountWithExtraCharges => totalAmount.validate() + extraCharges.validate().sumByDouble((e) => e.qty.validate() * e.price.validate());
+  double get totalAmountWithExtraCharges =>
+      totalAmount.validate() +
+      extraCharges
+          .validate()
+          .sumByDouble((e) => e.qty.validate() * e.price.validate());
 
   bool get isHourlyService => type.validate() == SERVICE_TYPE_HOURLY;
 
   bool get isFreeService => type.validate() == SERVICE_TYPE_FREE;
 
-  bool get isProviderAndHandymanSame => handyman.validate().isNotEmpty ? handyman.validate().first.handymanId.validate() == providerId.validate() : false;
+  bool get isProviderAndHandymanSame => handyman.validate().isNotEmpty
+      ? handyman.validate().first.handymanId.validate() == providerId.validate()
+      : false;
 
   bool get isPostJob => bookingType == BOOKING_TYPE_USER_POST_JOB;
 
@@ -149,9 +173,14 @@ class BookingData {
   bool get isFixedService => type.validate() == SERVICE_TYPE_FIXED;
 
   bool get canCustomerContact =>
-      (status == BookingStatusKeys.accept || status == BookingStatusKeys.onGoing || status == BookingStatusKeys.inProgress || status == BookingStatusKeys.hold) || !(paymentStatus == PAID || paymentStatus == PENDING_BY_ADMINS);
+      (status == BookingStatusKeys.accept ||
+          status == BookingStatusKeys.onGoing ||
+          status == BookingStatusKeys.inProgress ||
+          status == BookingStatusKeys.hold) ||
+      !(paymentStatus == PAID || paymentStatus == PENDING_BY_ADMINS);
 
-  num get totalExtraChargeAmount => extraCharges.validate().sumByDouble((e) => e.total.validate());
+  num get totalExtraChargeAmount =>
+      extraCharges.validate().sumByDouble((e) => e.total.validate());
 
   List<ServiceAddon>? serviceaddon;
 
@@ -223,7 +252,9 @@ class BookingData {
       bookingSlot: json['booking_slot'],
       durationDiff: json['duration_diff']?.toString(),
       durationDiffHour: json['duration_diff_hour'],
-      handyman: json['handyman'] != null ? (json['handyman'] as List).map((i) => Handyman.fromJson(i)).toList() : [],
+      handyman: json['handyman'] != null
+          ? (json['handyman'] as List).map((i) => Handyman.fromJson(i)).toList()
+          : [],
       id: json['id'],
       paymentId: json['payment_id'],
       paymentMethod: json['payment_method'],
@@ -239,10 +270,16 @@ class BookingData {
       providerName: json['provider_name'],
       // service_attchments: json['service_attchments'] != null ? (json['service_attchments'] as List).map((i) => Attachments.fromJson(i)).toList() : null,
       //  image_attchments :json['attchments'],
-      imageAttachments: json['service_attchments'] != null ? List<String>.from(json['service_attchments']) : null,
+      imageAttachments: json['service_attchments'] != null
+          ? List<String>.from(json['service_attchments'])
+          : null,
       //service_attchments: json['service_attchments'] != null ? new List<String>.from(json['service_attchments']) : null,
-      taxes: json['taxes'] != null ? (json['taxes'] as List).map((i) => TaxData.fromJson(i)).toList() : null,
-      couponData: json['coupon_data'] != null ? CouponData.fromJson(json['coupon_data']) : null,
+      taxes: json['taxes'] != null
+          ? (json['taxes'] as List).map((i) => TaxData.fromJson(i)).toList()
+          : null,
+      couponData: json['coupon_data'] != null
+          ? CouponData.fromJson(json['coupon_data'])
+          : null,
       serviceId: json['service_id'],
       serviceName: json['service_name'],
       status: json['status'],
@@ -257,18 +294,29 @@ class BookingData {
       reason: json['reason'],
       startAt: json['start_at'],
       endAt: json['end_at'],
-      extraCharges: json['extra_charges'] != null ? (json['extra_charges'] as List).map((i) => ExtraChargesModel.fromJson(i)).toList() : null,
+      extraCharges: json['extra_charges'] != null
+          ? (json['extra_charges'] as List)
+              .map((i) => ExtraChargesModel.fromJson(i))
+              .toList()
+          : null,
       bookingType: json['booking_type'],
-      bookingPackage: json['booking_package'] != null ? PackageData.fromJson(json['booking_package']) : null,
+      bookingPackage: json['booking_package'] != null
+          ? PackageData.fromJson(json['booking_package'])
+          : null,
       paidAmount: json[AdvancePaymentKey.advancePaidAmount],
       finalTotalServicePrice: json['final_total_service_price'],
       finalTotalTax: json['final_total_tax'],
       finalSubTotal: json['final_sub_total'],
       finalDiscountAmount: json['final_discount_amount'],
       finalCouponDiscountAmount: json['final_coupon_discount_amount'],
-      serviceaddon: json['BookingAddonService'] != null ? (json['BookingAddonService'] as List).map((i) => ServiceAddon.fromJson(i)).toList() : null,
+      serviceaddon: json['BookingAddonService'] != null
+          ? (json['BookingAddonService'] as List)
+              .map((i) => ServiceAddon.fromJson(i))
+              .toList()
+          : null,
       txnId: json['txn_id'],
-      beforeJobImage: _normalizeBeforeJobImageUrl(json['before_image'] ?? json['before_job_image']),
+      beforeJobImage: _normalizeBeforeJobImageUrl(
+          json['before_image'] ?? json['before_job_image']),
     );
   }
 
@@ -335,7 +383,8 @@ class BookingData {
     data['start_at'] = this.startAt;
     data['end_at'] = this.endAt;
     if (this.extraCharges != null) {
-      data['extra_charges'] = this.extraCharges!.map((v) => v.toJson()).toList();
+      data['extra_charges'] =
+          this.extraCharges!.map((v) => v.toJson()).toList();
     }
     data['booking_type'] = this.bookingType;
     data[AdvancePaymentKey.advancePaidAmount] = this.amount;
@@ -348,7 +397,8 @@ class BookingData {
     data['final_discount_amount'] = this.finalDiscountAmount;
     data['final_coupon_discount_amount'] = this.finalCouponDiscountAmount;
     if (this.serviceaddon != null) {
-      data['BookingAddonService'] = this.serviceaddon!.map((v) => v.toJson()).toList();
+      data['BookingAddonService'] =
+          this.serviceaddon!.map((v) => v.toJson()).toList();
     }
     data['txn_id'] = this.txnId;
     data['before_job_image'] = this.beforeJobImage;
@@ -365,7 +415,14 @@ class Handyman {
   String? deletedAt;
   UserData? handyman;
 
-  Handyman({this.id, this.bookingId, this.handymanId, this.createdAt, this.updatedAt, this.deletedAt, this.handyman});
+  Handyman(
+      {this.id,
+      this.bookingId,
+      this.handymanId,
+      this.createdAt,
+      this.updatedAt,
+      this.deletedAt,
+      this.handyman});
 
   Handyman.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -374,7 +431,9 @@ class Handyman {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     deletedAt = json['deleted_at'];
-    handyman = json['handyman'] != null ? new UserData.fromJson(json['handyman']) : null;
+    handyman = json['handyman'] != null
+        ? new UserData.fromJson(json['handyman'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {

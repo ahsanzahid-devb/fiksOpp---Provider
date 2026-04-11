@@ -12,7 +12,9 @@ const DOMAIN_URL = "https://fiksopp.inoor.buzz";
 const BASE_URL = "$DOMAIN_URL/api/";
 
 /// You can specify in Admin Panel, These will be used if you don't specify in Admin Panel
-const IOS_LINK_FOR_PARTNER = "";
+/// Fallback when [PROVIDER_APPSTORE_URL] is empty or invalid (About → Rate us, update dialog).
+const IOS_LINK_FOR_PARTNER =
+    'https://apps.apple.com/us/app/fiksopp-provider/id6758335151';
 const TERMS_CONDITION_URL = 'https://fiksopp.com/brukeravtale-for-fiksopp/';
 const PRIVACY_POLICY_URL =
     'https://fiksopp.com/personvernerklaering-for-fiksopp/';

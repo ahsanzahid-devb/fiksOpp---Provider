@@ -138,31 +138,32 @@ class _JobItemWidgetState extends State<JobItemWidget> {
                 style: boldTextStyle(size: 14),
               ),
               2.height,
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.place_outlined,
-                    size: 14,
-                    color: locationLooksOk
-                        ? context.primaryColor
-                        : Colors.orange.shade700,
-                  ),
-                  4.width,
-                  Expanded(
-                    child: Text(
-                      locationLine,
-                      style: secondaryTextStyle(
-                        size: 12,
-                        color: locationLooksOk ? null : Colors.orange.shade800,
-                      ),
-                      maxLines: displayLocation.isNotEmpty ? 2 : 4,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              2.height,
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     Icon(
+              //       Icons.place_outlined,
+              //       size: 14,
+              //       color: locationLooksOk
+              //           ? context.primaryColor
+              //           : Colors.orange.shade700,
+              //     ),
+              //     4.width,
+              //     Expanded(
+              //       child: Text(
+              //         locationLine,
+              //         style: secondaryTextStyle(
+              //           size: 12,
+              //           color: locationLooksOk ? null : Colors.orange.shade800,
+              //         ),
+              //         maxLines: displayLocation.isNotEmpty ? 2 : 4,
+              //         overflow: TextOverflow.ellipsis,
+              //       ),
+              //     ),
+              //   ],
+              // ),
+
+              // 2.height,
               Text(formatDate(data.createdAt.validate()),
                   style: secondaryTextStyle(),
                   maxLines: 2,

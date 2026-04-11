@@ -17,7 +17,8 @@ class AboutUsScreen extends StatelessWidget {
       final uri = Uri.tryParse(url);
       if (uri == null) return false;
       final host = uri.host.toLowerCase();
-      return host.contains('play.google.com') || host.contains('apps.apple.com');
+      return host.contains('play.google.com') ||
+          host.contains('apps.apple.com');
     }
 
     if (isAndroid) {
@@ -92,14 +93,9 @@ class AboutUsScreen extends StatelessWidget {
                   checkIfLink(context, appConfigurationStore.inquiryEmail,
                       title: languages.lblHelpAndSupport);
                 }
-              } else if (title == languages.lblHelpLineNum) {
-                final phone = appConfigurationStore.helplineNumber.validate();
-                if (phone.isNotEmpty) {
-                  launchCall(phone);
-                } else {
-                  toast(languages.noDataFound);
-                }
-              } else if (title == 'Rate us') {
+              } else if (title == languages.lblAboutEmail) {
+                launchMail(FIKSOPP_ABOUT_CONTACT_EMAIL);
+              } else if (title == languages.lblRateUs) {
                 _openRateUsLink();
               }
             },

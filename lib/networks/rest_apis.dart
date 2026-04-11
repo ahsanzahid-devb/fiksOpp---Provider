@@ -2021,3 +2021,22 @@ Future<BaseResponseModel> restoreProviderHandymanType(Map request) async {
           request: request, method: HttpMethodType.POST)));
 }
 //end region Add Handyman Commission
+
+//region Chat
+/// Notifies the backend after a message is stored in Firestore (Laravel user ids).
+Future<void> sendChatNotification({
+  required int senderId,
+  required int receiverId,
+  required String message,
+}) async {
+  await handleResponse(await buildHttpResponse(
+    'send-chat-notification',
+    method: HttpMethodType.POST,
+    request: {
+      'sender_id': senderId,
+      'receiver_id': receiverId,
+      'message': message,
+    },
+  ));
+}
+//endregion

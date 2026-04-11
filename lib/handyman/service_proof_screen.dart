@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:handyman_provider_flutter/components/app_widgets.dart';
 import 'package:handyman_provider_flutter/components/back_widget.dart';
@@ -71,6 +72,15 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
   }
 
   /// Load before-job image from backend response
+  /// Gallery return path often leaves the IME focused on multiline fields; force-dismiss.
+  void _dismissServiceProofKeyboard() {
+    if (!mounted) return;
+    compliantFocus.unfocus();
+    FocusManager.instance.primaryFocus?.unfocus();
+    hideKeyboard(context);
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+  }
+
   Future<void> _loadBeforeJobImage() async {
     try {
       final raw = widget.bookingDetail!.bookingDetail!.beforeJobImage;
@@ -152,14 +162,14 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
               title: languages.lblGallery,
               leading: Icon(Icons.image, color: context.iconColor),
               onTap: () async {
-                _handleGalleryClick();
+                await _handleGalleryClick();
               },
             ),
             SettingItemWidget(
               title: languages.camera,
               leading: Icon(Icons.camera, color: context.iconColor),
-              onTap: () {
-                _handleCameraClick();
+              onTap: () async {
+                await _handleCameraClick();
               },
             ),
           ],
@@ -170,22 +180,38 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
 
   Future<void> _handleGalleryClick() async {
     finish(context);
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    if (!mounted) return;
+    _dismissServiceProofKeyboard();
     GetMultipleImage(path: (xFiles) async {
-      log('Path camera : ${xFiles.length.toString()}');
+      log('Path gallery : ${xFiles.length.toString()}');
       final existingNames =
           imageFiles.map((file) => file.name.trim().toLowerCase()).toSet();
       imageFiles.addAll(xFiles.where(
           (file) => !existingNames.contains(file.name.trim().toLowerCase())));
+      if (!mounted) return;
       setState(() {});
+      _dismissServiceProofKeyboard();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _dismissServiceProofKeyboard();
+      });
     });
   }
 
   Future<void> _handleCameraClick() async {
     finish(context);
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    if (!mounted) return;
+    _dismissServiceProofKeyboard();
     GetImage(ImageSource.camera, path: (path, name, xFile) async {
       log('Path camera : ${path.toString()} name $name');
       imageFiles.add(xFile);
+      if (!mounted) return;
       setState(() {});
+      _dismissServiceProofKeyboard();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _dismissServiceProofKeyboard();
+      });
     });
   }
 
@@ -294,6 +320,7 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
                   AppTextField(
                     textFieldType: TextFieldType.MULTILINE,
                     controller: compliantCont,
+                    focus: compliantFocus,
                     minLines: 5,
                     isValidationRequired: true,
                     enableChatGPT: appConfigurationStore.chatGPTStatus,
@@ -336,6 +363,7 @@ class ServiceProofScreenState extends State<ServiceProofScreen> {
                                   style: boldTextStyle()),
                             ],
                           ).center().onTap(() async {
+                            _dismissServiceProofKeyboard();
                             _showImgPickBottomSheet(context);
                           },
                               highlightColor: Colors.transparent,

@@ -734,6 +734,9 @@ class LanguageEn extends Languages {
   String get lblHelpLineNum => "Helpline Number";
 
   @override
+  String get lblAboutEmail => 'Email';
+
+  @override
   String get lblReasonCancelling => "Reason for cancelling this booking";
 
   @override

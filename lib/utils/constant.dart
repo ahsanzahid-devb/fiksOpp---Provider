@@ -253,6 +253,8 @@ const DEFAULT_PASSWORD_FOR_FIREBASE = '12345678';
 //region Mail And Tel URL
 const MAIL_TO = 'mailto:';
 const TEL = 'tel:';
+/// Shown on About Us; opens the system mail composer via [launchMail].
+const FIKSOPP_ABOUT_CONTACT_EMAIL = 'post@fiksopp.com';
 //endregion
 
 //region FireBase Collection Name

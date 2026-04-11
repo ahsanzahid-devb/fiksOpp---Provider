@@ -52,7 +52,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   log('Message Data : ${message.data}');
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
+  }
 
   final String title = message.notification?.title.validate().isNotEmpty == true
       ? message.notification!.title.validate()
@@ -70,7 +73,14 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final String finalBody =
       body.isNotEmpty ? body : 'You have a new notification';
 
-  if (message.notification != null || message.data.isNotEmpty) {
+  // When FCM includes a [notification] block, Android/iOS already show a
+  // system tray notification (see fcm_fallback_notification_channel in logs).
+  // Calling showNotification() here duplicates it.
+  if (message.notification != null) {
+    return;
+  }
+
+  if (message.data.isNotEmpty) {
     showNotification(
       currentTimeStamp(),
       finalTitle,
@@ -99,7 +109,7 @@ NotificationService notificationService = NotificationService();
 
 //region In App Purchase Service
 InAppPurchaseService inAppPurchaseService = InAppPurchaseService();
-//region
+//endregion
 
 //region Global Variables
 Languages languages = LanguageEn();
@@ -137,9 +147,11 @@ void main() async {
             options: DefaultFirebaseOptions.currentPlatform);
       }
       if (kReleaseMode) {
-        FlutterError.onError =
-            FirebaseCrashlytics.instance.recordFlutterFatalError;
+        FlutterError.onError = (FlutterErrorDetails details) {
+          FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+        };
       }
+      // After Firebase.initializeApp; before subscribeToFirebaseTopic (FCM v1).
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
       await subscribeToFirebaseTopic();
     } catch (e) {

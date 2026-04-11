@@ -41,7 +41,9 @@ class NewUpdateDialog extends StatelessWidget {
                   AppButton(
                     text: canClose ? languages.later : languages.closeApp,
                     textStyle: boldTextStyle(color: primaryColor, size: 14),
-                    shapeBorder: RoundedRectangleBorder(borderRadius: radius(), side: BorderSide(color: primaryColor)),
+                    shapeBorder: RoundedRectangleBorder(
+                        borderRadius: radius(),
+                        side: BorderSide(color: primaryColor)),
                     elevation: 0,
                     onTap: () async {
                       if (canClose) {
@@ -75,7 +77,10 @@ class NewUpdateDialog extends StatelessWidget {
                             exit(0);
                           }
                         } else if (isIOS) {
-                          await launchUrl(Uri.parse(IOS_LINK_FOR_PARTNER));
+                          await commonLaunchUrl(
+                            IOS_LINK_FOR_PARTNER,
+                            launchMode: LaunchMode.externalApplication,
+                          );
                           if (canClose) {
                             finish(context);
                           } else {
@@ -92,7 +97,8 @@ class NewUpdateDialog extends StatelessWidget {
         ),
         Positioned(
           top: -42,
-          child: Image.asset(imgForceUpdate, height: 100, width: 100, fit: BoxFit.cover),
+          child: Image.asset(imgForceUpdate,
+              height: 100, width: 100, fit: BoxFit.cover),
         ),
       ],
     );

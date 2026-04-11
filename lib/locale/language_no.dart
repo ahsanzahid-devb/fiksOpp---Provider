@@ -600,6 +600,9 @@ class LanguageNo extends LanguageEn {
   String get lblServiceTotalTime => 'Total tjenestetid';
   @override
   String get lblHelpLineNum => 'Hjelpelinje';
+
+  @override
+  String get lblAboutEmail => 'E-post';
   @override
   String get lblReasonCancelling => 'Årsak til avbestilling';
   @override

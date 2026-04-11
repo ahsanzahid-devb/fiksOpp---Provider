@@ -163,6 +163,12 @@ Future<void> registerNotificationListeners() async {
       final String finalBody =
           body.isNotEmpty ? body : 'You have a new notification';
 
+      // iOS: setForegroundNotificationPresentationOptions already shows
+      // notification+data payloads; skip duplicate local notification.
+      if (Platform.isIOS && message.notification != null) {
+        return;
+      }
+
       if (message.notification != null || message.data.isNotEmpty) {
         showNotification(
           currentTimeStamp(),
@@ -260,16 +266,21 @@ Future<bool> unsubscribeFirebaseTopic(int userId) async {
   return result;
 }
 
+/// Backend FCM v1 chat payloads use [type] == `chat_message`; legacy client sends `is_chat`.
+bool isChatNotificationData(Map<String, dynamic> data) {
+  if (data.containsKey('is_chat')) return true;
+  return data['type']?.toString() == 'chat_message';
+}
+
 void handleNotificationClick(RemoteMessage message) {
   if (message.data['url'] != null && message.data['url'] is String) {
     commonLaunchUrl(message.data['url'],
         launchMode: LaunchMode.externalApplication);
   }
-  if (message.data.containsKey('is_chat')) {
+  if (isChatNotificationData(message.data)) {
     if (message.data.isNotEmpty) {
       navigatorKey.currentState!
           .push(MaterialPageRoute(builder: (context) => ChatListScreen()));
-      // navigatorKey.currentState!.push(MaterialPageRoute(builder: (context) => UserChatScreen(receiverUser: UserData.fromJson(message.data))));
     }
   } else if (message.data.containsKey('additional_data')) {
     Map<String, dynamic> additionalData =

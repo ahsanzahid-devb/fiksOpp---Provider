@@ -488,6 +488,9 @@ abstract class Languages {
 
   String get lblHelpLineNum;
 
+  /// About Us tile label; tap opens mailto for the configured contact address.
+  String get lblAboutEmail;
+
   String get lblReasonCancelling;
 
   String get lblReasonRejecting;
