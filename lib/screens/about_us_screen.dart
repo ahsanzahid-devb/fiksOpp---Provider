@@ -13,17 +13,16 @@ import '../utils/constant.dart';
 
 class AboutUsScreen extends StatelessWidget {
   Future<void> _openRateUsLink() async {
-    bool isValidStoreLink(String url) {
+    bool isValidPlayStoreLink(String url) {
       final uri = Uri.tryParse(url);
       if (uri == null) return false;
       final host = uri.host.toLowerCase();
-      return host.contains('play.google.com') ||
-          host.contains('apps.apple.com');
+      return host.contains('play.google.com');
     }
 
     if (isAndroid) {
       final configured = getStringAsync(PROVIDER_PLAY_STORE_URL);
-      if (configured.isNotEmpty && isValidStoreLink(configured)) {
+      if (configured.isNotEmpty && isValidPlayStoreLink(configured)) {
         await commonLaunchUrl(configured,
             launchMode: LaunchMode.externalApplication);
       } else {
@@ -33,13 +32,16 @@ class AboutUsScreen extends StatelessWidget {
         );
       }
     } else if (isIOS) {
-      final configured = getStringAsync(PROVIDER_APPSTORE_URL);
-      if (configured.isNotEmpty && isValidStoreLink(configured)) {
+      final configured = getStringAsync(PROVIDER_APPSTORE_URL).trim();
+      if (configured.isNotEmpty &&
+          isProviderIosAppStoreProductUrl(configured)) {
         await commonLaunchUrl(configured,
             launchMode: LaunchMode.externalApplication);
       } else {
-        await commonLaunchUrl(IOS_LINK_FOR_PARTNER,
-            launchMode: LaunchMode.externalApplication);
+        await commonLaunchUrl(
+          IOS_LINK_FOR_PARTNER,
+          launchMode: LaunchMode.externalApplication,
+        );
       }
     }
   }

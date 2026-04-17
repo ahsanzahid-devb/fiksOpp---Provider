@@ -2332,6 +2332,9 @@ class LanguageEn extends Languages {
   String get lblJobLocationCityAreaFallback => 'Service area (city)';
 
   @override
+  String get lblSelectedArea => 'Selected Area';
+
+  @override
   String get lblAllowLocation => 'Allow';
 
   @override

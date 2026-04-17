@@ -1507,6 +1507,8 @@ abstract class Languages {
   /// Job list when only [city_id] is known and city name is not in the payload (before/without city-list cache).
   String get lblJobLocationCityAreaFallback;
 
+  String get lblSelectedArea;
+
   String get lblAllowLocation;
 
   String get lblPostNewJobRequest;

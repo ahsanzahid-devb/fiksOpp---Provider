@@ -107,6 +107,13 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
               detailTextStyle: primaryTextStyle(),
               isReadMore: true,
             ),
+          if (data.price.validate().isNotEmpty)
+            titleWidget(
+              title: languages.lblSelectedArea,
+              detail: data.price.toString(),
+              detailTextStyle: primaryTextStyle(),
+              isReadMore: true,
+            ),
         ],
       ),
     );
@@ -525,13 +532,14 @@ class _JobPostDetailScreenState extends State<JobPostDetailScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          postJobDetailWidget(data: detail).paddingAll(16),
-                          Text(languages.lblAddress,
-                                  style: boldTextStyle(size: LABEL_TEXT_SIZE))
-                              .paddingOnly(left: 16, right: 16),
-                          8.height,
-                          locationWidget(detail),
-                          8.height,
+                          postJobDetailWidget(data: detail)
+                              .paddingOnly(left: 16, right: 16, top: 16),
+                          // Text(languages.lblAddress,
+                          //         style: boldTextStyle(size: LABEL_TEXT_SIZE))
+                          //     .paddingOnly(left: 16, right: 16),
+                          // 8.height,
+                          // locationWidget(detail),
+                          // 8.height,
                           customerWidget(detail),
                           providerWidget(data.bidderData.validate()),
                           postJobServiceWidget(

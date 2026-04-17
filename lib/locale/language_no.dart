@@ -1901,6 +1901,9 @@ class LanguageNo extends LanguageEn {
       'Tjenesteområde (by)';
 
   @override
+  String get lblSelectedArea => 'Valgt område';
+
+  @override
   String get lblAllowLocation => 'Tillat';
 
   @override

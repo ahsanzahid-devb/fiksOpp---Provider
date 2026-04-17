@@ -12,9 +12,31 @@ const DOMAIN_URL = "https://fiksopp.inoor.buzz";
 const BASE_URL = "$DOMAIN_URL/api/";
 
 /// You can specify in Admin Panel, These will be used if you don't specify in Admin Panel
-/// Fallback when [PROVIDER_APPSTORE_URL] is empty or invalid (About → Rate us, update dialog).
+/// Canonical App Store listing for FiksOpp Provider (apps.apple.com/us/app/fiksopp-provider/id6758335151).
+/// Used when API omits `provider_appstore_url` or sends a generic `https://apps.apple.com` URL.
 const IOS_LINK_FOR_PARTNER =
     'https://apps.apple.com/us/app/fiksopp-provider/id6758335151';
+
+/// True if [url] points at a specific app (not the App Store home page).
+bool isProviderIosAppStoreProductUrl(String url) {
+  final uri = Uri.tryParse(url.trim());
+  if (uri == null || !uri.hasScheme) return false;
+  final host = uri.host.toLowerCase();
+  if (!host.contains('apps.apple.com') &&
+      !host.contains('itunes.apple.com')) {
+    return false;
+  }
+  final path = uri.path;
+  if (path.isEmpty || path == '/') return false;
+  return RegExp(r'/id\d+').hasMatch(path) || path.contains('/app/');
+}
+
+/// Value to persist for [PROVIDER_APPSTORE_URL] prefs after loading API config.
+String resolveProviderIosAppStorePersistedUrl(String? raw) {
+  final t = (raw ?? '').trim();
+  if (t.isNotEmpty && isProviderIosAppStoreProductUrl(t)) return t;
+  return IOS_LINK_FOR_PARTNER;
+}
 const TERMS_CONDITION_URL = 'https://fiksopp.com/brukeravtale-for-fiksopp/';
 const PRIVACY_POLICY_URL =
     'https://fiksopp.com/personvernerklaering-for-fiksopp/';
