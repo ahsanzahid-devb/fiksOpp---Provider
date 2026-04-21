@@ -26,7 +26,8 @@ class _UserItemWidgetState extends State<UserItemWidget> {
             // Show a loading indicator while waiting for data
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(languages.loadingChats, style: primaryTextStyle(), textAlign: TextAlign.center),
+              child: Text(languages.loadingChats,
+                  style: primaryTextStyle(), textAlign: TextAlign.center),
             );
           }
           if (snap.hasError || !snap.hasData || snap.data == null) {
@@ -36,7 +37,8 @@ class _UserItemWidgetState extends State<UserItemWidget> {
           return InkWell(
             onTap: () {
               // Check if trying to chat with yourself
-              if (data.uid.validate() == appStore.uid.validate() && data.uid.validate().isNotEmpty) {
+              if (data.uid.validate() == appStore.uid.validate() &&
+                  data.uid.validate().isNotEmpty) {
                 log("⚠️ Self-chat prevented: User trying to chat with themselves from chat list");
                 log("Current User ID: ${appStore.uid.validate()}");
                 log("Receiver User ID: ${data.uid.validate()}");
@@ -44,7 +46,9 @@ class _UserItemWidgetState extends State<UserItemWidget> {
                 toast(languages.cannotChatWithYourself);
                 return;
               }
-              UserChatScreen(receiverUser: data).launch(context, pageRouteAnimation: PageRouteAnimation.Fade, duration: 300.milliseconds);
+              UserChatScreen(receiverUser: data).launch(context,
+                  pageRouteAnimation: PageRouteAnimation.Fade,
+                  duration: 300.milliseconds);
             },
             child: Container(
               padding: EdgeInsets.all(16),
@@ -55,14 +59,18 @@ class _UserItemWidgetState extends State<UserItemWidget> {
                       height: 40,
                       width: 40,
                       padding: EdgeInsets.all(10),
-                      color: context.primaryColor.withValues(alpha:0.2),
+                      color: context.primaryColor.withValues(alpha: 0.2),
                       child: Text(
                         data.displayName.validate()[0].validate().toUpperCase(),
                         style: boldTextStyle(color: context.primaryColor),
                       ).center().fit(),
                     ).cornerRadiusWithClipRRect(50)
                   else
-                    CachedImageWidget(url: data.profileImage.validate(), height: 40, circle: true, fit: BoxFit.cover),
+                    CachedImageWidget(
+                        url: data.profileImage.validate(),
+                        height: 40,
+                        circle: true,
+                        fit: BoxFit.cover),
                   16.width,
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,20 +78,26 @@ class _UserItemWidgetState extends State<UserItemWidget> {
                       Row(
                         children: [
                           Text(
-                            data.firstName.validate() + " " + data.lastName.validate(),
+                            data.firstName.validate() +
+                                " " +
+                                data.lastName.validate(),
                             style: boldTextStyle(),
                             maxLines: 1,
                             textAlign: TextAlign.start,
                             overflow: TextOverflow.ellipsis,
                           ).expand(),
                           StreamBuilder<int>(
-                            stream: chatServices.getUnReadCount(senderId: appStore.uid.validate(), receiverId: data.uid.validate()),
+                            stream: chatServices.getUnReadCount(
+                                senderId: appStore.uid.validate(),
+                                receiverId: data.uid.validate()),
                             builder: (context, snap) {
                               if (snap.hasData && snap.data != 0) {
                                 return Container(
                                   height: 18,
                                   width: 18,
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: primaryColor),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: primaryColor),
                                   child: Text(
                                     snap.data.validate().toString(),
                                     style: secondaryTextStyle(color: white),
@@ -96,7 +110,10 @@ class _UserItemWidgetState extends State<UserItemWidget> {
                           ),
                         ],
                       ),
-                      LastMessageChat(stream: chatServices.fetchLastMessageBetween(senderId: appStore.uid.validate(), receiverId: widget.userUid)),
+                      LastMessageChat(
+                          stream: chatServices.fetchLastMessageBetween(
+                              senderId: appStore.uid.validate(),
+                              receiverId: widget.userUid)),
                     ],
                   ).expand()
                 ],

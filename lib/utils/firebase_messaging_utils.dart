@@ -268,8 +268,65 @@ Future<bool> unsubscribeFirebaseTopic(int userId) async {
 
 /// Backend FCM v1 chat payloads use [type] == `chat_message`; legacy client sends `is_chat`.
 bool isChatNotificationData(Map<String, dynamic> data) {
-  if (data.containsKey('is_chat')) return true;
+  if (data.containsKey('is_chat')) {
+    final v = data['is_chat']?.toString().toLowerCase().trim();
+    if (v == '1' || v == 'true') return true;
+  }
   return data['type']?.toString() == 'chat_message';
+}
+
+/// FCM [data] may use a stringified [additional_data] map (legacy) or the same flat
+/// keys as [notification_list_response] (`id`, `notification-type`, …).
+Map<String, dynamic> notificationAdditionalDataFromFcmPayload(
+    Map<String, dynamic> data) {
+  if (data.containsKey('additional_data')) {
+    try {
+      final raw = data['additional_data'];
+      if (raw is String && raw.trim().isNotEmpty) {
+        final decoded = jsonDecode(raw);
+        if (decoded is Map<String, dynamic>) return decoded;
+        if (decoded is Map) return Map<String, dynamic>.from(decoded);
+      }
+    } catch (e) {
+      log('FCM additional_data decode failed: $e');
+    }
+  }
+  if (data.containsKey('id') ||
+      data.containsKey('notification-type') ||
+      data.containsKey('check_booking_type')) {
+    return Map<String, dynamic>.from(data);
+  }
+  return {};
+}
+
+bool _notificationTypeLooksLikeBooking(Map<String, dynamic> additionalData) {
+  final nType =
+      additionalData['notification-type']?.toString().validate().toLowerCase();
+  final checkType =
+      additionalData['check_booking_type']?.toString().validate().toLowerCase();
+  if (checkType == NOTIFICATION_TYPE_BOOKING || checkType == BOOKING) {
+    return true;
+  }
+  if (nType != null &&
+      (nType.contains(BOOKING) || nType.contains(PAYMENT_MESSAGE_STATUS))) {
+    return true;
+  }
+  const bookingKeys = <String>{
+    ADD_BOOKING,
+    ASSIGNED_BOOKING,
+    TRANSFER_BOOKING,
+    UPDATE_BOOKING_STATUS,
+    CANCEL_BOOKING,
+    PAID_FOR_BOOKING,
+  };
+  if (nType != null && bookingKeys.any((k) => nType.contains(k))) return true;
+  return false;
+}
+
+void _pushIfNavigatorReady(Widget page) {
+  final state = navigatorKey.currentState;
+  if (state == null) return;
+  state.push(MaterialPageRoute(builder: (context) => page));
 }
 
 void handleNotificationClick(RemoteMessage message) {
@@ -279,33 +336,30 @@ void handleNotificationClick(RemoteMessage message) {
   }
   if (isChatNotificationData(message.data)) {
     if (message.data.isNotEmpty) {
-      navigatorKey.currentState!
-          .push(MaterialPageRoute(builder: (context) => ChatListScreen()));
+      _pushIfNavigatorReady(ChatListScreen());
     }
-  } else if (message.data.containsKey('additional_data')) {
-    Map<String, dynamic> additionalData =
-        jsonDecode(message.data["additional_data"]) ?? {};
-    if (additionalData.containsKey('id') && additionalData['id'] != null) {
-      if (additionalData.containsKey('check_booking_type') &&
-          additionalData['check_booking_type'] == 'booking') {
-        navigatorKey.currentState!.push(MaterialPageRoute(
-            builder: (context) =>
-                BookingDetailScreen(bookingId: additionalData['id'].toInt())));
-      }
+    return;
+  }
 
-      if (additionalData.containsKey('notification-type') &&
-          additionalData['notification-type'] == 'user_accept_bid') {
-        navigatorKey.currentState!
-            .push(MaterialPageRoute(builder: (context) => BidListScreen()));
-      }
+  final Map<String, dynamic> additionalData =
+      notificationAdditionalDataFromFcmPayload(message.data);
+  if (additionalData.isEmpty) return;
+
+  if (additionalData.containsKey('id') && additionalData['id'] != null) {
+    if (_notificationTypeLooksLikeBooking(additionalData)) {
+      _pushIfNavigatorReady(
+          BookingDetailScreen(bookingId: additionalData['id'].toInt()));
     }
 
-    if (additionalData.containsKey('service_id') &&
-        additionalData["service_id"] != null) {
-      navigatorKey.currentState!.push(MaterialPageRoute(
-          builder: (context) => ServiceDetailScreen(
-              serviceId: additionalData["service_id"].toInt())));
+    if (additionalData['notification-type']?.toString() == USER_ACCEPT_BID) {
+      _pushIfNavigatorReady(BidListScreen());
     }
+  }
+
+  if (additionalData.containsKey('service_id') &&
+      additionalData["service_id"] != null) {
+    _pushIfNavigatorReady(
+        ServiceDetailScreen(serviceId: additionalData["service_id"].toInt()));
   }
 }
 
