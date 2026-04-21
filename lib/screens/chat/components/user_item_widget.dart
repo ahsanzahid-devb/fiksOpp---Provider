@@ -10,7 +10,7 @@ import 'package:nb_utils/nb_utils.dart';
 class UserItemWidget extends StatefulWidget {
   final String userUid;
 
-  UserItemWidget({required this.userUid});
+  const UserItemWidget({super.key, required this.userUid});
 
   @override
   State<UserItemWidget> createState() => _UserItemWidgetState();

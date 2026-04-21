@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -15,9 +16,7 @@ import 'package:handyman_provider_flutter/utils/extensions/string_extension.dart
 import 'package:handyman_provider_flutter/utils/images.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:handyman_provider_flutter/provider/jobRequest/job_list_screen.dart';
-import 'package:handyman_provider_flutter/provider/services/add_services.dart';
 import '../booking_filter/booking_filter_screen.dart';
-import '../booking_filter/components/filter_service_list_component.dart';
 import '../components/image_border_component.dart';
 
 class ProviderDashboardScreen extends StatefulWidget {
@@ -39,84 +38,6 @@ class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
 
   bool get isCurrentFragmentIsJobRequest =>
       getFragments()[currentIndex].runtimeType == JobListScreen().runtimeType;
-
-  void _showJobRequestServiceFilter() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      barrierColor: Colors.transparent,
-      builder: (context) => Container(
-        height: context.height() * 0.8,
-        decoration: boxDecorationWithRoundedCorners(
-          backgroundColor: context.scaffoldBackgroundColor,
-          borderRadius:
-              radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: boxDecorationWithRoundedCorners(
-                backgroundColor: context.cardColor,
-                borderRadius:
-                    radiusOnly(topLeft: defaultRadius, topRight: defaultRadius),
-              ),
-              child: Row(
-                children: [
-                  Text(languages.selectService, style: boldTextStyle(size: 18))
-                      .expand(),
-                  IconButton(
-                    icon: Icon(Icons.close),
-                    onPressed: () => finish(context),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: FilterServiceListComponent(),
-            ),
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: boxDecorationWithRoundedCorners(
-                backgroundColor: context.cardColor,
-              ),
-              child: Row(
-                children: [
-                  AppButton(
-                    text: languages.hintAddService,
-                    textColor: Colors.white,
-                    color: context.primaryColor,
-                    onTap: () {
-                      finish(context);
-                      AddServices().launch(context).then((value) {
-                        if (value == true) {
-                          // Refresh job list if needed
-                          LiveStream().emit(LIVESTREAM_UPDATE_BOOKINGS);
-                        }
-                      });
-                    },
-                  ).expand(),
-                  16.width,
-                  AppButton(
-                    text: languages.apply,
-                    textColor: Colors.white,
-                    color: context.primaryColor,
-                    onTap: () {
-                      finish(context);
-                      // Apply filter and refresh job request list
-                      LiveStream().emit(LIVESTREAM_UPDATE_BOOKINGS);
-                      setState(() {});
-                    },
-                  ).expand(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
@@ -151,11 +72,6 @@ class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
       }
       setState(() {});
     });
-
-    // await 3.seconds.delay;
-    // if (getBoolAsync(FORCE_UPDATE_PROVIDER_APP)) {
-    //   showForceUpdateDialog(context);
-    // }
   }
 
   @override
@@ -191,173 +107,303 @@ class ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (_) {
-        List<Widget> fragmentList = getFragments();
-        List<String> titles = getTitles();
+    final len = getFragments().length;
+    if (currentIndex >= len) {
+      currentIndex = 0;
+    }
 
-        // Prevent index out of range
-        if (currentIndex >= fragmentList.length) {
-          currentIndex = 0;
-        }
-
-        return DoublePressBackWidget(
-          message: languages.lblCloseAppMsg,
-          child: Scaffold(
-            appBar: appBarWidget(
-              titles[currentIndex],
-              color: primaryColor,
-              textColor: Colors.white,
-              showBack: false,
-              actions: [
-                IconButton(
-                  icon: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      ic_notification.iconImage(color: white, size: 20),
-                      Positioned(
-                        top: -14,
-                        right: -6,
-                        child: Observer(
-                          builder: (context) {
-                            if (appStore.notificationCount.validate() > 0)
-                              return Container(
-                                padding: EdgeInsets.all(4),
-                                child: FittedBox(
-                                  child: Text(
-                                    appStore.notificationCount.toString(),
-                                    style: primaryTextStyle(
-                                        size: 12, color: Colors.white),
+    return DoublePressBackWidget(
+      message: languages.lblCloseAppMsg,
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(kToolbarHeight),
+          child: Observer(
+            builder: (_) {
+              final t = getTitles();
+              final idx = currentIndex >= t.length ? 0 : currentIndex;
+              return appBarWidget(
+                t[idx],
+                color: primaryColor,
+                textColor: Colors.white,
+                showBack: false,
+                actions: [
+                  IconButton(
+                    icon: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        ic_notification.iconImage(color: white, size: 20),
+                        Positioned(
+                          top: -14,
+                          right: -6,
+                          child: Observer(
+                            builder: (context) {
+                              if (appStore.notificationCount.validate() > 0)
+                                return Container(
+                                  padding: EdgeInsets.all(4),
+                                  child: FittedBox(
+                                    child: Text(
+                                      appStore.notificationCount.toString(),
+                                      style: primaryTextStyle(
+                                          size: 12, color: Colors.white),
+                                    ),
                                   ),
-                                ),
-                                decoration: boxDecorationDefault(
-                                    color: Colors.red, shape: BoxShape.circle),
-                              );
-                            return Offstage();
-                          },
-                        ),
-                      )
-                    ],
-                  ),
-                  onPressed: () async {
-                    NotificationFragment().launch(context);
-                  },
-                ),
-                if (isCurrentFragmentIsBooking)
-                  Observer(
-                    builder: (_) {
-                      int filterCount = filterStore.getActiveFilterCount();
-                      return Stack(
-                        children: [
-                          IconButton(
-                            icon: ic_filter.iconImage(color: white, size: 20),
-                            onPressed: () async {
-                              BookingFilterScreen()
-                                  .launch(context)
-                                  .then((value) {
-                                if (value != null) {
-                                  LiveStream().emit(LIVESTREAM_UPDATE_BOOKINGS);
-                                  setState(() {});
-                                }
-                              });
+                                  decoration: boxDecorationDefault(
+                                      color: Colors.red, shape: BoxShape.circle),
+                                );
+                              return Offstage();
                             },
                           ),
-                          if (filterCount > 0)
-                            Positioned(
-                              right: 7,
-                              top: 0,
-                              child: Container(
-                                padding: EdgeInsets.all(5),
-                                decoration: boxDecorationDefault(
-                                    color: Colors.red, shape: BoxShape.circle),
-                                child: FittedBox(
-                                  child: Text(
-                                    '$filterCount',
-                                    style: TextStyle(
-                                        color: white,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold),
+                        )
+                      ],
+                    ),
+                    onPressed: () async {
+                      NotificationFragment().launch(context);
+                    },
+                  ),
+                  if (isCurrentFragmentIsBooking)
+                    Observer(
+                      builder: (_) {
+                        int filterCount = filterStore.getActiveFilterCount();
+                        return Stack(
+                          children: [
+                            IconButton(
+                              icon: ic_filter.iconImage(color: white, size: 20),
+                              onPressed: () async {
+                                BookingFilterScreen()
+                                    .launch(context)
+                                    .then((value) {
+                                  if (value != null) {
+                                    LiveStream()
+                                        .emit(LIVESTREAM_UPDATE_BOOKINGS);
+                                    setState(() {});
+                                  }
+                                });
+                              },
+                            ),
+                            if (filterCount > 0)
+                              Positioned(
+                                right: 7,
+                                top: 0,
+                                child: Container(
+                                  padding: EdgeInsets.all(5),
+                                  decoration: boxDecorationDefault(
+                                      color: Colors.red, shape: BoxShape.circle),
+                                  child: FittedBox(
+                                    child: Text(
+                                      '$filterCount',
+                                      style: TextStyle(
+                                          color: white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                        ],
-                      );
-                    },
-                  ),
-              ],
+                          ],
+                        );
+                      },
+                    ),
+                ],
+              );
+            },
+          ),
+        ),
+        body: Observer(
+          builder: (_) {
+            final fl = getFragments();
+            if (currentIndex >= fl.length) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) setState(() => currentIndex = 0);
+              });
+              return const SizedBox.shrink();
+            }
+            return fl[currentIndex];
+          },
+        ),
+        bottomNavigationBar: _ProviderDashboardBottomBar(
+          currentIndex: currentIndex,
+          onDestinationSelected: (index) {
+            setState(() {
+              currentIndex = index;
+            });
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _ProviderDashboardBottomBar extends StatefulWidget {
+  final int currentIndex;
+  final ValueChanged<int> onDestinationSelected;
+
+  const _ProviderDashboardBottomBar({
+    required this.currentIndex,
+    required this.onDestinationSelected,
+  });
+
+  @override
+  State<_ProviderDashboardBottomBar> createState() =>
+      _ProviderDashboardBottomBarState();
+}
+
+class _ProviderDashboardBottomBarState extends State<_ProviderDashboardBottomBar> {
+  int _chatUnreadCount = 0;
+  String _boundUid = '';
+  StreamSubscription<int>? _sub;
+  String? _depsKey;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _syncUnreadStream());
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+
+  void _syncUnreadStream() {
+    if (!mounted) return;
+    if (!appConfigurationStore.isEnableChat) {
+      _sub?.cancel();
+      _sub = null;
+      _boundUid = '';
+      if (_chatUnreadCount != 0) {
+        setState(() => _chatUnreadCount = 0);
+      }
+      return;
+    }
+
+    final uid = appStore.uid.validate().trim();
+    if (uid.isEmpty) {
+      _sub?.cancel();
+      _sub = null;
+      _boundUid = '';
+      if (_chatUnreadCount != 0) {
+        setState(() => _chatUnreadCount = 0);
+      }
+      return;
+    }
+
+    if (_boundUid == uid && _sub != null) return;
+
+    _sub?.cancel();
+    _boundUid = uid;
+    _sub = chatServices.getTotalUnReadCount(userId: uid).listen(
+      (count) {
+        if (!mounted) return;
+        setState(() => _chatUnreadCount = count);
+      },
+      onError: (_) {
+        if (!mounted) return;
+        setState(() => _chatUnreadCount = 0);
+      },
+    );
+  }
+
+  Widget _buildChatNavIcon({required Color iconColor}) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Image.asset(chat, height: 20, width: 20, color: iconColor),
+        if (_chatUnreadCount > 0)
+          Positioned(
+            top: -2,
+            right: -4,
+            child: Container(
+              alignment: Alignment.center,
+              constraints: BoxConstraints(minHeight: 12, minWidth: 12),
+              padding: EdgeInsets.symmetric(horizontal: 2),
+              decoration: boxDecorationDefault(
+                  color: Colors.green, shape: BoxShape.circle),
+              child: Text(
+                _chatUnreadCount > 9 ? '9+' : _chatUnreadCount.toString(),
+                style: primaryTextStyle(size: 8, color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
             ),
-            body: fragmentList[currentIndex],
-            bottomNavigationBar: Blur(
-              blur: 30,
-              borderRadius: radius(0),
-              child: NavigationBarTheme(
-                data: NavigationBarThemeData(
-                  backgroundColor: context.primaryColor.withAlpha(5),
-                  indicatorColor: context.primaryColor.withAlpha(25),
-                  labelTextStyle:
-                      WidgetStateProperty.all(primaryTextStyle(size: 12)),
-                  surfaceTintColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
+          ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Observer(
+      builder: (_) {
+        final chatOn = appConfigurationStore.isEnableChat;
+        final uid = appStore.uid.validate().trim();
+        final key = '$chatOn|$uid';
+        if (key != _depsKey) {
+          _depsKey = key;
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) => _syncUnreadStream());
+        }
+
+        return Blur(
+          blur: 30,
+          borderRadius: radius(0),
+          child: NavigationBarTheme(
+            data: NavigationBarThemeData(
+              backgroundColor: context.primaryColor.withAlpha(5),
+              indicatorColor: context.primaryColor.withAlpha(25),
+              labelTextStyle:
+                  WidgetStateProperty.all(primaryTextStyle(size: 12)),
+              surfaceTintColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+            ),
+            child: NavigationBar(
+              selectedIndex: widget.currentIndex,
+              destinations: [
+                NavigationDestination(
+                  icon: ic_home.iconImage(color: appTextSecondaryColor),
+                  selectedIcon: ic_home.iconImage(color: primaryColor),
+                  label: languages.home,
                 ),
-                child: NavigationBar(
-                  selectedIndex: currentIndex,
-                  destinations: [
-                    NavigationDestination(
-                      icon: ic_home.iconImage(color: appTextSecondaryColor),
-                      selectedIcon: ic_home.iconImage(color: primaryColor),
-                      label: languages.home,
-                    ),
-                    NavigationDestination(
-                      icon:
-                          ic_briefcase.iconImage(color: appTextSecondaryColor),
-                      selectedIcon: ic_briefcase.iconImage(color: primaryColor),
-                      label: languages.lblJobs,
-                    ),
-                    NavigationDestination(
-                      icon:
-                          total_booking.iconImage(color: appTextSecondaryColor),
-                      selectedIcon:
-                          total_booking.iconImage(color: primaryColor),
-                      label: languages.lblBooking,
-                    ),
-                    if (appConfigurationStore.isEnableChat)
-                      NavigationDestination(
-                        icon: Image.asset(chat,
-                            height: 20,
-                            width: 20,
-                            color: appTextSecondaryColor),
-                        selectedIcon: chat.iconImage(color: primaryColor),
-                        label: languages.lblChat,
-                      ),
-                    Observer(builder: (context) {
-                      return NavigationDestination(
-                        icon: (appStore.isLoggedIn &&
-                                appStore.userProfileImage.isNotEmpty)
-                            ? IgnorePointer(
-                                ignoring: true,
-                                child: ImageBorder(
-                                    src: appStore.userProfileImage, height: 26))
-                            : profile.iconImage(color: appTextSecondaryColor),
-                        selectedIcon: (appStore.isLoggedIn &&
-                                appStore.userProfileImage.isNotEmpty)
-                            ? IgnorePointer(
-                                ignoring: true,
-                                child: ImageBorder(
-                                    src: appStore.userProfileImage, height: 26))
-                            : ic_fill_profile.iconImage(
-                                color: context.primaryColor),
-                        label: languages.lblProfile,
-                      );
-                    }),
-                  ],
-                  onDestinationSelected: (index) {
-                    setState(() {
-                      currentIndex = index;
-                    });
+                NavigationDestination(
+                  icon: ic_briefcase.iconImage(color: appTextSecondaryColor),
+                  selectedIcon: ic_briefcase.iconImage(color: primaryColor),
+                  label: languages.lblJobs,
+                ),
+                NavigationDestination(
+                  icon: total_booking.iconImage(color: appTextSecondaryColor),
+                  selectedIcon: total_booking.iconImage(color: primaryColor),
+                  label: languages.lblBooking,
+                ),
+                if (chatOn)
+                  NavigationDestination(
+                    icon: _buildChatNavIcon(iconColor: appTextSecondaryColor),
+                    selectedIcon: _buildChatNavIcon(iconColor: primaryColor),
+                    label: languages.lblChat,
+                  ),
+                Observer(
+                  builder: (context) {
+                    return NavigationDestination(
+                      icon: (appStore.isLoggedIn &&
+                              appStore.userProfileImage.isNotEmpty)
+                          ? IgnorePointer(
+                              ignoring: true,
+                              child: ImageBorder(
+                                  src: appStore.userProfileImage, height: 26))
+                          : profile.iconImage(color: appTextSecondaryColor),
+                      selectedIcon: (appStore.isLoggedIn &&
+                              appStore.userProfileImage.isNotEmpty)
+                          ? IgnorePointer(
+                              ignoring: true,
+                              child: ImageBorder(
+                                  src: appStore.userProfileImage, height: 26))
+                          : ic_fill_profile.iconImage(
+                              color: context.primaryColor),
+                      label: languages.lblProfile,
+                    );
                   },
                 ),
-              ),
+              ],
+              onDestinationSelected: widget.onDestinationSelected,
             ),
           ),
         );

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -45,31 +46,32 @@ class ChatServices extends BaseService {
       {required String senderId,
       required String receiverId,
       String? documentId}) async {
-    final WriteBatch batch = fireStore.batch();
+    final readerUid = appStore.uid.validate();
+    if (readerUid.isEmpty) return;
 
-    QuerySnapshot unreadMessagesSnapshot;
-
-    if (senderId == appStore.uid) {
-      unreadMessagesSnapshot = await ref!
-          .doc(receiverId)
-          .collection(senderId)
-          .where('isMessageRead', isEqualTo: false)
-          .get();
-    } else {
-      unreadMessagesSnapshot = await ref!
-          .doc(senderId)
-          .collection(receiverId)
-          .where('isMessageRead', isEqualTo: false)
-          .get();
+    /// Each message is duplicated under both `messages/{a}/{b}` and `messages/{b}/{a}`.
+    /// Only clear rows where this user is the intended recipient, so we do not flip
+    /// the peer's copy of outbound messages (read receipts on the other side).
+    Future<void> markInboxReadForPath(
+        CollectionReference<Map<String, dynamic>> thread) async {
+      const chunk = 400;
+      while (true) {
+        final snap = await thread
+            .where('isMessageRead', isEqualTo: false)
+            .where('receiverId', isEqualTo: readerUid)
+            .limit(chunk)
+            .get();
+        if (snap.docs.isEmpty) break;
+        final WriteBatch batch = fireStore.batch();
+        for (final element in snap.docs) {
+          batch.update(element.reference, {'isMessageRead': true});
+        }
+        await batch.commit();
+      }
     }
 
-    unreadMessagesSnapshot.docs.forEach((element) {
-      batch.update(element.reference, {
-        'isMessageRead': true,
-      });
-    });
-
-    await batch.commit();
+    await markInboxReadForPath(ref!.doc(receiverId).collection(senderId));
+    await markInboxReadForPath(ref!.doc(senderId).collection(receiverId));
   }
 
   Future<void> deleteSingleMessage(
@@ -230,6 +232,92 @@ class ChatServices extends BaseService {
         .snapshots()
         .map((event) => event.docs.length)
         .handleError((e) => 0);
+  }
+
+  Stream<int> getTotalUnReadCount({required String userId}) {
+    if (userId.trim().isEmpty) return Stream.value(0);
+
+    StreamSubscription<QuerySnapshot>? contactSub;
+    final unreadSubs = <StreamSubscription<int>>[];
+    String? lastContactSignature;
+
+    void cancelUnreadSubs() {
+      for (final s in unreadSubs) {
+        s.cancel();
+      }
+      unreadSubs.clear();
+    }
+
+    late final StreamController<int> controller;
+
+    void cancelAll() {
+      contactSub?.cancel();
+      contactSub = null;
+      cancelUnreadSubs();
+    }
+
+    controller = StreamController<int>(
+      onListen: () {
+        contactSub = fetchChatListQuery(userId: userId).snapshots().listen(
+          (snap) {
+            if (snap.docs.isEmpty) {
+              lastContactSignature = '';
+              cancelUnreadSubs();
+              if (!controller.isClosed) controller.add(0);
+              return;
+            }
+
+            final ids = snap.docs.map((d) => d.id).toList()..sort();
+            final signature = ids.join('|');
+            if (signature == lastContactSignature) {
+              return;
+            }
+            lastContactSignature = signature;
+
+            cancelUnreadSubs();
+
+            final counts = List<int>.filled(snap.docs.length, 0);
+
+            void emitTotal() {
+              if (controller.isClosed) return;
+              var t = 0;
+              for (final c in counts) {
+                t += c;
+              }
+              controller.add(t);
+            }
+
+            for (var i = 0; i < snap.docs.length; i++) {
+              final doc = snap.docs[i];
+              final raw = doc.data() as Map<String, dynamic>?;
+              final uidStr = (raw?['uid']?.toString() ?? '').validate().trim();
+              final contactUid = uidStr.isNotEmpty ? uidStr : doc.id.validate();
+
+              final idx = i;
+              unreadSubs.add(
+                getUnReadCount(senderId: userId, receiverId: contactUid)
+                    .listen((c) {
+                  counts[idx] = c;
+                  emitTotal();
+                }),
+              );
+            }
+            emitTotal();
+          },
+          onError: (_) {
+            if (!controller.isClosed) controller.add(0);
+          },
+        );
+      },
+      onCancel: () {
+        cancelAll();
+        if (!controller.isClosed) {
+          controller.close();
+        }
+      },
+    );
+
+    return controller.stream;
   }
 
   Stream<QuerySnapshot> fetchLastMessageBetween(

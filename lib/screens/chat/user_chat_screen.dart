@@ -95,17 +95,21 @@ class _UserChatScreenState extends State<UserChatScreen>
 
     setState(() {});
 
-    if (await userService.isReceiverInContacts(
+    final inContacts = await userService.isReceiverInContacts(
         senderUserId: appStore.uid.validate(),
-        receiverUserId: widget.receiverUser.uid.validate())) {
-      await chatServices
-          .setUnReadStatusToTrue(
-              senderId: appStore.uid.validate(),
-              receiverId: widget.receiverUser.uid.validate())
-          .catchError((e) {
-        toast(e.toString());
-      });
+        receiverUserId: widget.receiverUser.uid.validate());
 
+    // Always mark inbox read for this thread (also when contact row is missing),
+    // so the bottom-nav / list unread badges can drop to zero reliably.
+    await chatServices
+        .setUnReadStatusToTrue(
+            senderId: appStore.uid.validate(),
+            receiverId: widget.receiverUser.uid.validate())
+        .catchError((e) {
+      toast(e.toString());
+    });
+
+    if (inContacts) {
       log("receiver ID ${widget.receiverUser.uid}");
       chatServices.setOnlineCount(
           senderId: widget.receiverUser.uid.validate(),
