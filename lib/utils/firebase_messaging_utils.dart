@@ -163,8 +163,6 @@ Future<void> registerNotificationListeners() async {
       final String finalBody =
           body.isNotEmpty ? body : 'You have a new notification';
 
-      // iOS: setForegroundNotificationPresentationOptions already shows
-      // notification+data payloads; skip duplicate local notification.
       if (Platform.isIOS && message.notification != null) {
         return;
       }
@@ -323,13 +321,44 @@ bool _notificationTypeLooksLikeBooking(Map<String, dynamic> additionalData) {
   return false;
 }
 
-void _pushIfNavigatorReady(Widget page) {
+int? _asInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString().trim());
+}
+
+void _pushIfNavigatorReady(Widget page, {int attempt = 0}) {
   final state = navigatorKey.currentState;
-  if (state == null) return;
+  if (state == null) {
+    if (attempt < 6) {
+      Future<void>.delayed(
+        const Duration(milliseconds: 250),
+        () => _pushIfNavigatorReady(page, attempt: attempt + 1),
+      );
+    }
+    return;
+  }
   state.push(MaterialPageRoute(builder: (context) => page));
 }
 
+int? _bookingIdForDetailFromAdditionalData(
+    Map<String, dynamic> additionalData) {
+  final rawBooking = additionalData['booking_id'];
+  if (rawBooking != null && rawBooking.toString().trim().isNotEmpty) {
+    final n = int.tryParse(rawBooking.toString().trim());
+    if (n != null && n > 0) return n;
+  }
+  final rawId = additionalData['id'];
+  if (rawId == null) return null;
+  final n = rawId is int ? rawId : int.tryParse(rawId.toString());
+  if (n != null && n > 0) return n;
+  return null;
+}
+
 void handleNotificationClick(RemoteMessage message) {
+  if (_isDuplicateNotificationTap(message)) return;
+
   if (message.data['url'] != null && message.data['url'] is String) {
     commonLaunchUrl(message.data['url'],
         launchMode: LaunchMode.externalApplication);
@@ -345,22 +374,45 @@ void handleNotificationClick(RemoteMessage message) {
       notificationAdditionalDataFromFcmPayload(message.data);
   if (additionalData.isEmpty) return;
 
-  if (additionalData.containsKey('id') && additionalData['id'] != null) {
+  // Bid acceptance: backend sometimes omits id/booking_id; still open bid list.
+  if (additionalData['notification-type']?.toString() == USER_ACCEPT_BID) {
+    _pushIfNavigatorReady(BidListScreen());
+    return;
+  }
+
+  final int? resolvedId = _bookingIdForDetailFromAdditionalData(additionalData);
+  if (resolvedId != null) {
     if (_notificationTypeLooksLikeBooking(additionalData)) {
-      _pushIfNavigatorReady(
-          BookingDetailScreen(bookingId: additionalData['id'].toInt()));
-    }
-
-    if (additionalData['notification-type']?.toString() == USER_ACCEPT_BID) {
-      _pushIfNavigatorReady(BidListScreen());
+      _pushIfNavigatorReady(BookingDetailScreen(bookingId: resolvedId));
+      return;
     }
   }
 
-  if (additionalData.containsKey('service_id') &&
-      additionalData["service_id"] != null) {
-    _pushIfNavigatorReady(
-        ServiceDetailScreen(serviceId: additionalData["service_id"].toInt()));
+  final int? serviceId = _asInt(additionalData['service_id']);
+  if (serviceId != null && serviceId > 0) {
+    _pushIfNavigatorReady(ServiceDetailScreen(serviceId: serviceId));
   }
+}
+
+String? _lastHandledNotificationKey;
+DateTime? _lastHandledNotificationAt;
+
+bool _isDuplicateNotificationTap(RemoteMessage message) {
+  final key = message.messageId?.trim().isNotEmpty == true
+      ? message.messageId!.trim()
+      : jsonEncode(message.data);
+
+  final now = DateTime.now();
+  if (_lastHandledNotificationKey == key &&
+      _lastHandledNotificationAt != null &&
+      now.difference(_lastHandledNotificationAt!) <
+          const Duration(seconds: 2)) {
+    return true;
+  }
+
+  _lastHandledNotificationKey = key;
+  _lastHandledNotificationAt = now;
+  return false;
 }
 
 void showNotification(

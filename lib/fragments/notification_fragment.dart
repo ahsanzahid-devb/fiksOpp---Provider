@@ -4,6 +4,9 @@ import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/models/notification_list_response.dart';
 import 'package:handyman_provider_flutter/networks/rest_apis.dart';
 import 'package:handyman_provider_flutter/provider/services/service_detail_screen.dart';
+import 'package:handyman_provider_flutter/provider/jobRequest/job_post_detail_screen.dart';
+import 'package:handyman_provider_flutter/provider/jobRequest/models/post_job_data.dart';
+import 'package:handyman_provider_flutter/provider/provider_dashboard_screen.dart';
 import 'package:handyman_provider_flutter/provider/wallet/wallet_history_screen.dart';
 import 'package:handyman_provider_flutter/screens/booking_detail_screen.dart';
 import 'package:handyman_provider_flutter/utils/common.dart';
@@ -48,10 +51,10 @@ class NotificationScreenState extends State<NotificationFragment> {
   }
 
   Future<void> readNotificationGeneric(
-      {required String type, String? id}) async {
-    //TODO: check for booking_id
-    // Map request = {CommonKeys.bookingId: id};
-    Map request = {CommonKeys.serviceId: id};
+      {required String type, required int id}) async {
+    final Map<String, dynamic> request = type == 'booking'
+        ? {CommonKeys.bookingId: id}
+        : {CommonKeys.serviceId: id};
 
     try {
       if (type == 'booking') {
@@ -62,6 +65,36 @@ class NotificationScreenState extends State<NotificationFragment> {
       init();
     } catch (e) {
       log(e.toString());
+    }
+  }
+
+  int? _notificationEntityId(NotificationData item) {
+    final rawId = item.data?.id;
+    if (rawId == null) return null;
+    if (rawId is int) return rawId;
+    if (rawId is num) return rawId.toInt();
+    return int.tryParse(rawId.toString());
+  }
+
+  int? _bookingId(NotificationData item) {
+    return item.data?.bookingId ?? _notificationEntityId(item);
+  }
+
+  int? _serviceId(NotificationData item) {
+    return item.data?.serviceId ?? _notificationEntityId(item);
+  }
+
+  int? _postRequestId(NotificationData item) {
+    return item.data?.postRequestId ?? _notificationEntityId(item);
+  }
+
+  void _openProfileFromNotification() {
+    final profileTabIndex = appConfigurationStore.isEnableChat ? 4 : 3;
+    if (Navigator.canPop(context)) {
+      finish(context);
+      LiveStream().emit(LIVESTREAM_PROVIDER_ALL_BOOKING, profileTabIndex);
+    } else {
+      ProviderDashboardScreen(index: profileTabIndex).launch(context);
     }
   }
 
@@ -119,47 +152,71 @@ class NotificationScreenState extends State<NotificationFragment> {
               NotificationData data = list[index];
               return GestureDetector(
                 onTap: () async {
+                  final nType = data.data?.notificationType.validate() ?? '';
+                  final activityType = data.data?.activityType.validate() ?? '';
+                  final isJobNotification = nType.contains(JOB_REQUESTED) ||
+                      nType.contains(USER_ACCEPT_BID) ||
+                      nType.contains(PROVIDER_SEND_BID) ||
+                      nType.contains(POSTJOB) ||
+                      activityType.contains(JOB_REQUESTED) ||
+                      activityType.contains(USER_ACCEPT_BID) ||
+                      activityType.contains(PROVIDER_SEND_BID);
+
                   if (isUserTypeHandyman) {
-                    if (data.data!.notificationType
-                        .validate()
-                        .contains(BOOKING)) {
-                      readNotificationGeneric(
-                          type: 'booking', id: data.data!.id.toString());
-                      BookingDetailScreen(bookingId: data.data!.id)
+                    if (nType.contains(BOOKING)) {
+                      final targetId = _bookingId(data);
+                      if (targetId == null) {
+                        toast(languages.somethingWentWrong);
+                        return;
+                      }
+                      readNotificationGeneric(type: 'booking', id: targetId);
+                      BookingDetailScreen(bookingId: targetId).launch(context);
+                    } else if (isJobNotification) {
+                      final postId = _postRequestId(data);
+                      if (postId == null) {
+                        toast(languages.somethingWentWrong);
+                        return;
+                      }
+                      JobPostDetailScreen(postJobData: PostJobData(id: postId))
                           .launch(context);
                     } else {
-                      //
+                      toast(languages.somethingWentWrong);
                     }
                   } else if (isUserTypeProvider) {
-                    if (data.data!.notificationType
-                            .validate()
-                            .contains(WALLET) ||
-                        data.data!.notificationType
-                            .validate()
-                            .contains(PAYOUT)) {
+                    if (nType.contains(WALLET) || nType.contains(PAYOUT)) {
                       WalletHistoryScreen().launch(context);
-                    } else if (data.data!.notificationType
-                            .validate()
-                            .contains(BOOKING) ||
-                        data.data!.notificationType
-                            .validate()
-                            .contains(PAYMENT_MESSAGE_STATUS)) {
-                      readNotificationGeneric(
-                          type: 'booking', id: data.data!.id.toString());
-                      BookingDetailScreen(bookingId: data.data!.id)
-                          .launch(context);
-                    } else if (data.data!.notificationType
-                            .validate()
-                            .contains(SERVICE_REQUEST_APPROVE) ||
-                        data.data!.notificationType
-                            .validate()
-                            .contains(SERVICE_REQUEST_REJECT)) {
-                      readNotificationGeneric(
-                          type: 'service', id: data.data!.id.toString());
-                      ServiceDetailScreen(serviceId: data.data!.id)
+                    } else if (nType.contains(BOOKING) ||
+                        nType.contains(PAYMENT_MESSAGE_STATUS) ||
+                        data.data?.checkBookingType == BOOKING) {
+                      final targetId = _bookingId(data);
+                      if (targetId == null) {
+                        toast(languages.somethingWentWrong);
+                        return;
+                      }
+                      readNotificationGeneric(type: 'booking', id: targetId);
+                      BookingDetailScreen(bookingId: targetId).launch(context);
+                    } else if (nType.contains(SERVICE_REQUEST_APPROVE) ||
+                        nType.contains(SERVICE_REQUEST_REJECT)) {
+                      final targetId = _serviceId(data);
+                      if (targetId == null) {
+                        toast(languages.somethingWentWrong);
+                        return;
+                      }
+                      readNotificationGeneric(type: 'service', id: targetId);
+                      ServiceDetailScreen(serviceId: targetId).launch(context);
+                    } else if (nType.contains(USER_DETAIL) ||
+                        activityType.contains(USER_DETAIL)) {
+                      _openProfileFromNotification();
+                    } else if (isJobNotification) {
+                      final postId = _postRequestId(data);
+                      if (postId == null) {
+                        toast(languages.somethingWentWrong);
+                        return;
+                      }
+                      JobPostDetailScreen(postJobData: PostJobData(id: postId))
                           .launch(context);
                     } else {
-                      //
+                      toast(languages.somethingWentWrong);
                     }
                   }
                 },

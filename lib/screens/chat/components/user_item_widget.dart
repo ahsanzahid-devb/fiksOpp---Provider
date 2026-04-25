@@ -23,7 +23,6 @@ class _UserItemWidgetState extends State<UserItemWidget> {
         stream: userService.singleUser(widget.userUid),
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
-            // Show a loading indicator while waiting for data
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(languages.loadingChats,

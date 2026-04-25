@@ -78,6 +78,13 @@ class _BankDetailsState extends State<BankDetails> {
     );
   }
 
+  bool _shouldRefresh(dynamic result) {
+    if (result is List && result.isNotEmpty) {
+      return result.first == true;
+    }
+    return result == true;
+  }
+
   List<OptionModel> optionList({required BankHistory bankHistory}) {
     return [
       if (rolesAndPermissionStore.bankEdit)
@@ -85,7 +92,7 @@ class _BankDetailsState extends State<BankDetails> {
         title: languages.lblEdit,
         onTap: () {
           AddBankScreen(data: bankHistory).launch(context, pageRouteAnimation: PageRouteAnimation.Fade).then((value) {
-            if (value[0]) {
+            if (_shouldRefresh(value)) {
               init();
               setState(() {});
             }
@@ -134,7 +141,7 @@ class _BankDetailsState extends State<BankDetails> {
         IconButton(
           onPressed: () {
             AddBankScreen().launch(context).then((value) {
-              if (value[0]) {
+              if (_shouldRefresh(value)) {
                 init();
                 setState(() {});
               }

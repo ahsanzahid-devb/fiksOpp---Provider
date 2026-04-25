@@ -13,8 +13,7 @@ class DeepLinkService {
   StreamSubscription<Uri>? _sub;
   Uri? _pendingInitialUri;
 
-  /// Call this once (after app is built is safe).
-  Future<void> init() async {
+   Future<void> init() async {
     _sub?.cancel();
 
     try {
@@ -69,10 +68,7 @@ class DeepLinkService {
           'scheme=$scheme host=$host path=$path queryKeys=${query.keys.toList()} emailParamPresent=${emailParam != null && emailParam.isNotEmpty}',
     );
 
-    // Expected link examples we can support:
-    // - fiksopp://verify-email?email=someone@example.com
-    // - https://fiksopp.inoor.buzz/verify-email?email=someone@example.com
-    // If your backend uses a different URL format, we can tweak this matcher.
+ 
     final isEmailVerification = (scheme == 'fiksopp' &&
             (host.contains('verify') || path.contains('verify'))) ||
         (path.contains('verify-email') || path.contains('verify_email')) ||

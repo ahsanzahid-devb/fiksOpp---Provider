@@ -44,10 +44,19 @@ class _AddBankScreenState extends State<AddBankScreen> {
   FocusNode contactNumberFocus = FocusNode();
   FocusNode aadharCardNumberFocus = FocusNode();
   FocusNode panNumberFocus = FocusNode();
+  bool _canSubmit = true;
+  bool _isSaving = false;
+  String _lastSavedSnapshot = '';
 
   Future<void> update() async {
+    if (_isSaving) return;
+    _isSaving = true;
+    if (mounted) setState(() {});
+
     MultipartRequest multiPartRequest = await getMultiPartRequest('save-bank');
-    multiPartRequest.fields[UserKeys.id] = isUpdate ? widget.data!.id.toString() : "";
+    if (isUpdate) {
+      multiPartRequest.fields[UserKeys.id] = widget.data!.id.toString();
+    }
     multiPartRequest.fields[UserKeys.providerId] = appStore.userId.toString();
     multiPartRequest.fields[BankServiceKey.bankName] = bankNameCont.text;
     multiPartRequest.fields[BankServiceKey.branchName] = branchNameCont.text;
@@ -67,31 +76,40 @@ class _AddBankScreenState extends State<AddBankScreen> {
     sendMultiPartRequest(
       multiPartRequest,
       onSuccess: (data) async {
+        _isSaving = false;
         appStore.setLoading(false);
         if (data != null && (data as String).isJson()) {
           final res = BaseResponseModel.fromJson(jsonDecode(data));
           if (res.status ?? false) {
+            _lastSavedSnapshot = _formSnapshot();
+            _canSubmit = false;
+            if (mounted) setState(() {});
             toast(res.message!);
-            // Defer pop to next frame so dropdown overlay (if any) is not confused with route result
-            WidgetsBinding.instance.addPostFrameCallback((_) {
+            Future<void>.delayed(const Duration(milliseconds: 120), () {
               if (context.mounted) finish(context, [true, bankNameCont.text]);
             });
+          } else {
+            if (mounted) setState(() {});
           }
         }
       },
       onError: (error) {
         toast(error.toString(), print: true);
+        _isSaving = false;
         appStore.setLoading(false);
+        if (mounted) setState(() {});
       },
     ).catchError((e) {
+      _isSaving = false;
       appStore.setLoading(false);
       toast(e.toString());
+      if (mounted) setState(() {});
     });
   }
 
   String bankStatus = 'ACTIVE';
   int getStatusValue() {
-    if (bankStatus == 'ACTIVE') {
+    if (bankStatus.toUpperCase() == ACTIVE.toUpperCase()) {
       return 1;
     } else {
       return 0;
@@ -106,6 +124,36 @@ class _AddBankScreenState extends State<AddBankScreen> {
   ];
   StaticDataModel? blogStatusModel;
 
+  String _formSnapshot() {
+    return jsonEncode({
+      BankServiceKey.bankName: bankNameCont.text.trim(),
+      BankServiceKey.branchName: branchNameCont.text.trim(),
+      BankServiceKey.accountNo: accNumberCont.text.trim(),
+      BankServiceKey.ifscNo: ifscCodeCont.text.trim(),
+      BankServiceKey.mobileNo: contactNumberCont.text.trim(),
+      BankServiceKey.aadharNo: aadharCardNumberCont.text.trim(),
+      BankServiceKey.panNo: panNumberCont.text.trim(),
+      UserKeys.status: bankStatus,
+    });
+  }
+
+  void _onFormValueChanged() {
+    final bool hasChanges = _formSnapshot() != _lastSavedSnapshot;
+    if (_canSubmit != hasChanges) {
+      setState(() => _canSubmit = hasChanges);
+    }
+  }
+
+  void _bindFormListeners() {
+    bankNameCont.addListener(_onFormValueChanged);
+    branchNameCont.addListener(_onFormValueChanged);
+    accNumberCont.addListener(_onFormValueChanged);
+    ifscCodeCont.addListener(_onFormValueChanged);
+    contactNumberCont.addListener(_onFormValueChanged);
+    aadharCardNumberCont.addListener(_onFormValueChanged);
+    panNumberCont.addListener(_onFormValueChanged);
+  }
+
   @override
   void initState() {
     init();
@@ -114,6 +162,8 @@ class _AddBankScreenState extends State<AddBankScreen> {
 
   void init() async {
     isUpdate = widget.data != null;
+    blogStatusModel = statusListStaticData.first;
+    bankStatus = blogStatusModel!.key.validate();
 
     if (isUpdate) {
       bankNameCont.text = widget.data!.bankName.validate();
@@ -124,7 +174,38 @@ class _AddBankScreenState extends State<AddBankScreen> {
       aadharCardNumberCont.text = widget.data!.aadharNo.validate();
       panNumberCont.text = widget.data!.panNo.validate();
     }
+    _lastSavedSnapshot = _formSnapshot();
+    _canSubmit = !isUpdate;
+    _bindFormListeners();
     setState(() {});
+  }
+
+  @override
+  void dispose() {
+    bankNameCont.removeListener(_onFormValueChanged);
+    branchNameCont.removeListener(_onFormValueChanged);
+    accNumberCont.removeListener(_onFormValueChanged);
+    ifscCodeCont.removeListener(_onFormValueChanged);
+    contactNumberCont.removeListener(_onFormValueChanged);
+    aadharCardNumberCont.removeListener(_onFormValueChanged);
+    panNumberCont.removeListener(_onFormValueChanged);
+
+    bankNameCont.dispose();
+    branchNameCont.dispose();
+    accNumberCont.dispose();
+    ifscCodeCont.dispose();
+    contactNumberCont.dispose();
+    aadharCardNumberCont.dispose();
+    panNumberCont.dispose();
+
+    bankNameFocus.dispose();
+    branchNameFocus.dispose();
+    accNumberFocus.dispose();
+    ifscCodeFocus.dispose();
+    contactNumberFocus.dispose();
+    aadharCardNumberFocus.dispose();
+    panNumberFocus.dispose();
+    super.dispose();
   }
 
   @override
@@ -183,7 +264,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
                   DropdownButtonFormField<StaticDataModel>(
                     isExpanded: true,
                     dropdownColor: context.cardColor,
-                    initialValue: blogStatusModel != null ? blogStatusModel : statusListStaticData.first,
+                    initialValue: blogStatusModel,
                     items: statusListStaticData.map((StaticDataModel data) {
                       return DropdownMenuItem<StaticDataModel>(
                         value: data,
@@ -191,9 +272,13 @@ class _AddBankScreenState extends State<AddBankScreen> {
                       );
                     }).toList(),
                     decoration: inputDecoration(context, hint: languages.lblStatus),
-                    onChanged: (StaticDataModel? value) async {
-                      bankStatus = value!.key.validate();
-                      setState(() {});
+                    onChanged: (StaticDataModel? value) {
+                      if (value == null) return;
+                      blogStatusModel = value;
+                      bankStatus = value.key.validate();
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) _onFormValueChanged();
+                      });
                     },
                     validator: (value) {
                       if (value == null) return errorThisFieldRequired;
@@ -209,17 +294,23 @@ class _AddBankScreenState extends State<AddBankScreen> {
             bottom: 16,
             left: 16,
             right: 16,
-            child: AppButton(
-              text: languages.btnSave,
-              color: primaryColor,
-              textStyle: boldTextStyle(color: white),
-              width: context.width(),
-              onTap: () {
-                if (formKey.currentState!.validate()) {
-                  hideKeyboard(context);
-                  update();
-                }
-              },
+            child: Opacity(
+              opacity: (_canSubmit && !_isSaving) ? 1 : 0.7,
+              child: AppButton(
+                text: languages.btnSave,
+                color: (_canSubmit && !_isSaving)
+                    ? primaryColor
+                    : primaryColor.withValues(alpha: 0.45),
+                textStyle: boldTextStyle(color: white),
+                width: context.width(),
+                onTap: () {
+                  if (!_canSubmit || _isSaving) return;
+                  if (formKey.currentState!.validate()) {
+                    hideKeyboard(context);
+                    update();
+                  }
+                },
+              ),
             ),
           ),
         ],

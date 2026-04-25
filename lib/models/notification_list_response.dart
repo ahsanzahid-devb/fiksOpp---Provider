@@ -5,13 +5,18 @@ class NotificationListResponse {
   NotificationListResponse({this.notificationData, this.allUnreadCount});
 
   NotificationListResponse.fromJson(Map<String, dynamic> json) {
-    if (json['notification_data'] != null) {
+    if (json['notification_data'] is List) {
       notificationData = [];
-      json['notification_data'].forEach((v) {
-        notificationData!.add(new NotificationData.fromJson(v));
-      });
+      for (final v in json['notification_data']) {
+        if (v is Map<String, dynamic>) {
+          notificationData!.add(NotificationData.fromJson(v));
+        } else if (v is Map) {
+          notificationData!
+              .add(NotificationData.fromJson(Map<String, dynamic>.from(v)));
+        }
+      }
     }
-    allUnreadCount = json['all_unread_count'];
+    allUnreadCount = _asInt(json['all_unread_count']);
   }
 
   Map<String, dynamic> toJson() {
@@ -34,12 +39,21 @@ class NotificationData {
 
   NotificationData({this.id, this.readAt, this.createdAt, this.data});
 
+  static String? _asString(dynamic value) {
+    if (value == null) return null;
+    return value.toString();
+  }
+
   NotificationData.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    readAt = json['read_at'];
-    createdAt = json['created_at'];
-    profileImage = json['profile_image'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+    id = _asString(json['id']);
+    readAt = _asString(json['read_at']);
+    createdAt = _asString(json['created_at']);
+    profileImage = _asString(json['profile_image']);
+    if (json['data'] is Map<String, dynamic>) {
+      data = Data.fromJson(json['data']);
+    } else if (json['data'] is Map) {
+      data = Data.fromJson(Map<String, dynamic>.from(json['data']));
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -58,36 +72,60 @@ class NotificationData {
 class Data {
   var id;
   String? type;
+  String? activityType;
   String? subject;
   String? message;
-  String? notificationType;  
+  String? notificationType;
   String? checkBookingType;
+  int? bookingId;
+  int? serviceId;
+  int? postRequestId;
 
   Data(
       {this.id,
       this.type,
+      this.activityType,
       this.checkBookingType,
       this.subject,
       this.message,
-      this.notificationType});
+      this.notificationType,
+      this.bookingId,
+      this.serviceId,
+      this.postRequestId});
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    type = json['type'];
-    subject = json['subject'];
-    message = json['message'];
-    notificationType = json['notification-type'];
-    checkBookingType = json['check_booking_type'];
+    type = json['type']?.toString();
+    activityType = json['activity_type']?.toString();
+    subject = json['subject']?.toString();
+    message = json['message']?.toString();
+    notificationType = json['notification-type']?.toString();
+    checkBookingType = json['check_booking_type']?.toString();
+    bookingId = _asInt(json['booking_id']);
+    serviceId = _asInt(json['service_id']);
+    postRequestId =
+        _asInt(json['post_request_id']) ?? _asInt(json['post_job_id']);
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     data['type'] = this.type;
+    data['activity_type'] = this.activityType;
     data['subject'] = this.subject;
     data['message'] = this.message;
     data['notification-type'] = this.notificationType;
     data['check_booking_type'] = this.checkBookingType;
+    data['booking_id'] = this.bookingId;
+    data['service_id'] = this.serviceId;
+    data['post_request_id'] = this.postRequestId;
     return data;
   }
+}
+
+int? _asInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
 }
