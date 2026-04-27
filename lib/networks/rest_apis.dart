@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:handyman_provider_flutter/auth/sign_in_screen.dart';
@@ -72,6 +73,85 @@ import '../utils/app_configuration.dart';
 import '../utils/firebase_messaging_utils.dart';
 
 //region Auth API
+
+bool _fcmTokenRefreshSyncAttached = false;
+
+Future<void> updateFcmToken(Map<String, dynamic> request) async {
+  await handleResponse(await buildHttpResponse(
+    'update-fcm-token',
+    request: request,
+    method: HttpMethodType.POST,
+  ));
+}
+
+Future<String?> _getFcmTokenWithRetry() async {
+  const delays = <Duration>[
+    Duration.zero,
+    Duration(seconds: 2),
+    Duration(seconds: 4),
+    Duration(seconds: 6),
+  ];
+
+  for (final delay in delays) {
+    if (delay > Duration.zero) {
+      await Future<void>.delayed(delay);
+    }
+    final String? token = await FirebaseMessaging.instance.getToken();
+    if (token != null && token.isNotEmpty) return token;
+  }
+  return null;
+}
+
+Future<void> syncFcmTokenWithBackend() async {
+  if (isDesktop || Firebase.apps.isEmpty || !appStore.isLoggedIn) return;
+
+  try {
+    final NotificationSettings settings =
+        await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    if (settings.authorizationStatus == AuthorizationStatus.denied) {
+      logFcmTracking('sync_fcm_token_permission_denied');
+      return;
+    }
+
+    final String? fcmToken = await _getFcmTokenWithRetry();
+    if (fcmToken == null || fcmToken.isEmpty) {
+      logFcmTracking('sync_fcm_token_skipped_empty_after_retry');
+      return;
+    }
+
+    await updateFcmToken({
+      'player_id': fcmToken,
+      'device_type': Platform.isIOS ? 'ios' : 'android',
+    });
+    logFcmTracking('sync_fcm_token_success');
+  } catch (e) {
+    log('syncFcmTokenWithBackend error: $e');
+    logFcmTracking('sync_fcm_token_error', note: e.toString());
+  }
+}
+
+void attachFcmTokenRefreshSync() {
+  if (_fcmTokenRefreshSyncAttached || isDesktop || Firebase.apps.isEmpty) return;
+  _fcmTokenRefreshSyncAttached = true;
+
+  FirebaseMessaging.instance.onTokenRefresh.listen((String newToken) async {
+    if (!appStore.isLoggedIn || newToken.isEmpty) return;
+    try {
+      await updateFcmToken({
+        'player_id': newToken,
+        'device_type': Platform.isIOS ? 'ios' : 'android',
+      });
+      logFcmTracking('sync_fcm_token_refresh_success');
+    } catch (e) {
+      log('onTokenRefresh updateFcmToken error: $e');
+      logFcmTracking('sync_fcm_token_refresh_error', note: e.toString());
+    }
+  });
+}
 
 Future<void> logout(BuildContext context) async {
   showInDialog(
@@ -330,6 +410,8 @@ Future<void> saveUserData(UserData data) async {
 
     // Subscribe to Firebase topics to receive push notifications
     subscribeToFirebaseTopic();
+    attachFcmTokenRefreshSync();
+    unawaited(syncFcmTokenWithBackend());
 
     // Sync new configurations for secret keys
     await setValue(LAST_APP_CONFIGURATION_SYNCED_TIME, 0);

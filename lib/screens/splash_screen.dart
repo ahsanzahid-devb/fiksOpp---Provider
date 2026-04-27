@@ -99,8 +99,9 @@ class SplashScreenState extends State<SplashScreen> {
         pageRouteAnimation: PageRouteAnimation.Fade,
       );
     } else {
-      // Refresh avatar in background; don’t block dashboard on user-detail API.
-      updateProfilePhoto();
+       updateProfilePhoto();
+      attachFcmTokenRefreshSync();
+      syncFcmTokenWithBackend();
 
       if (!mounted) return;
 

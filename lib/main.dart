@@ -51,10 +51,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 //region Handle Background Firebase Message
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  logFcmTracking('background_handler_received', message: message);
   log('Message Data : ${message.data}');
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
+    logFcmTracking('background_handler_initialized_firebase', message: message);
   }
 
   final String title = message.notification?.title.validate().isNotEmpty == true
@@ -73,21 +75,26 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final String finalBody =
       body.isNotEmpty ? body : 'You have a new notification';
 
-  // When FCM includes a [notification] block, Android/iOS already show a
-  // system tray notification (see fcm_fallback_notification_channel in logs).
-  // Calling showNotification() here duplicates it.
+ 
   if (message.notification != null) {
+    logFcmTracking('background_handler_notification_block_skip_local',
+        message: message);
     return;
   }
 
   if (message.data.isNotEmpty) {
+    logFcmTracking('background_handler_show_local_notification',
+        message: message);
     showNotification(
       currentTimeStamp(),
       finalTitle,
       parseHtmlString(finalBody),
       message,
     );
+  } else {
+    logFcmTracking('background_handler_empty_data_payload', message: message);
   }
+  logFcmTracking('background_handler_completed', message: message);
 }
 //endregion
 
@@ -153,6 +160,8 @@ void main() async {
       }
       // After Firebase.initializeApp; before subscribeToFirebaseTopic (FCM v1).
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+      logFcmTracking('background_handler_registered');
+      
       await subscribeToFirebaseTopic();
     } catch (e) {
       log('Firebase setup failed: $e');
@@ -193,7 +202,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   /// when returning to foreground (no-op on Android / if already subscribed).
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    logFcmTracking('app_lifecycle_state_changed', note: state.name);
     if (state == AppLifecycleState.resumed && !isDesktop) {
+      logFcmTracking('app_resumed_retry_topic_subscription');
       trySubscribeFirebaseTopicsOnIosResume();
     }
   }
