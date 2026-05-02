@@ -1,37 +1,36 @@
 #!/bin/bash
 
-# Script to copy dSYMs from Pods to the archive's dSYMs folder
-# This helps resolve missing dSYM warnings for third-party frameworks
+# Copies vendor dSYMs bundled inside xcframeworks into the archive dSYMs folder.
+# App Store symbol validation expects these files to be present in the final archive.
 
-set -e
+set -euo pipefail
+
+if [ "${CONFIGURATION}" != "Release" ]; then
+  exit 0
+fi
+
+if [ -z "${DWARF_DSYM_FOLDER_PATH:-}" ] || [ ! -d "${DWARF_DSYM_FOLDER_PATH}" ]; then
+  echo "Skipping dSYM copy: DWARF_DSYM_FOLDER_PATH is missing."
+  exit 0
+fi
 
 ARCHIVE_DSYMS_PATH="${DWARF_DSYM_FOLDER_PATH}"
-PODS_BUILD_DIR="${BUILD_DIR}/../Pods.build"
+PODS_ROOT_PATH="${PODS_ROOT:-${SRCROOT}/Pods}"
 
-echo "Copying dSYMs from Pods to archive..."
+copy_if_exists() {
+  local source_path="$1"
+  if [ -d "${source_path}" ]; then
+    echo "Copying $(basename "${source_path}")"
+    cp -R "${source_path}" "${ARCHIVE_DSYMS_PATH}/"
+  fi
+}
 
-# Copy dSYMs for PhonePePayment if they exist
-if [ -d "${PODS_BUILD_DIR}/Release-iphoneos/PhonePePayment/PhonePePayment.framework.dSYM" ]; then
-    echo "Found PhonePePayment.dSYM"
-    cp -R "${PODS_BUILD_DIR}/Release-iphoneos/PhonePePayment/PhonePePayment.framework.dSYM" "${ARCHIVE_DSYMS_PATH}/" || true
+# Razorpay pods bundle dSYMs inside xcframework slices.
+copy_if_exists "${PODS_ROOT_PATH}/razorpay-core-pod/Pod/core/Razorpay.xcframework/ios-arm64/dSYMs/Razorpay.framework.dSYM"
+copy_if_exists "${PODS_ROOT_PATH}/razorpay-core-pod/Pod/core/RazorpayCore.xcframework/ios-arm64/dSYMs/RazorpayCore.framework.dSYM"
+copy_if_exists "${PODS_ROOT_PATH}/razorpay-pod/Pod/RazorpayStandard.xcframework/ios-arm64/dSYMs/RazorpayStandard.framework.dSYM"
+
+# PhonePePayment 4.0.0 pod does not ship iOS dSYMs. Keep visible log for release notes.
+if [ -d "${PODS_ROOT_PATH}/PhonePePayment/PhonePePayment.xcframework" ]; then
+  echo "PhonePePayment.xcframework detected (no bundled dSYM in current pod version)."
 fi
-
-# Copy dSYMs for Razorpay if they exist
-if [ -d "${PODS_BUILD_DIR}/Release-iphoneos/razorpay-pod/razorpay-pod.framework.dSYM" ]; then
-    echo "Found Razorpay.dSYM"
-    cp -R "${PODS_BUILD_DIR}/Release-iphoneos/razorpay-pod/razorpay-pod.framework.dSYM" "${ARCHIVE_DSYMS_PATH}/" || true
-fi
-
-# Copy dSYMs for objective_c if they exist (usually part of another framework)
-if [ -d "${PODS_BUILD_DIR}/Release-iphoneos/objective_c/objective_c.framework.dSYM" ]; then
-    echo "Found objective_c.dSYM"
-    cp -R "${PODS_BUILD_DIR}/Release-iphoneos/objective_c/objective_c.framework.dSYM" "${ARCHIVE_DSYMS_PATH}/" || true
-fi
-
-# Also check in the derived data path
-DERIVED_DATA="${BUILD_DIR%/Build/*}"
-if [ -d "${DERIVED_DATA}/Build/Products/Release-iphoneos" ]; then
-    find "${DERIVED_DATA}/Build/Products/Release-iphoneos" -name "*.dSYM" -exec cp -R {} "${ARCHIVE_DSYMS_PATH}/" \; || true
-fi
-
-echo "dSYM copy completed"

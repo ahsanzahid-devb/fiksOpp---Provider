@@ -407,14 +407,13 @@ Future<void> saveUserData(UserData data) async {
     }
 
     await appStore.setLoggedIn(true);
+      await appStore.setToken(data.apiToken.validate());
 
-    // Subscribe to Firebase topics to receive push notifications
-    subscribeToFirebaseTopic();
+     subscribeToFirebaseTopic();
     attachFcmTokenRefreshSync();
     unawaited(syncFcmTokenWithBackend());
 
-    // Sync new configurations for secret keys
-    await setValue(LAST_APP_CONFIGURATION_SYNCED_TIME, 0);
+     await setValue(LAST_APP_CONFIGURATION_SYNCED_TIME, 0);
     getAppConfigurations();
   }
 }
