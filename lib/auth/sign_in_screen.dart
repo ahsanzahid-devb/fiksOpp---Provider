@@ -5,6 +5,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'dart:developer' as developer;
 import 'package:handyman_provider_flutter/auth/forgot_password_dialog.dart';
 import 'package:handyman_provider_flutter/auth/sign_up_screen.dart';
+import 'package:handyman_provider_flutter/core/services/facebook_events_service.dart';
 import 'package:handyman_provider_flutter/components/app_widgets.dart';
 import 'package:handyman_provider_flutter/components/selected_item_widget.dart';
 import 'package:handyman_provider_flutter/main.dart';
@@ -359,6 +360,12 @@ class _SignInScreenState extends State<SignInScreen> {
       await saveUserData(user);
 
       authService.verifyFirebaseUser();
+
+      // Meta event: login success.
+      FacebookEventsService.instance.logLoginSuccess(
+        method: 'email',
+        userId: user.id,
+      );
 
       redirectWidget(res: user);
     } catch (e) {

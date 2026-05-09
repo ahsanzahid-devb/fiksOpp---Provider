@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:handyman_provider_flutter/core/services/facebook_events_service.dart';
 import 'package:handyman_provider_flutter/firebase_options.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -168,6 +169,13 @@ void main() async {
     }
   }
   HttpOverrides.global = MyHttpOverrides();
+
+  // Meta / Facebook App Events — initialize early so install + app-open
+  // attribution fires on cold start. Failures are swallowed inside the service.
+  // ignore: discarded_futures
+  FacebookEventsService.instance.initialize().then((_) {
+    FacebookEventsService.instance.logAppOpen();
+  });
 
   defaultSettings();
 

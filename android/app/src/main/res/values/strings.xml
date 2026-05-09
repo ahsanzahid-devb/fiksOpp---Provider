@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Meta / Facebook App Events credentials.
+        TESTING placeholders — replace with the real values from
+        https://developers.facebook.com/apps/<APP_ID>/settings/basic/ before
+        running real install-ad campaigns.
+    -->
+    <string name="facebook_app_id" translatable="false">YOUR_FACEBOOK_APP_ID</string>
+    <string name="facebook_client_token" translatable="false">YOUR_FACEBOOK_CLIENT_TOKEN</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fbYOUR_FACEBOOK_APP_ID</string>
+    <string name="facebook_display_name" translatable="false">YOUR_FACEBOOK_DISPLAY_NAME</string>
+</resources>

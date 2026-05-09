@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:handyman_provider_flutter/auth/sign_in_screen.dart';
 import 'package:handyman_provider_flutter/components/app_widgets.dart';
+import 'package:handyman_provider_flutter/core/services/facebook_events_service.dart';
 import 'package:handyman_provider_flutter/components/selected_item_widget.dart';
 import 'package:handyman_provider_flutter/main.dart';
 import 'package:handyman_provider_flutter/models/user_type_response.dart';
@@ -821,12 +822,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       log(request);
       if (selectedUserTypeValue == USER_TYPE_PROVIDER) {
+        // Provider flow continues to document upload — fire registration event
+        // here since the account creation step is effectively initiated.
+        FacebookEventsService.instance.logSignUpSuccess(
+          method: 'email',
+          userType: selectedUserTypeValue,
+        );
         UploadDocumentsScreen(formRequest: request).launch(context,
             pageRouteAnimation: PageRouteAnimation.SlideBottomTop);
       } else {
         await registerUser(request).then((userRegisterData) async {
           appStore.setLoading(false);
           toast(userRegisterData.message.validate());
+          // Meta event: complete registration.
+          FacebookEventsService.instance.logSignUpSuccess(
+            method: 'email',
+            userType: selectedUserTypeValue,
+          );
           push(SignInScreen(),
               isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
         }).catchError((e) {
